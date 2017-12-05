@@ -20,7 +20,7 @@ import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.stream.ChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisSampleStream;
 import hust.tools.ca.stream.FileInputStreamFactory;
-import hust.tools.ca.stream.PlainTextByTreeStream;
+import hust.tools.ca.stream.PlainTextFileStream;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.ml.TrainerFactory.TrainerType;
@@ -99,7 +99,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 			String encoding){
 		ChunkAnalysisModel model = null;
 		try {
-			ObjectStream<String> lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(file), encoding);
+			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
 			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream);
 			model = ChunkAnalysisME.train("zh", sampleStream, params, contextGen);
 			return model;
@@ -164,7 +164,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 		PlainTextGISModelWriter modelWriter = null;
 		ChunkAnalysisModel model = null;
 		try {
-			ObjectStream<String> lineStream = new PlainTextByTreeStream(new FileInputStreamFactory(file), encoding);
+			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
 			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream);
 			model = ChunkAnalysisME.train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件

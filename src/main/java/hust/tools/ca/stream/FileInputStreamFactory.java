@@ -9,31 +9,29 @@ import java.io.InputStream;
 import opennlp.tools.util.InputStreamFactory;
 
 /**
- * 获取输入文件流的工厂类
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: 获取输入文件流的工厂类
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月3日
+ *</ul>
  */
 public class FileInputStreamFactory implements InputStreamFactory{
 
-	File file;
-	/**
-	 * 获取样本流
-	 * @return 样本流
-	 * @throws FileNotFoundException 
-	 */
+	private File file;
+
 	public FileInputStreamFactory(File file) throws FileNotFoundException{
-		if(!file.exists()){
-			throw new FileNotFoundException("File '" + file + "' cannot be found");
-		}
-		this.file = file;
+		if(!file.exists())
+			throw new FileNotFoundException("文件：" + file + "读取失败");
+		else
+			this.file = file;
 	}
 	
 	/**
-	 * 获取样本流
-	 * @return 样本流
+	 * 返回样本输入流
+	 * @return 样本输入流
 	 */
 	public InputStream createInputStream() throws IOException {
-		
 		return new FileInputStream(file);
 	}
 }

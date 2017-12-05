@@ -23,9 +23,12 @@ import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
 
 /**
- * 运行类
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: 组块分析应用程序 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月3日
+ *</ul>
  */
 public class ChunkAnalysisRun {
 

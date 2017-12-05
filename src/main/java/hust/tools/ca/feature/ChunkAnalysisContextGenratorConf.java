@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * 特征生成类
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: 特征生成类 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月3日
+ *</ul>
  */
 public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGenerator {
 	
@@ -38,7 +41,7 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	}
 	
 	/**
-	 * 构造
+	 * 构造方法
 	 * @param properties 配置文件
 	 */
 	public ChunkAnalysisContextGenratorConf(Properties properties){

@@ -60,7 +60,7 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	protected ChunkAnalysisSample processSample(ChunkAnalysisSample sample) {
 		String[] wordsRef = sample.getWords();
 		String[] posesRef = sample.getPoses();
-		String[] chunkTagsRef = sample.getTags();
+		String[] chunkTagsRef = sample.getChunkTags();
 		String[][] acRef = sample.getAditionalContext();
 		
 		String[] chunktagsPre = chunkTagger.tag(wordsRef, posesRef, acRef);
