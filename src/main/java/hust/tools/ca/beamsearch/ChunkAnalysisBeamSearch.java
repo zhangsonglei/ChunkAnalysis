@@ -10,9 +10,12 @@ import opennlp.tools.util.Cache;
 import opennlp.tools.util.Sequence;
 
 /**
- * beamSearch方法求最优解
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: beamSearch方法求最优解 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月3日
+ *</ul>
  */
 public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassificationModel<T> {
 
@@ -51,10 +54,21 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 	 */
 	private static final double zeroLog = -100000.0;
 
+	/**
+	 * 构造方法
+	 * @param size	beamsearch的束大小
+	 * @param model	最大熵模型
+	 */
 	public ChunkAnalysisBeamSearch(int size, MaxentModel model) {
 		this(size, model, 0);
 	}
 
+	/**
+	 * 构造方法
+	 * @param size		beamsearch的束大小
+	 * @param model		最大熵模型
+	 * @param cacheSize	缓存大小
+	 */
 	public ChunkAnalysisBeamSearch(int size, MaxentModel model, int cacheSize) {
 		this.size = size;
 		this.model = model;

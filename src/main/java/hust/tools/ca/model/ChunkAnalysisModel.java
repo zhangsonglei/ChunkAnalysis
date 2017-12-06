@@ -11,45 +11,54 @@ import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.util.model.BaseModel;
 
 /**
- * 组块分析模型
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: 组块分析模型 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月3日
+ *</ul>
  */
 public class ChunkAnalysisModel extends BaseModel{
 	
+	/**
+	 * 训练模型的类
+	 */
 	private static final String COMPONENT_NAME = "ChunkAnalysisME";
+	
+	/**
+	 * 
+	 */
 	private static final String CHUNK_MODEL_ENTRY_NAME = "ChunkAnalysis.model";
 	
 	/**
-	 * 构造
-	 * @param componentName 训练模型的类
-	 * @param modelFile 模型文件
-	 * @throws IOException IO异常
+	 * 构造方法
+	 * @param componentName		训练模型的类
+	 * @param modelFile 		模型文件
+	 * @throws IOException 		IO异常
 	 */
 	protected ChunkAnalysisModel(String componentName, File modelFile) throws IOException {
-		super(COMPONENT_NAME, modelFile);
-		
+		super(componentName, modelFile);
 	}
 
 	/**
-	 * 构造
-	 * @param languageCode 编码
-	 * @param posModel 最大熵模型
-	 * @param beamSize 大小
-	 * @param manifestInfoEntries 配置的信息
+	 * 构造方法
+	 * @param encoding				编码
+	 * @param maxentModel 			最大熵模型
+	 * @param beamSize 				大小
+	 * @param manifestInfoEntries	配置的信息
 	 */
-	public ChunkAnalysisModel(String languageCode, MaxentModel posModel, int beamSize,
+	public ChunkAnalysisModel(String encoding, MaxentModel maxentModel, int beamSize,
 			Map<String, String> manifestInfoEntries) {
-		super(COMPONENT_NAME, languageCode, manifestInfoEntries, null);
-		if (posModel == null) {
-            throw new IllegalArgumentException("The maxentPosModel param must not be null!");
-        }
+		super(COMPONENT_NAME, encoding, manifestInfoEntries, null);
+		
+		if (maxentModel == null)
+            throw new IllegalArgumentException("最大熵模型不能为空!");
 
         Properties manifest = (Properties) artifactMap.get(MANIFEST_ENTRY);
         manifest.setProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER, Integer.toString(beamSize));
 
         //放入新训练出来的模型
-        artifactMap.put(CHUNK_MODEL_ENTRY_NAME, posModel);
+        artifactMap.put(CHUNK_MODEL_ENTRY_NAME, maxentModel);
         checkArtifactMap();
 	}
 	
@@ -76,6 +85,7 @@ public class ChunkAnalysisModel extends BaseModel{
         }
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ChunkAnalysisSequenceClassificationModel<String> getChunkAnalysisSequenceModel() {
 
         Properties manifest = (Properties) artifactMap.get(MANIFEST_ENTRY);
@@ -90,7 +100,7 @@ public class ChunkAnalysisModel extends BaseModel{
 
             return new ChunkAnalysisBeamSearch<String>(beamSize, (MaxentModel) artifactMap.get(CHUNK_MODEL_ENTRY_NAME));
         } else if (artifactMap.get(CHUNK_MODEL_ENTRY_NAME) instanceof ChunkAnalysisSequenceClassificationModel) {
-            return (ChunkAnalysisSequenceClassificationModel) artifactMap.get(CHUNK_MODEL_ENTRY_NAME);
+            return (ChunkAnalysisSequenceClassificationModel<String>) artifactMap.get(CHUNK_MODEL_ENTRY_NAME);
         } else {
             return null;
         }

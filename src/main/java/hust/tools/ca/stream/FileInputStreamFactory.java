@@ -16,11 +16,16 @@ import opennlp.tools.util.InputStreamFactory;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class FileInputStreamFactory implements InputStreamFactory{
+public class FileInputStreamFactory implements InputStreamFactory {
 
 	private File file;
 
-	public FileInputStreamFactory(File file) throws FileNotFoundException{
+	/**
+	 * 构造方法
+	 * @param file	输入文件
+	 * @throws FileNotFoundException
+	 */
+	public FileInputStreamFactory(File file) throws FileNotFoundException {
 		if(!file.exists())
 			throw new FileNotFoundException("文件：" + file + "读取失败");
 		else

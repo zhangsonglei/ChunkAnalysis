@@ -32,6 +32,10 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	private boolean r_1Set;		//前一个词的音节数
 	private boolean r1Set;		//后一个词的音节数
 
+	/**
+	 * 构造方法
+	 * @throws IOException
+	 */
 	public ChunkAnalysisContextGenratorConf() throws IOException {
 		Properties featureConf = new Properties();
         InputStream featureStream = ChunkAnalysisContextGenratorConf.class.getClassLoader().getResourceAsStream("properties/feature.properties");
@@ -48,6 +52,10 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
         init(properties);
 	}
 	
+	/**
+	 * 根据配置参数初始化特征模版
+	 * @param config	配置参数
+	 */
 	private void init(Properties config) {
 		w_2Set = (config.getProperty("feature.w_2", "true").equals("true"));
         w_1Set = (config.getProperty("feature.w_1", "true").equals("true"));

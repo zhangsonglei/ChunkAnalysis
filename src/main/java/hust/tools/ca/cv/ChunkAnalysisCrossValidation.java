@@ -14,9 +14,12 @@ import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.CrossValidationPartitioner;
 
 /**
- * 交叉验证
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: 交叉验证 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月3日
+ *</ul>
  */
 public class ChunkAnalysisCrossValidation {
 
@@ -31,13 +34,13 @@ public class ChunkAnalysisCrossValidation {
 	private final TrainingParameters params;
 	
 	/**
-	 * 块分析评估监视器
+	 * 组块分析评估监视器
 	 */
 	private ChunkAnalysisEvaluateMonitor[] monitors;
 	
 	
 	/**
-	 * 构造
+	 * 构造方法
 	 * @param encoding	编码格式
 	 * @param params	训练的参数
 	 * @param monitor 	监听器

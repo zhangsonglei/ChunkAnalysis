@@ -34,9 +34,12 @@ import opennlp.tools.util.Sequence;
 import opennlp.tools.util.TrainingParameters;
 
 /**
- * 组块模型的训练
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: 组块分析模型的训练 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月3日
+ *</ul>
  */
 public class ChunkAnalysisME implements ChunkAnalysis {
 	
@@ -50,39 +53,36 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 	private List<String> tags = new ArrayList<String>();
     private ChunkAnalysisSequenceValidator<String> sequenceValidator;
 	
-	/**
-	 * 构造函数，初始化工作
-	 * @param model 模型
-	 * @param contextGen 特征
-	 */
+    /**
+     * 构造方法
+     * @param model			组块分析模型
+     * @param contextGen	上下文生成器
+     */
 	public ChunkAnalysisME(ChunkAnalysisModel model, ChunkAnalysisContextGenerator contextGen) {
 		init(model , contextGen);
 	}
+	
     /**
      * 初始化工作
-     * @param model 模型
-     * @param contextGen 特征
+     * @param model 		组块分析模型
+     * @param contextGen	上下文生成器
      */
 	private void init(ChunkAnalysisModel model, ChunkAnalysisContextGenerator contextGen) {
 		int beamSize = ChunkAnalysisME.DEFAULT_BEAM_SIZE;
-
         String beamSizeString = model.getManifestProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 
-        if (beamSizeString != null) {
+        if (beamSizeString != null)
             beamSize = Integer.parseInt(beamSizeString);
-        }
 
         modelPackage = model;
-
         contextGenerator = contextGen;
         size = beamSize;
         sequenceValidator = new DefaultChunkAnalysisSequenceValidator();
-        if (model.getChunkAnalysisSequenceModel() != null) {
+        
+        if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
-        } else {
-            this.model = new ChunkAnalysisBeamSearch<String>(beamSize,
-                    model.getChunkAnalysisModel(), 0);
-        }
+        else
+            this.model = new ChunkAnalysisBeamSearch<String>(beamSize, model.getChunkAnalysisModel(), 0);
 	}
 	
 	/**
@@ -189,13 +189,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
         }	
 		return null;
 	}
-	
-	public String[] tag(String[] words,String[] pos, Object[] additionaContext){
-		bestSequence = model.bestSequence(words, pos, additionaContext, contextGenerator,sequenceValidator);
-      //  System.out.println(bestSequence);
-		List<String> t = bestSequence.getOutcomes();
-		return t.toArray(new String[t.size()]);
-	}
+
 	/**
 	 * 根据训练得到的模型文件得到
 	 * @param modelFile 模型文件
@@ -237,12 +231,12 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 	/**
 	 * 得到最好的numTaggings个标记序列
 	 * @param numTaggings 个数
-	 * @param characters 一个个词语
+	 * @param words 一个个词语
 	 * @param pos 词性标注
 	 * @return 分词加词性标注的序列
 	 */
-	public String[][] tag(int numTaggings, String[] characters,String[] pos) {
-        Sequence[] bestSequences = model.bestSequences(numTaggings, characters, pos, null,
+	public String[][] tag(int numTaggings, String[] words,String[] pos) {
+        Sequence[] bestSequences = model.bestSequences(numTaggings, words, pos, null,
         		contextGenerator, sequenceValidator);
         String[][] tagsandposes = new String[bestSequences.length][];
         for (int si = 0; si < tagsandposes.length; si++) {
@@ -252,25 +246,36 @@ public class ChunkAnalysisME implements ChunkAnalysis {
         }
         return tagsandposes;
     }
+	
+	@Override
+	public String[] tag(String[] words){
+		return tag(words,null);
+	}
+	
+	@Override
+	public String[] tag(String[] words,String[] poses){
+		return tag(words, poses, null);
+	}
+	
+	@Override
+	public String[] tag(String[] words,String[] poses, Object[] additionaContext){
+		bestSequence = model.bestSequence(words, poses, additionaContext, contextGenerator,sequenceValidator);
+		List<String> t = bestSequence.getOutcomes();
+		return t.toArray(new String[t.size()]);
+	}
 
-	/**
-	 * 最好的K个序列
-	 * @param characters 一个个词语
-	 * @param pos 词性标注
-	 * @return
-	 */
-    public Sequence[] topKSequences(String[] characters,String[] pos) {
-        return this.topKSequences(characters, pos, null);
+	@Override
+	public Sequence[] getTopKSequences(String[] words) {
+		return getTopKSequences(words, null, null);
+	}
+
+	@Override
+    public Sequence[] getTopKSequences(String[] characters,String[] pos) {
+        return getTopKSequences(characters, pos, null);
     }
 
-    /**
-     * 最好的K个序列
-     * @param characters 一个个词语
-     * @param pos 词性标注
-     * @param additionaContext
-     * @return 
-     */
-    public Sequence[] topKSequences(String[] characters, String[] pos, Object[] additionaContext) {
+	@Override
+    public Sequence[] getTopKSequences(String[] characters, String[] pos, Object[] additionaContext) {
         return model.bestSequences(size, characters, pos, additionaContext,
         		contextGenerator, sequenceValidator);
     }

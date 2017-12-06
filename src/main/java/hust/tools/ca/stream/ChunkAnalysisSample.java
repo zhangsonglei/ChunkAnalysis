@@ -19,19 +19,44 @@ public class ChunkAnalysisSample {
 	public List<String> poses;				//词性列表
 	private String[][] additionalContext;	//其他上下文信息
 	
-
+	/**
+	 * 构造方法
+	 * @param words		词语数组
+	 * @param poses		词语对应的词性数组
+	 * @param chunkTags	词语组块标记数组
+	 */
 	public ChunkAnalysisSample(String[] words,String[] poses, String[] chunkTags){
 		this(words, poses, chunkTags, null);
 	}
 
+	/**
+	 * 构造方法
+	 * @param words		词语列表
+	 * @param poses		词语对应的词性列表
+	 * @param chunkTags	词语组块标记列表
+	 */
 	public ChunkAnalysisSample(List<String> words,List<String> poses,List<String> chunkTags){
 		this(words, poses, chunkTags, null);
 	}
 
+	/**
+	 * 构造方法
+	 * @param words				词语数组
+	 * @param poses				词语对应的词性数组
+	 * @param chunkTags			词语组块标记数组
+	 * @param additionalContext	其他上下文信息
+	 */
 	public ChunkAnalysisSample(String[] words,String[] poses, String[] chunkTags, String[][] additionalContext){
 		this(Arrays.asList(words), Arrays.asList(poses), Arrays.asList(chunkTags), additionalContext);
 	}
 
+	/**
+	 * 构造方法
+	 * @param words				词语列表
+	 * @param poses				词语对应的词性列表
+	 * @param chunkTags			词语组块标记列表
+	 * @param additionalContext	其他上下文信息
+	 */
     public ChunkAnalysisSample(List<String> words, List<String> poses, List<String> chunkTags, String[][] additionalContext){
     	this.chunkTags = Collections.unmodifiableList(chunkTags);
         this.words = Collections.unmodifiableList(words);

@@ -16,10 +16,14 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisSampleStream extends FilterObjectStream<String,ChunkAnalysisSample>{
+public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkAnalysisSample> {
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisSampleStream.class.getName());
 
+	/**
+	 * 构造方法
+	 * @param samples	输入流
+	 */
 	public ChunkAnalysisSampleStream(ObjectStream<String> samples) {
 		super(samples);
 	}

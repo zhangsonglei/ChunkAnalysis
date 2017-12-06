@@ -19,17 +19,31 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class PlainTextFileStream  implements ObjectStream<String>{
+public class PlainTextFileStream  implements ObjectStream<String> {
 
 	private final FileChannel channel;				//缓冲道
 	private final String encoding;					//样本文件编码
 	private InputStreamFactory inputStreamFactory;
 	private BufferedReader in;
 
+	/**
+	 * 构造方法
+	 * @param inputStreamFactory			输入流的工厂
+	 * @param charsetName					字符编码
+	 * @throws UnsupportedOperationException
+	 * @throws IOException
+	 */
 	public PlainTextFileStream(InputStreamFactory inputStreamFactory, String charsetName) throws UnsupportedOperationException, IOException{
-		this(inputStreamFactory,Charset.forName(charsetName));
+		this(inputStreamFactory, Charset.forName(charsetName));
 	}
 	
+	/**
+	 * 构造方法
+	 * @param inputStreamFactory			输入流的工厂
+	 * @param charsetName					字符编码
+	 * @throws UnsupportedOperationException
+	 * @throws IOException
+	 */
 	public PlainTextFileStream(InputStreamFactory inputStreamFactory, Charset charsetName) throws UnsupportedOperationException, IOException{
 		this.encoding = charsetName.name();
 		this.inputStreamFactory  = inputStreamFactory;

@@ -20,8 +20,16 @@ import opennlp.tools.util.ObjectStream;
  */
 public class ChunkAnalysisSampleEvent extends AbstractEventStream<ChunkAnalysisSample>{
 
+	/**
+	 * 上下文生成器
+	 */
 	private ChunkAnalysisContextGenerator contextgenerator;
 	
+	/**
+	 * 构造方法
+	 * @param sampleStream		样本流
+	 * @param contextgenerator	上下文生成器
+	 */
 	public ChunkAnalysisSampleEvent(ObjectStream<ChunkAnalysisSample> sampleStream,ChunkAnalysisContextGenerator contextgenerator) {
 		super(sampleStream);
 		this.contextgenerator = contextgenerator;

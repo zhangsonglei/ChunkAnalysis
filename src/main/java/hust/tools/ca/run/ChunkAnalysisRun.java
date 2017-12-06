@@ -35,7 +35,6 @@ public class ChunkAnalysisRun {
 	private static String flag = "train";
 
 	public static class Corpus{
-		
 		public String name;
 		public String encoding;
 		public String trainFile;

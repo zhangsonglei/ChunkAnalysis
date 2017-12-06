@@ -21,6 +21,10 @@ public class ChunkAnalysisParse {
 	private final String InChunk = "_I";
 	private final String OutChunk = "O";
 	
+	/**
+	 * 构造方法
+	 * @param sentence	待解析的句子
+	 */
 	public ChunkAnalysisParse(String sentence){
 		this.sentence = sentence;
 	}
