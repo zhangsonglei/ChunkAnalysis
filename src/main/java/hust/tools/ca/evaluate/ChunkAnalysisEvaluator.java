@@ -5,9 +5,12 @@ import hust.tools.ca.stream.ChunkAnalysisSample;
 import opennlp.tools.util.eval.Evaluator;
 
 /**
- * 评估类
- * @author 王馨苇
- *
+ *<ul>
+ *<li>Description: 评估类 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月7日
+ *</ul>
  */
 public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 
@@ -22,7 +25,7 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	private ChunkAnalysisMeasure measure;
 	
 	/**
-	 * 构造
+	 * 构造方法
 	 * @param tagger 训练得到的模型
 	 */
 	public ChunkAnalysisEvaluator(ChunkAnalysisME chunkTagger) {
@@ -30,7 +33,7 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	}
 	
 	/**
-	 * 构造
+	 * 构造方法
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
@@ -60,13 +63,13 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	protected ChunkAnalysisSample processSample(ChunkAnalysisSample sample) {
 		String[] wordsRef = sample.getWords();
 		String[] posesRef = sample.getPoses();
-		String[] chunkTagsRef = sample.getChunkTags();
+//		String[] chunkTagsRef = sample.getChunkTags();
 		String[][] acRef = sample.getAditionalContext();
 		
-		String[] chunktagsPre = chunkTagger.tag(wordsRef, posesRef, acRef);
+		String[] chunkTagsPre = chunkTagger.tag(wordsRef, posesRef, acRef);
 		
 		//将结果进行解析，用于评估
-		ChunkAnalysisSample prediction = new ChunkAnalysisSample(wordsRef, posesRef, chunktagsPre);
+		ChunkAnalysisSample prediction = new ChunkAnalysisSample(wordsRef, posesRef, chunkTagsPre);
 //		measure.update(wordsRef, tagsRef, wordsPre, tagsPre);
 
 		return prediction;

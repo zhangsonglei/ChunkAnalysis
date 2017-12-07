@@ -41,9 +41,10 @@ import opennlp.tools.util.TrainingParameters;
  *<li>Date: 2017年12月3日
  *</ul>
  */
+@SuppressWarnings("unused")
 public class ChunkAnalysisME implements ChunkAnalysis {
 	
-	public static final int DEFAULT_BEAM_SIZE = 3;
+	public static final int DEFAULT_BEAM_SIZE = 11;
 	private ChunkAnalysisContextGenerator contextGenerator;
 	private int size;
 	private Sequence bestSequence;
@@ -128,23 +129,23 @@ public class ChunkAnalysisME implements ChunkAnalysis {
         if (beamSizeString != null) {
             beamSize = Integer.parseInt(beamSizeString);
         }
-        MaxentModel posModel = null;
+        MaxentModel maxentModel = null;
         Map<String, String> manifestInfoEntries = new HashMap<String, String>();
         //event_model_trainer
         TrainerType trainerType = TrainerFactory.getTrainerType(params.getSettings());
-        ChunkAnalysisSequenceClassificationModel<String> seqPosModel = null;
+        ChunkAnalysisSequenceClassificationModel<String> chunkClassificationModel = null;
         if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
         	//sampleStream为PhraseAnalysisSampleStream对象
             ObjectStream<Event> es = new ChunkAnalysisSampleEvent(sampleStream, contextGen);
             EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(),
                     manifestInfoEntries);
-            posModel = trainer.train(es);                       
+            maxentModel = trainer.train(es);                       
         }
 
-        if (posModel != null) {
-            return new ChunkAnalysisModel(languageCode, posModel, beamSize, manifestInfoEntries);
+        if (maxentModel != null) {
+            return new ChunkAnalysisModel(languageCode, maxentModel, beamSize, manifestInfoEntries);
         } else {
-            return new ChunkAnalysisModel(languageCode, seqPosModel, manifestInfoEntries);
+            return new ChunkAnalysisModel(languageCode, chunkClassificationModel, manifestInfoEntries);
         }
 	}
 

@@ -44,7 +44,7 @@ public class ChunkAnalysisRun {
 		public String errorFile;
 	}
 	
-	private static String[] corpusName = {"tree"};
+	private static String[] corpusName = {"chunk"};
 	
 	private static Corpus[] getCorporaFromConf(Properties config) {
 		Corpus[] corpuses = new Corpus[corpusName.length];
@@ -180,7 +180,7 @@ public class ChunkAnalysisRun {
 	 */
 	private static ChunkAnalysisContextGenerator getContextGenerator(Properties config) {
 		String featureClass = config.getProperty("feature.class");
-		if(featureClass.equals("com.zsl.feature.ChunkAnalysisContextGeneratorConf")){
+		if(featureClass.equals("hsut.tools.ca.feature.ChunkAnalysisContextGeneratorConf")){
 			//初始化需要哪些特征
         	return  new ChunkAnalysisContextGenratorConf(config);
 		}else{

@@ -37,16 +37,20 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 		
 		if(sentence != null){
 			ChunkAnalysisSample sample = null;
-			ChunkAnalysisParse context = new ChunkAnalysisParse(sentence);
-			
-			try{
-				sample = context.parse();
-			}catch(Exception e){
-				if (logger.isLoggable(Level.WARNING)) 
-					logger.warning("解析样本时出错, 忽略句子: " + sentence);
-			}
+			if(sentence.compareTo("") != 0){
+				ChunkAnalysisParse context = new ChunkAnalysisParse(sentence);
+				try{
+					sample = context.parse();;
+				}catch(Exception e){
+					if (logger.isLoggable(Level.WARNING)) 	
+						logger.warning("解析样本时出错, 忽略句子: " + sentence);
+	                
+					sample = new ChunkAnalysisSample(new String[]{},new String[]{},new String[]{});
+				}
 
-			return sample;
+				return sample;
+			}else 
+				return new ChunkAnalysisSample(new String[]{},new String[]{},new String[]{});
 		}else
 			return null;
 	}

@@ -37,7 +37,7 @@ public class ChunkAnalysisModel extends BaseModel{
 	 * @throws IOException 		IO异常
 	 */
 	protected ChunkAnalysisModel(String componentName, File modelFile) throws IOException {
-		super(componentName, modelFile);
+		super(COMPONENT_NAME, modelFile);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class ChunkAnalysisModel extends BaseModel{
 	 * @param encoding				编码
 	 * @param maxentModel 			最大熵模型
 	 * @param beamSize 				大小
-	 * @param manifestInfoEntries	配置的信息
+	 * @param manifestInfoEntries	清单中的其他信息
 	 */
 	public ChunkAnalysisModel(String encoding, MaxentModel maxentModel, int beamSize,
 			Map<String, String> manifestInfoEntries) {
@@ -62,19 +62,24 @@ public class ChunkAnalysisModel extends BaseModel{
         checkArtifactMap();
 	}
 	
-
-	public ChunkAnalysisModel(String languageCode, ChunkAnalysisSequenceClassificationModel<String> seqPosModel,
+	/**
+	 * 构造方法
+	 * @param encoding					编码
+	 * @param chunkClasssificationModel	组块分析分类模型
+	 * @param manifestInfoEntries		配置信息
+	 */
+	public ChunkAnalysisModel(String encoding, ChunkAnalysisSequenceClassificationModel<String> chunkClasssificationModel,
 			Map<String, String> manifestInfoEntries) {
-		super(COMPONENT_NAME, languageCode, manifestInfoEntries, null);
-		if (seqPosModel == null) {
+		super(COMPONENT_NAME, encoding, manifestInfoEntries, null);
+		if (chunkClasssificationModel == null) {
             throw new IllegalArgumentException("The maxent wordsegModel param must not be null!");
         }
 
-        artifactMap.put(CHUNK_MODEL_ENTRY_NAME, seqPosModel);		
+        artifactMap.put(CHUNK_MODEL_ENTRY_NAME, chunkClasssificationModel);		
 	}
 
 	/**
-	 * 获取模型
+	 * 返回组块分析模型
 	 * @return 最大熵模型
 	 */
 	public MaxentModel getChunkAnalysisModel() {
@@ -85,6 +90,10 @@ public class ChunkAnalysisModel extends BaseModel{
         }
 	}
 	
+	/**
+	 * 返回组块分析分类模型
+	 * @return	组块分析分类模型
+	 */
 	@SuppressWarnings("unchecked")
 	public ChunkAnalysisSequenceClassificationModel<String> getChunkAnalysisSequenceModel() {
 

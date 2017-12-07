@@ -4,9 +4,12 @@ import hust.tools.ca.stream.ChunkAnalysisSample;
 import opennlp.tools.util.eval.EvaluationMonitor;
 
 /**
- * 检测类
- * @author 王馨苇
- *
+ * <ul>
+ *<li>Description: 检测类 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月7日
+ *</ul>
  */
 public class ChunkAnalysisEvaluateMonitor implements EvaluationMonitor<ChunkAnalysisSample>{
 
