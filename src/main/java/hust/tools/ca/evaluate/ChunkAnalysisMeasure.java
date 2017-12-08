@@ -1,11 +1,13 @@
 package hust.tools.ca.evaluate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import hust.tools.ca.stream.ChunkAnalysisSample;
+import hust.tools.ca.utils.Dictionary;
 
 /**
  *<ul>
@@ -20,22 +22,22 @@ public class ChunkAnalysisMeasure {
 	/**
 	 * 词典
 	 */
-	private HashSet<String> wordDict;
+	private Dictionary wordDict;
 	
 	/**
 	 * 预测结果中，每个组块标记的数量
 	 */
-	private HashMap<String, Long> predictChunkTagCounts;
+	private HashMap<String, Long> predictChunkTagMap;
 	
 	/**
 	 * 每个组块标记的标准数量
 	 */
-	private HashMap<String, Long> referenceChunkTagCounts; 
+	private HashMap<String, Long> referenceChunkTagMap; 
 	
 	/**
 	 * 每个组块被标注正确的数量
 	 */
-	private HashMap<String, Long> correctTaggedChunkTagCounts;
+	private HashMap<String, Long> correctTaggedChunkTagMap;
 
 	/**
 	 * 所有词的数量
@@ -61,7 +63,14 @@ public class ChunkAnalysisMeasure {
 	 * 默认构造方法
 	 */
 	public ChunkAnalysisMeasure() {
-		super();
+		this(new Dictionary());
+	}
+	
+	public ChunkAnalysisMeasure(Dictionary wordDict) {
+		this.wordDict = wordDict;
+		referenceChunkTagMap = new HashMap<>();
+		predictChunkTagMap = new HashMap<>();
+		correctTaggedChunkTagMap = new HashMap<>();
 	}
 	
 	/**
@@ -70,10 +79,28 @@ public class ChunkAnalysisMeasure {
 	 * @param reference	标准样本集
 	 * @param predict	预测样本集
 	 */
-	public ChunkAnalysisMeasure(HashSet<String> wordDict, List<ChunkAnalysisSample> reference, List<ChunkAnalysisSample> predict) {
-		super();
+	public ChunkAnalysisMeasure(Dictionary wordDict, List<ChunkAnalysisSample> reference, List<ChunkAnalysisSample> predict) {
 		this.wordDict = wordDict;
+		referenceChunkTagMap = new HashMap<>();
+		predictChunkTagMap = new HashMap<>();
+		correctTaggedChunkTagMap = new HashMap<>();
 		statistics(reference, predict);
+	}
+
+	public long getTotalWordCounts() {
+		return totalWordCounts;
+	}
+
+	public long getCorrectTaggedWordCounts() {
+		return correctTaggedWordCounts;
+	}
+
+	public long getOOVs() {
+		return OOVs;
+	}
+
+	public long getCorrectTaggedOOVs() {
+		return correctTaggedOOVs;
 	}
 
 	/**
@@ -93,74 +120,130 @@ public class ChunkAnalysisMeasure {
 	 */
 	public void add(ChunkAnalysisSample reference, ChunkAnalysisSample prediction) {
 		String[] words = reference.getWords();				//每个样本中的词组
-		String[] refChunkTags = reference.getChunkTags();	//样本中每个词的正确组块标记
-		String[] preChunkTags = prediction.getChunkTags();		//样本中每个词的预测组块标记
-		String refChunkTag;
-		String preChunkTag;
+		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
+		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
+		String refChunkTag;									//参考样本中当前词的组块标记
+		String preChunkTag;									//预测样本中当前词的组块标记
 		
-		for(int i = 0; i < words.length; i++) {//便利样本中的每个词
+		List<String> tempRefChunk = new ArrayList<>();		//临时存放参考样本中的组块
+		List<String> tempPreChunk = new ArrayList<>();		//临时存放预测样本中的组块
+		List<String> correctPreChunk = new ArrayList<>();	//临时存放预测正确的组块
+		List<String> wordsInChunk = new ArrayList<>();		//临时存放组块中的词组
+		
+		for(int i = 0; i < words.length; i++) {//便利样本中的每个词,统计样本中每类组块标记标准数量与预测数量
 			totalWordCounts++;
 			
 			if(!wordDict.contains(words[i])) 
 				OOVs++;
 			
-			//统计样本中每类组块标记标准数量与预测数量
 			refChunkTag = refChunkTags[i];
-			if(refChunkTag.equals("O")){
-				if(referenceChunkTagCounts.containsKey(refChunkTag))
-					referenceChunkTagCounts.put(refChunkTag, referenceChunkTagCounts.get(refChunkTag) + 1);
-				else
-					referenceChunkTagCounts.put(refChunkTag, 1L);
-			}else {
-				String ref = refChunkTag.split("_")[0];
-				if(referenceChunkTagCounts.containsKey(ref))
-					referenceChunkTagCounts.put(ref, referenceChunkTagCounts.get(ref) + 1);
-				else
-					referenceChunkTagCounts.put(ref, 1L);
-			}
 			preChunkTag = preChunkTags[i];
-			if(preChunkTag.equals("O")){
-				if(predictChunkTagCounts.containsKey(preChunkTag))
-					predictChunkTagCounts.put(preChunkTag, predictChunkTagCounts.get(preChunkTag) + 1);
-				else
-					predictChunkTagCounts.put(preChunkTag, 1L);
-			}else {
-				String pre = preChunkTag.split("_")[0];
-				if(predictChunkTagCounts.containsKey(pre))
-					predictChunkTagCounts.put(pre, predictChunkTagCounts.get(pre) + 1);
-				else
-					predictChunkTagCounts.put(pre, 1L);
+			if(refChunkTag.equals("O") || refChunkTag.split("_")[1].equals("B")) {//统计参考样本中各个组块数量，及预测正确的数量
+				if(tempRefChunk.size() != 0) {//存在未处理的参考组块, 进行统计
+					processChunk(tempRefChunk, correctPreChunk, wordsInChunk);
+					tempRefChunk = new ArrayList<>();
+					correctPreChunk = new ArrayList<>();
+					wordsInChunk = new ArrayList<>();
+				}
+				
+				if(refChunkTag.equals("O")) {//当前词的组块标记为O
+					if(referenceChunkTagMap.containsKey(refChunkTag))
+						referenceChunkTagMap.put(refChunkTag, referenceChunkTagMap.get(refChunkTag) + 1);
+					else
+						referenceChunkTagMap.put(refChunkTag, 1L);
+					
+					if(preChunkTag.equals(refChunkTag)) {//非组块被预测正确，进行统计
+						if(correctTaggedChunkTagMap.containsKey(refChunkTag))
+							correctTaggedChunkTagMap.put(refChunkTag, correctTaggedChunkTagMap.get(refChunkTag) + 1);
+						else
+							correctTaggedChunkTagMap.put(refChunkTag, 1L);
+						
+						if(!wordDict.contains(words[i]))//被预测正确的非组块为未登录词
+							correctTaggedOOVs++;
+						
+						correctTaggedWordCounts++;
+					}
+				}else {//当前词的组块标记为*_B
+					tempRefChunk.add(refChunkTag);
+					correctPreChunk.add(preChunkTag);
+					wordsInChunk.add(words[i]);
+				}
+			}else{//当前词的组块标记为*_I || *_E
+				tempRefChunk.add(refChunkTag);
+				correctPreChunk.add(preChunkTag);
+				wordsInChunk.add(words[i]);
 			}
 			
-			//统计每类组块标记被正确预测的数量
-			if(preChunkTag.equals(refChunkTag)) {
-				correctTaggedWordCounts++;
-				
-				if(!wordDict.contains(words[i]))
-					correctTaggedOOVs++;
-				
-				if(preChunkTag.equals("O")) {
-					if(correctTaggedChunkTagCounts.containsKey(preChunkTag))
-						correctTaggedChunkTagCounts.put(preChunkTag, correctTaggedChunkTagCounts.get(preChunkTag) + 1);
+			//统计预测结果中各个组块数量
+			if(preChunkTag.equals("O") || preChunkTag.split("_")[1].equals("B")) {
+				if(tempPreChunk.size() != 0) {//存在未处理的预测组块, 进行统计
+					String chunk = tempPreChunk.get(0).split("_")[0];
+					if(predictChunkTagMap.containsKey(chunk))
+						predictChunkTagMap.put(chunk, predictChunkTagMap.get(chunk) + 1);
 					else
-						correctTaggedChunkTagCounts.put(preChunkTag, 1L);
-				}else {
-					String chunkTag = preChunkTag.split("_")[0];
-					if(correctTaggedChunkTagCounts.containsKey(chunkTag))
-						correctTaggedChunkTagCounts.put(chunkTag, correctTaggedChunkTagCounts.get(chunkTag) + 1);
-					else
-						correctTaggedChunkTagCounts.put(chunkTag, 1L);
+						predictChunkTagMap.put(chunk, 1L);
+					
+					tempPreChunk = new ArrayList<>();
 				}
+				
+				if(preChunkTag.equals("O")) {//当前词的组块预测标记为O
+					if(predictChunkTagMap.containsKey(preChunkTag))
+						predictChunkTagMap.put(preChunkTag, predictChunkTagMap.get(preChunkTag) + 1);
+					else
+						predictChunkTagMap.put(preChunkTag, 1L);
+				}else//当前词的组块预测标记为*_B
+					tempPreChunk.add(preChunkTag);
+			}else//当前词的组块预测标记为*_I || *_E
+				tempPreChunk.add(preChunkTag);
+		}
+		
+		if(tempRefChunk.size() != 0) //存在未处理的参考组块, 进行统计
+			processChunk(tempRefChunk, correctPreChunk, wordsInChunk);
+	
+		if(tempPreChunk.size() != 0) {//存在未处理的预测组块, 进行统计
+			String chunk = tempPreChunk.get(0).split("_")[0];
+			if(predictChunkTagMap.containsKey(chunk))
+				predictChunkTagMap.put(chunk, predictChunkTagMap.get(chunk) + 1);
+			else
+				predictChunkTagMap.put(chunk, 1L);
+		}
+	
+	}
+	
+	/**
+	 * 统计未处理的参考组块
+	 * @param tempRefChunk		参考组块
+	 * @param correctPreChunk	对应位置的预测结果
+	 * @param wordsInChunk		组块对应的词
+	 */
+	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> wordsInChunk) {
+		String chunk = tempRefChunk.get(0).split("_")[0];
+		if(referenceChunkTagMap.containsKey(chunk))
+			referenceChunkTagMap.put(chunk, referenceChunkTagMap.get(chunk) + 1);
+		else
+			referenceChunkTagMap.put(chunk, 1L);
+		
+		if(tempRefChunk.equals(correctPreChunk)) {//未处理的组块被预测正确，进行统计
+			if(correctTaggedChunkTagMap.containsKey(chunk))
+				correctTaggedChunkTagMap.put(chunk, correctTaggedChunkTagMap.get(chunk) + 1);
+			else
+				correctTaggedChunkTagMap.put(chunk, 1L);
+		
+			for(String word : wordsInChunk) {//遍历被正确预测的组块的所有词，统计未登录词
+				if(!wordDict.contains(word))
+					correctTaggedOOVs++;
 			}
-		}//end for(j)
+			
+			correctTaggedWordCounts += wordsInChunk.size();
+		}
 	}
 	
 	/**
 	 * 返回样本中所有组块标记的迭代器
 	 * @return	样本中所有组块标记的迭代器
 	 */
-	private Iterator<String> chunkTagIterator() {
-		return referenceChunkTagCounts.keySet().iterator();
+	public Iterator<String> chunkTagIterator() {
+		return referenceChunkTagMap.keySet().iterator();
 	}
 	
 	/**
@@ -168,6 +251,9 @@ public class ChunkAnalysisMeasure {
 	 * @return	模型的准确率
 	 */
 	public double getAccuracy() {
+		if(totalWordCounts == 0)
+			return 0;
+		
 		return 1.0 * correctTaggedWordCounts / totalWordCounts;
 	}
 	
@@ -176,16 +262,10 @@ public class ChunkAnalysisMeasure {
 	 * @return	登录词组块标记的准确率
 	 */
 	public double getOOVAccuracy() {
+		if(OOVs == 0)
+			return 0;
+		
 		return 1.0 * correctTaggedOOVs / OOVs;
-	}
-	
-	/**
-	 * 返回给定组块标记的准确率
-	 * @param chunkTag	待求准确率的组块标记
-	 * @return			给定组块标记的准确率
-	 */
-	public double getAccuracy(String chunkTag) {
-		return 1.0 * correctTaggedChunkTagCounts.get(chunkTag) / referenceChunkTagCounts.get(chunkTag);
 	}
 	
 	/**
@@ -193,14 +273,17 @@ public class ChunkAnalysisMeasure {
 	 * @return	模型的召回率
 	 */
 	public double getRecall() {
-		double recall = 0.0;
+		long correct = 0L;
+		long total = 0L;
 		
-		Iterator<String> iterator = chunkTagIterator();
-		while(iterator.hasNext()) {
-			recall += getRecall(iterator.next());
-		}
+		for(Entry<String, Long> entry : correctTaggedChunkTagMap.entrySet())
+			if(!entry.getKey().equals("O"))
+				correct += entry.getValue();
+		for(Entry<String, Long> entry : referenceChunkTagMap.entrySet())
+			if(!entry.getKey().equals("O"))
+				total += entry.getValue();
 		
-		return recall;
+		return 1.0 * correct / total;
 	}
 	
 	/**
@@ -209,7 +292,10 @@ public class ChunkAnalysisMeasure {
 	 * @return			给定组块标记的召回率
 	 */
 	public double getRecall(String chunkTag) {
-		return 1.0 * correctTaggedChunkTagCounts.get(chunkTag) / referenceChunkTagCounts.get(chunkTag);
+		if(!referenceChunkTagMap.containsKey(chunkTag) || !correctTaggedChunkTagMap.containsKey(chunkTag))
+			return 0;
+		
+		return 1.0 * correctTaggedChunkTagMap.get(chunkTag) / referenceChunkTagMap.get(chunkTag);
 	}
 	
 	/**
@@ -217,14 +303,17 @@ public class ChunkAnalysisMeasure {
 	 * @return	模型的精确率
 	 */
 	public double getPrecision() {
-		double precision = 0.0;
+		long correct = 0L;
+		long total = 0L;
 		
-		Iterator<String> iterator = chunkTagIterator();
-		while(iterator.hasNext()) {
-			precision += getPrecision(iterator.next());
-		}
+		for(Entry<String, Long> entry : correctTaggedChunkTagMap.entrySet())
+			if(!entry.getKey().equals("O"))
+				correct += entry.getValue();
+		for(Entry<String, Long> entry : predictChunkTagMap.entrySet())
+			if(!entry.getKey().equals("O"))
+				total += entry.getValue();
 		
-		return precision;
+		return 1.0 * correct / total;
 	}
 	
 	/**
@@ -232,8 +321,11 @@ public class ChunkAnalysisMeasure {
 	 * @param chunkTag	待求精确率的组块标记
 	 * @return			给定组块标记的精确率
 	 */
-	public double getPrecision(String chunkTag) {		
-		return 1.0 * correctTaggedChunkTagCounts.get(chunkTag) / predictChunkTagCounts.get(chunkTag);
+	public double getPrecision(String chunkTag) {	
+		if(!predictChunkTagMap.containsKey(chunkTag) || !correctTaggedChunkTagMap.containsKey(chunkTag))
+			return 0;
+		
+		return 1.0 * correctTaggedChunkTagMap.get(chunkTag) / predictChunkTagMap.get(chunkTag);
 	}
 	
 	/**
@@ -241,10 +333,13 @@ public class ChunkAnalysisMeasure {
 	 * @return	模型的F值
 	 */
 	public double getF() {
-		if(getPrecision() == 0 || getRecall() == 0)
+		double precision = getPrecision();
+		double recall = getRecall();
+		
+		if(precision == 0 || recall == 0)
 			return 0;
 		else
-			return 2 * getPrecision() * getRecall() / (getPrecision() + getRecall());
+			return 2 * precision * recall / (precision + recall);
 	}
 	
 	/**
