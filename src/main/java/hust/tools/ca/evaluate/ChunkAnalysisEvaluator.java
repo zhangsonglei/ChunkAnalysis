@@ -71,7 +71,7 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 		//将结果进行解析，用于评估
 		ChunkAnalysisSample prediction = new ChunkAnalysisSample(wordsRef, posesRef, chunkTagsPre);
 //		measure.update(wordsRef, tagsRef, wordsPre, tagsPre);
-
+		measure.add(sample, prediction);
 		return prediction;
 	}
 }

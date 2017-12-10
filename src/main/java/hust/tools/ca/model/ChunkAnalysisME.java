@@ -41,10 +41,9 @@ import opennlp.tools.util.TrainingParameters;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-@SuppressWarnings("unused")
 public class ChunkAnalysisME implements ChunkAnalysis {
 	
-	public static final int DEFAULT_BEAM_SIZE = 11;
+	public static final int DEFAULT_BEAM_SIZE = 33;
 	private ChunkAnalysisContextGenerator contextGenerator;
 	private int size;
 	private Sequence bestSequence;

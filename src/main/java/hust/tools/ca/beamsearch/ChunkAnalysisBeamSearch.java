@@ -180,12 +180,10 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 	public String[] getOutcomes() {
 		String[] outcomes = new String[model.getNumOutcomes()];
 
-		for (int i = 0; i < outcomes.length; ++i) {
+		for (int i = 0; i < outcomes.length; ++i)
 			outcomes[i] = model.getOutcome(i);
-		}
 
 		return outcomes;
 	}
-
 }
 

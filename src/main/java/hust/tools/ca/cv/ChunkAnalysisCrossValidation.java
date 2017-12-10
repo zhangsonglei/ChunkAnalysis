@@ -45,7 +45,7 @@ public class ChunkAnalysisCrossValidation {
 	 * @param params	训练的参数
 	 * @param monitor 	监听器
 	 */
-	public ChunkAnalysisCrossValidation(String encoding,TrainingParameters params,ChunkAnalysisEvaluateMonitor... monitors){
+	public ChunkAnalysisCrossValidation(String encoding, TrainingParameters params, ChunkAnalysisEvaluateMonitor... monitors){
 		this.encoding = encoding;
 		this.params = params;
 		this.monitors = monitors;

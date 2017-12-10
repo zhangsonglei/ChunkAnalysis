@@ -108,20 +108,18 @@ public class ChunkAnalysisMeasure {
 	 * @param references	标准样本
 	 * @param predictions	预测结果
 	 */
-	private void statistics(List<ChunkAnalysisSample> references, List<ChunkAnalysisSample> predictions) {
+	public void statistics(List<ChunkAnalysisSample> references, List<ChunkAnalysisSample> predictions) {
 		for(int i = 0; i < references.size(); i++)//遍历每个样本
 			add(references.get(i), predictions.get(i));
 	}
-	
+
 	/**
 	 * 动态统计预测样本与标准样本
+	 * @param words		样本中的词组
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
-	public void add(ChunkAnalysisSample reference, ChunkAnalysisSample prediction) {
-		String[] words = reference.getWords();				//每个样本中的词组
-		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
-		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
+	public void update(String[] words, String[] refChunkTags, String[] preChunkTags) {
 		String refChunkTag;									//参考样本中当前词的组块标记
 		String preChunkTag;									//预测样本中当前词的组块标记
 		
@@ -208,6 +206,18 @@ public class ChunkAnalysisMeasure {
 				predictChunkTagMap.put(chunk, 1L);
 		}
 	
+	}
+	
+	/**
+	 * 动态统计预测样本与标准样本
+	 * @param reference	标准样本
+	 * @param prediction预测样本
+	 */
+	public void add(ChunkAnalysisSample reference, ChunkAnalysisSample prediction) {
+		String[] words = reference.getWords();				//每个样本中的词组
+		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
+		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
+		update(words, refChunkTags, preChunkTags);
 	}
 	
 	/**
@@ -355,5 +365,57 @@ public class ChunkAnalysisMeasure {
 			return 0;
 		else
 			return 2 * precision * recall / (precision + recall);
+	}
+	
+	public String toString() {
+		return "Accuracy = " + getAccuracy() + "\t" + 
+						  "Precision = " + getPrecision() + "\t" + 
+						  "Rcall = " + getRecall() + "\t" + 
+						  "F = " + getF() + "\n" + 
+						  "BNP_P = " + getPrecision("BNP") + "\t" + 
+						  "BNP_R = " + getRecall("BNP") + "\t" + 
+						  "BNP_F = " + getF("BNP") + "\n" + 
+						  "BAP_P = " + getPrecision("BAP") + "\t" + 
+						  "BAP_R = " + getRecall("BAP") + "\t" + 
+						  "BAP_F = " + getF("BAP") + "\n" + 
+						  "BVP_P = " + getPrecision("BVP") + "\t" + 
+						  "BVP_R = " + getRecall("BVP") + "\t" + 
+						  "BVP_F = " + getF("BVP") + "\n" + 
+						  "BDP_P = " + getPrecision("BDP") + "\t" + 
+						  "BDP_R = " + getRecall("BDP") + "\t" + 
+						  "BDP_F = " + getF("BDP") + "\n" + 
+						  "BQP_P = " + getPrecision("BQP") + "\t" + 
+						  "BQP_R = " + getRecall("BQP") + "\t" + 
+						  "BQP_F = " + getF("BQP") + "\n" + 
+						  "BTP_P = " + getPrecision("BTP") + "\t" + 
+						  "BTP_R = " + getRecall("BTP") + "\t" + 
+						  "BTP_F = " + getF("BTP") + "\n" + 
+						  "BFP_P = " + getPrecision("BFP") + "\t" + 
+						  "BFP_R = " + getRecall("BFP") + "\t" + 
+						  "BFP_F = " + getF("BFP") + "\n" +
+						  "BNT_P = " + getPrecision("BNT") + "\t" + 
+						  "BNT_R = " + getRecall("BNT") + "\t" + 
+						  "BNT_F = " + getF("BNT") + "\n" +
+						  "BNS_P = " + getPrecision("BNS") + "\t" + 
+						  "BNS_R = " + getRecall("BNS") + "\t" + 
+						  "BNS_F = " + getF("BNS") + "\n" +
+						  "BNZ_P = " + getPrecision("BNZ") + "\t" + 
+						  "BNZ_R = " + getRecall("BNZ") + "\t" + 
+						  "BNZ_F = " + getF("BNZ") + "\n" +
+						  "BSV_P = " + getPrecision("BSV") + "\t" + 
+						  "BSV_R = " + getRecall("BSV") + "\t" + 
+						  "BSV_F = " + getF("BSV") + "\n"+
+						  "RefO=" + referenceChunkTagMap.get("O")+"\t"+"PreO="+predictChunkTagMap.get("O")+"\tcorrect="+correctTaggedChunkTagMap.get("O")+"\n"+
+						  "RefBNP=" + referenceChunkTagMap.get("BNP")+"\tPreBNP="+predictChunkTagMap.get("BNP")+"\tcorrect="+correctTaggedChunkTagMap.get("BNP")+"\n"+
+						  "RefBAP=" + referenceChunkTagMap.get("BAP")+"\tPreBAP="+predictChunkTagMap.get("BAP")+"\tcorrect="+correctTaggedChunkTagMap.get("BAP")+"\n"+
+						  "RefBVP=" + referenceChunkTagMap.get("BVP")+"\tPreBVP="+predictChunkTagMap.get("BVP")+"\tcorrect="+correctTaggedChunkTagMap.get("BVP")+"\n"+
+						  "RefBDP=" + referenceChunkTagMap.get("BDP")+"\tPreBDP="+predictChunkTagMap.get("BDP")+"\tcorrect="+correctTaggedChunkTagMap.get("BDP")+"\n"+
+						  "RefBQP=" + referenceChunkTagMap.get("BQP")+"\tPreBQP="+predictChunkTagMap.get("BQP")+"\tcorrect="+correctTaggedChunkTagMap.get("BQP")+"\n"+
+						  "RefBTP=" + referenceChunkTagMap.get("BTP")+"\tPreBTP="+predictChunkTagMap.get("BTP")+"\tcorrect="+correctTaggedChunkTagMap.get("BTP")+"\n"+
+						  "RefBFP=" + referenceChunkTagMap.get("BFP")+"\tPreBFP="+predictChunkTagMap.get("BFP")+"\tcorrect="+correctTaggedChunkTagMap.get("BFP")+"\n"+
+						  "RefBNT=" + referenceChunkTagMap.get("BNT")+"\tPreBNT="+predictChunkTagMap.get("BNT")+"\tcorrect="+correctTaggedChunkTagMap.get("BNT")+"\n"+
+						  "RefBNS=" + referenceChunkTagMap.get("BNS")+"\tPreBNS="+predictChunkTagMap.get("BNS")+"\tcorrect="+correctTaggedChunkTagMap.get("BNS")+"\n"+
+						  "RefBNZ=" + referenceChunkTagMap.get("BNZ")+"\tPreBNZ="+predictChunkTagMap.get("BNZ")+"\tcorrect="+correctTaggedChunkTagMap.get("BNZ")+"\n"+
+						  "RefBSV=" + referenceChunkTagMap.get("BSV")+"\tPreBSV="+predictChunkTagMap.get("BSV")+"\tcorrect="+correctTaggedChunkTagMap.get("BSV");
 	}
 }
