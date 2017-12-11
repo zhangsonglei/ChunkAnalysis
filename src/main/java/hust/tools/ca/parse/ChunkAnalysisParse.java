@@ -17,7 +17,6 @@ public class ChunkAnalysisParse {
 
 	private String sentence;
 	private final String ChunkBegin = "_B";
-	private final String ChunkEnd = "_E";
 	private final String InChunk = "_I";
 	private final String OutChunk = "O";
 	
@@ -50,9 +49,8 @@ public class ChunkAnalysisParse {
 					wordTagsInChunk.add(strings[0]);
 					chunk = strings[1];
 					isInChunk = false;
-				}else {
+				}else 
 					wordTagsInChunk.add(string);
-				}
 			}else {//当前词不在组块中
 				if(wordTagsInChunk != null && chunk != null) {//上一个组块中的词未处理，先处理上一个组块中的词	
 					wordTag = wordTagsInChunk.get(0).split("/");
@@ -60,18 +58,12 @@ public class ChunkAnalysisParse {
 					poses.add(wordTag[1]);
 					chunkTags.add(chunk + ChunkBegin);
 					
-					if(wordTagsInChunk.size() > 2) {
-						for(int i = 1; i < wordTagsInChunk.size() - 1; i++) {
-							wordTag = wordTagsInChunk.get(i).split("/");
-							words.add(wordTag[0]);
-							poses.add(wordTag[1]);
-							chunkTags.add(chunk + InChunk);
-						}
+					for(int i = 1; i < wordTagsInChunk.size(); i++) {
+						wordTag = wordTagsInChunk.get(i).split("/");
+						words.add(wordTag[0]);
+						poses.add(wordTag[1]);
+						chunkTags.add(chunk + InChunk);
 					}
-					wordTag = wordTagsInChunk.get(wordTagsInChunk.size() - 1).split("/");
-					words.add(wordTag[0]);
-					poses.add(wordTag[1]);
-					chunkTags.add(chunk + ChunkEnd);
 					
 					wordTagsInChunk = new ArrayList<>();
 					chunk = null;
@@ -85,7 +77,6 @@ public class ChunkAnalysisParse {
 						poses.add(wordTag[1]);
 						chunkTags.add(OutChunk);
 					}
-					
 				}else {
 					if(string.startsWith("[")) {
 						wordTagsInChunk.add(string.replace("[", ""));
@@ -107,18 +98,12 @@ public class ChunkAnalysisParse {
 			poses.add(wordTag[1]);
 			chunkTags.add(chunk + ChunkBegin);
 			
-			if(wordTagsInChunk.size() > 2) {
-				for(int i = 1; i < wordTagsInChunk.size() - 1; i++) {
-					wordTag = wordTagsInChunk.get(i).split("/");
-					words.add(wordTag[0]);
-					poses.add(wordTag[1]);
-					chunkTags.add(chunk + InChunk);
-				}
+			for(int i = 1; i < wordTagsInChunk.size(); i++) {
+				wordTag = wordTagsInChunk.get(i).split("/");
+				words.add(wordTag[0]);
+				poses.add(wordTag[1]);
+				chunkTags.add(chunk + InChunk);
 			}
-			wordTag = wordTagsInChunk.get(wordTagsInChunk.size() - 1).split("/");
-			words.add(wordTag[0]);
-			poses.add(wordTag[1]);
-			chunkTags.add(chunk + ChunkEnd);
 		}
 		
 		return new ChunkAnalysisSample(words, poses, chunkTags);

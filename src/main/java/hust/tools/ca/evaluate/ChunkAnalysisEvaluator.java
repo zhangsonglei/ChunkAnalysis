@@ -1,5 +1,7 @@
 package hust.tools.ca.evaluate;
 
+import org.apache.log4j.Logger;
+
 import hust.tools.ca.model.ChunkAnalysisME;
 import hust.tools.ca.stream.ChunkAnalysisSample;
 import opennlp.tools.util.eval.Evaluator;
@@ -14,6 +16,7 @@ import opennlp.tools.util.eval.Evaluator;
  */
 public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 
+	Logger logger = Logger.getLogger(ChunkAnalysisEvaluator.class);
 	/**
 	 * 组块分析模型
 	 */
@@ -72,6 +75,7 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 		ChunkAnalysisSample prediction = new ChunkAnalysisSample(wordsRef, posesRef, chunkTagsPre);
 //		measure.update(wordsRef, tagsRef, wordsPre, tagsPre);
 		measure.add(sample, prediction);
+//		logger.info(sample+"\n"+prediction);
 		return prediction;
 	}
 }

@@ -22,7 +22,6 @@ import hust.tools.ca.utils.Dictionary;
  */
 public class ChunkAnalysisMeasureTest {
 	
-	
 	private ChunkAnalysisMeasure measure;
 	
 	String[] words = new String[]{"忠诚", "的", "共产主义", "战士", "，", "久经考验", "无产阶级", "革命家", "同志", "逝世", 

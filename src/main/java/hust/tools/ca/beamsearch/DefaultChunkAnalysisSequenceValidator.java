@@ -16,12 +16,12 @@ public class DefaultChunkAnalysisSequenceValidator implements ChunkAnalysisSeque
 			if(out.equals("O") || out.split("_")[1].equals("B")) 
 				return true;
 		}else {//当前词不是句子开始位置
-			if(index == chunkTags.length - 1) {
+			if(index == chunkTags.length - 1) {//当前词是句子结束
 				String chunkTag = chunkTags[index - 1];
 				if(out.equals("O")) {
-					if(chunkTag.equals("O") ||  chunkTag.split("_")[1].equals("E"))
+					if(chunkTag.equals("O") || chunkTag.split("_")[1].equals("I"))
 						return true;
-				}else if(out.split("_")[1].equals("E")) {
+				}else if(out.split("_")[1].equals("I")) {
 					if(chunkTag.equals("O"))
 						return false;
 					else if((chunkTag.split("_")[1].equals("B") || chunkTag.split("_")[1].equals("I")) &&
@@ -31,7 +31,7 @@ public class DefaultChunkAnalysisSequenceValidator implements ChunkAnalysisSeque
 			}else {
 				String chunkTag = chunkTags[index - 1];
 				if(out.equals("O") || out.split("_")[1].equals("B")) {
-					if(chunkTag.equals("O") ||  chunkTag.split("_")[1].equals("E"))
+					if(chunkTag.equals("O") ||  chunkTag.split("_")[1].equals("I"))
 						return true;
 				}else{
 					if(chunkTag.equals("O"))

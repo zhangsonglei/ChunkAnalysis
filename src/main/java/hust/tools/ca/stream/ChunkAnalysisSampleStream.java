@@ -54,5 +54,13 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 		}else
 			return null;
 	}
+	
+	public void close() throws IOException {
+		samples.close();
+	}
+	
+	public void reset() throws IOException, UnsupportedOperationException {
+	    samples.reset();
+	}
 }
 
