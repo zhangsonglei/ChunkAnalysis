@@ -16,6 +16,8 @@ import hust.tools.ca.stream.ChunkAnalysisSample;
  *</ul>
  */
 public class ChunkAnalysisSampleTest {
+	
+	private ChunkAnalysisParse parse;
 
 	//句子开始结尾都不属于组块的句子
 	private String sentence1 = "忠诚/a  的/u  [共产主义/n  战士/n]BNP  ，/w  久经考验/l  的/u  [无产阶级/n  革命家/n]BNP  [刘/nr  澜涛/nr  同志/n]BNP  逝世/v";		
@@ -41,9 +43,10 @@ public class ChunkAnalysisSampleTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		sample1 = new ChunkAnalysisParse(sentence1).parse();
-		sample2 = new ChunkAnalysisParse(sentence2).parse();
-		sample3 = new ChunkAnalysisParse(sentence3).parse();
+		parse = new ChunkAnalysisParse();
+		sample1 = parse.parse(sentence1);
+		sample2 = parse.parse(sentence2);
+		sample3 = parse.parse(sentence3);
 	}
 
 	@Test

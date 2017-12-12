@@ -248,22 +248,73 @@ public class ChunkAnalysisME implements ChunkAnalysis {
     }
 	
 	@Override
+	public String analysis(String[] words){
+		return analysis(words, null);
+	}
+	
+	@Override
+	public String analysis(String[] words,String[] poses){
+		return analysis(words, poses, null);
+	}
+	
+	@Override
+	public String analysis(String[] words,String[] poses, Object[] additionaContext){
+		bestSequence = model.bestSequence(words, poses, additionaContext, contextGenerator,sequenceValidator);
+		List<String> chunks = bestSequence.getOutcomes();
+		String chunksResult = null;
+		
+		if(poses != null) {
+			for(int i = 0; i < words.length; i++)
+				words[i] = words[i]+"/"+poses[i];
+		}
+		
+		for(int i = 0; i < chunks.size() - 1; i++) {
+			String chunk = chunks.get(i);
+			
+			if(chunk.equals("O"))
+				chunksResult += words[i] + "  ";
+			else if(chunk.split("_")[1].equals("I")) 
+				chunksResult += words[i] + "  ";	
+			else {
+				if(i > 1) {
+					String lastChunk = chunks.get(i - 1);
+					if(lastChunk.equals("O"))
+						chunksResult += "[" + words[i] + "  ";
+					else 
+						chunksResult = chunksResult.trim() + "]" + lastChunk.split("_")[0] + "[" + words[i] + "  ";
+				}else				
+					chunksResult += "[" + words[i] + "  ";
+			}
+		}
+		
+		String finalChunk = chunks.get(chunks.size() - 1);
+		if(finalChunk.equals("O"))
+			chunksResult += words[chunks.size() - 1];
+		else
+			chunksResult += words[chunks.size() - 1] + "]" + finalChunk.split("_")[0];
+		
+		return chunksResult;
+	}
+
 	public String[] tag(String[] words){
 		return tag(words,null);
 	}
 	
-	@Override
+	
 	public String[] tag(String[] words,String[] poses){
 		return tag(words, poses, null);
 	}
 	
-	@Override
+	
 	public String[] tag(String[] words,String[] poses, Object[] additionaContext){
 		bestSequence = model.bestSequence(words, poses, additionaContext, contextGenerator,sequenceValidator);
 		List<String> t = bestSequence.getOutcomes();
 		return t.toArray(new String[t.size()]);
 	}
-
+	
+	
+	
+	
 	@Override
 	public Sequence[] getTopKSequences(String[] words) {
 		return getTopKSequences(words, null, null);

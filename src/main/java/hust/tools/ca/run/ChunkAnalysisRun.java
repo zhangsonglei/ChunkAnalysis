@@ -105,7 +105,7 @@ public class ChunkAnalysisRun {
 
         //默认参数
         TrainingParameters params = TrainingParameters.defaultParams();
-        params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(1));
+        params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(0));
 
         //把刚才属性信息封装
         ChunkAnalysisCrossValidation crossValidator = new ChunkAnalysisCrossValidation("zh", params);

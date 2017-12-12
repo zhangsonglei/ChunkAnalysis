@@ -22,6 +22,7 @@ public class ChunkAnalysisContextGenratorConfTest {
 	private String[] poses;
 	private String[] chunkTags;
 	private ChunkAnalysisContextGenratorConf contextGeneratorConf;
+	private ChunkAnalysisParse parse;
 	
 	private String[] features0 = new String[]{"w0=党中央", "p0=nt", "w1=国务院", "p1=nt", "w0w1=党中央国务院", "w2=关心", "p2=v", "w1w2=国务院关心", "p0p1=ntnt", "p1p2=ntv"};
 	private String[] features1 = new String[]{"w0=国务院", "p0=nt", "w_1=党中央", "p_1=nt", "c_1=BNP_B", "w_1w0=党中央国务院", "w1=关心", "p1=v", "w0w1=国务院关心", "w2=西藏", "p2=ns", "w1w2=关心西藏", "p_1p0=ntnt", "p0p1=ntv", "p1p2=vns"};
@@ -33,7 +34,8 @@ public class ChunkAnalysisContextGenratorConfTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		ChunkAnalysisSample sample = new ChunkAnalysisParse(sentence).parse();
+		parse = new ChunkAnalysisParse();
+		ChunkAnalysisSample sample = parse.parse(sentence);
 		words = sample.getWords();
 		poses = sample.getPoses();
 		chunkTags = sample.getChunkTags();

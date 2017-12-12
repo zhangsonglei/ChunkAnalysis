@@ -17,7 +17,7 @@ public interface ChunkAnalysis {
 	 * @param words	词组
 	 * @return		词组的词性和组块标注结果
 	 */
-	public String[] tag(String[] words);
+	public String analysis(String[] words);
 	
 	/**
 	 * 返回词组的组块标注结果
@@ -25,7 +25,7 @@ public interface ChunkAnalysis {
 	 * @param poses	词组对应词性数组
 	 * @return		词组的组块标注结果
 	 */
-	public String[] tag(String[] words,String[] pos);
+	public String analysis(String[] words,String[] pos);
 	
 	/**
 	 * 返回词组的组块标注结果
@@ -34,7 +34,7 @@ public interface ChunkAnalysis {
 	 * @param additionaContext	其他上下文信息
 	 * @return					词组的组块标注结果
 	 */
-	public String[] tag(String[] words,String[] pos, Object[] additionaContext);
+	public String analysis(String[] words,String[] pos, Object[] additionaContext);
 
 	/**
 	 * 根据给定词组，返回最优的K个标注序列

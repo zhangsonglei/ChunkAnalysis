@@ -24,6 +24,8 @@ public class ChunkAnalysisMeasureTest {
 	
 	private ChunkAnalysisMeasure measure;
 	
+	private ChunkAnalysisParse parse;
+	
 	String[] words = new String[]{"忠诚", "的", "共产主义", "战士", "，", "久经考验", "无产阶级", "革命家", "同志", "逝世", 
 			"目前", "为止", "灾区", "没有", "一", "人", "因", "冻", "饿", "死亡", "大部分", "也", "出", "问题", "。",
 			"党中央", "国务院", "关心", "西藏", "雪灾", "救灾", "工作"};
@@ -43,6 +45,7 @@ public class ChunkAnalysisMeasureTest {
 	@Before
 	public void setUp() throws Exception {
 		Dictionary wordDict = new Dictionary(words);
+		parse = new ChunkAnalysisParse();
 		measure = new ChunkAnalysisMeasure(wordDict);
 		
 		refList = new ArrayList<>(); refList.add(ref1);	refList.add(ref2); refList.add(ref3);
@@ -51,8 +54,8 @@ public class ChunkAnalysisMeasureTest {
 		ChunkAnalysisSample ref;
 		ChunkAnalysisSample pre;
 		for(int i = 0; i < refList.size(); i++) {
-			ref = new ChunkAnalysisParse(refList.get(i)).parse();
-			pre = new ChunkAnalysisParse(preList.get(i)).parse();
+			ref = parse.parse(refList.get(i));
+			pre = parse.parse(preList.get(i));
 			measure.add(ref, pre);
 		}
 	}

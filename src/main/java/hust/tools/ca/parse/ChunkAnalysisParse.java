@@ -15,24 +15,22 @@ import hust.tools.ca.stream.ChunkAnalysisSample;
  */
 public class ChunkAnalysisParse {
 
-	private String sentence;
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
 	private final String OutChunk = "O";
 	
 	/**
 	 * 构造方法
-	 * @param sentence	待解析的句子
 	 */
-	public ChunkAnalysisParse(String sentence){
-		this.sentence = sentence;
+	public ChunkAnalysisParse() {
+		
 	}
 	
 	/**
 	 * 返回由字符串句子解析而成的样本
 	 * @return	样本
 	 */
-	public ChunkAnalysisSample parse(){
+	public ChunkAnalysisSample parse(String sentence){
 		List<String> chunkTags = new ArrayList<>();
 		List<String> words = new ArrayList<>();
 		List<String> poses = new ArrayList<>();

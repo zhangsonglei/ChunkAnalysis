@@ -20,12 +20,15 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisSampleStream.class.getName());
 
+	private ChunkAnalysisParse context;
+	
 	/**
 	 * 构造方法
 	 * @param samples	输入流
 	 */
 	public ChunkAnalysisSampleStream(ObjectStream<String> samples) {
 		super(samples);
+		context = new ChunkAnalysisParse();
 	}
 
 	/**
@@ -38,9 +41,9 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 		if(sentence != null){
 			ChunkAnalysisSample sample = null;
 			if(sentence.compareTo("") != 0){
-				ChunkAnalysisParse context = new ChunkAnalysisParse(sentence);
+				
 				try{
-					sample = context.parse();;
+					sample = context.parse(sentence);
 				}catch(Exception e){
 					if (logger.isLoggable(Level.WARNING)) 	
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);
