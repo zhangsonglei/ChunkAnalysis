@@ -54,8 +54,8 @@ public class ChunkAnalysisMeasureTest {
 		ChunkAnalysisSample ref;
 		ChunkAnalysisSample pre;
 		for(int i = 0; i < refList.size(); i++) {
-			ref = parse.parse(refList.get(i));
-			pre = parse.parse(preList.get(i));
+			ref = parse.parse(refList.get(i), false);
+			pre = parse.parse(preList.get(i), false);
 			measure.add(ref, pre);
 		}
 	}

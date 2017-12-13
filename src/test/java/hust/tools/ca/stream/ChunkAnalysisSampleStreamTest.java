@@ -38,9 +38,9 @@ public class ChunkAnalysisSampleStreamTest {
 		sampleStream = new ChunkAnalysisSampleStream(fileStream);
 		parse = new ChunkAnalysisParse();
 		
-		sampleList.add(parse.parse(sentence1));
-		sampleList.add(parse.parse(sentence2));
-		sampleList.add(parse.parse(sentence3));
+		sampleList.add(parse.parse(sentence1, false));
+		sampleList.add(parse.parse(sentence2, false));
+		sampleList.add(parse.parse(sentence3, false));
 	}
 
 	@Test

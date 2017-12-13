@@ -109,7 +109,7 @@ public class ChunkAnalysisMeasure {
 	 * @param predictions	预测结果
 	 */
 	public void statistics(List<ChunkAnalysisSample> references, List<ChunkAnalysisSample> predictions) {
-		for(int i = 0; i < references.size(); i++)//遍历每个样本
+		for(int i = 0; i < references.size(); i++)//遍历每个测试样本
 			add(references.get(i), predictions.get(i));
 	}
 	
@@ -119,7 +119,7 @@ public class ChunkAnalysisMeasure {
 	 * @param prediction预测样本
 	 */
 	public void add(ChunkAnalysisSample reference, ChunkAnalysisSample prediction) {
-		String[] words = reference.getWords();				//每个样本中的词组
+		String[] words = reference.getWords();				//每个测试样本中的词组
 		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
 		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
 		update(words, refChunkTags, preChunkTags);
@@ -141,7 +141,7 @@ public class ChunkAnalysisMeasure {
 		List<String> correctPreChunk = new ArrayList<>();	//临时存放预测正确的组块
 		List<String> wordsInChunk = new ArrayList<>();		//临时存放组块中的词组
 		
-		for(int i = 0; i < words.length; i++) {//便利样本中的每个词,统计样本中每类组块标记标准数量与预测数量
+		for(int i = 0; i < words.length; i++) {//遍历样本中的每个词,统计样本中每类组块标记标准数量与预测数量
 			totalWordCounts++;
 			
 			if(!wordDict.contains(words[i])) 
@@ -179,7 +179,7 @@ public class ChunkAnalysisMeasure {
 					correctPreChunk.add(preChunkTag);
 					wordsInChunk.add(words[i]);
 				}
-			}else{//当前词的组块标记为*_I
+			}else{//当前词的组块标记为*_I || *_E
 				tempRefChunk.add(refChunkTag);
 				correctPreChunk.add(preChunkTag);
 				wordsInChunk.add(words[i]);
@@ -204,7 +204,7 @@ public class ChunkAnalysisMeasure {
 						predictChunkTagMap.put(preChunkTag, 1L);
 				}else//当前词的组块预测标记为*_B
 					tempPreChunk.add(preChunkTag);
-			}else//当前词的组块预测标记为*_I
+			}else//当前词的组块预测标记为*_I || *_E
 				tempPreChunk.add(preChunkTag);
 		}
 		
@@ -219,7 +219,6 @@ public class ChunkAnalysisMeasure {
 				predictChunkTagMap.put(chunk, 1L);
 		}
 	}
-
 	
 	/**
 	 * 统计未处理的参考组块

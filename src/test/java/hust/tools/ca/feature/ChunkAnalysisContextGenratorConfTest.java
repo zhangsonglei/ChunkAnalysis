@@ -35,7 +35,7 @@ public class ChunkAnalysisContextGenratorConfTest {
 	@Before
 	public void setUp() throws Exception {
 		parse = new ChunkAnalysisParse();
-		ChunkAnalysisSample sample = parse.parse(sentence);
+		ChunkAnalysisSample sample = parse.parse(sentence, false);
 		words = sample.getWords();
 		poses = sample.getPoses();
 		chunkTags = sample.getChunkTags();

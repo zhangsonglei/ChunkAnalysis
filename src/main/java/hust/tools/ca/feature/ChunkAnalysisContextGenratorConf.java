@@ -127,6 +127,7 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
     	p1p2Set = (config.getProperty("feature.p1p2", "true").equals("true"));
     	
     	p_2p0Set = (config.getProperty("feature.p_2p0", "true").equals("true"));
+    	p_2p0p1Set = (config.getProperty("feature.p_2p0p1", "true").equals("true"));
     	p_2p_1p0Set = (config.getProperty("feature.p_2p_1p0", "true").equals("true"));
     	
     	c_2c_1Set = (config.getProperty("feature.c_2c_1", "true").equals("true"));
@@ -138,6 +139,7 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
     	w_1p_1Set = (config.getProperty("feature.w_1p_1", "true").equals("true"));
     	w_1p0Set = (config.getProperty("feature.w_1p0", "true").equals("true"));
     	w1p0Set = (config.getProperty("feature.w1p0", "true").equals("true"));
+    	w1p0p1Set = (config.getProperty("feature.w1p0p1", "true").equals("true"));
     	p0p2Set = (config.getProperty("feature.p0p2", "true").equals("true"));
     	w1p1Set = (config.getProperty("feature.w1p1", "true").equals("true"));
     	w2p2Set = (config.getProperty("feature.w2p2", "true").equals("true"));
@@ -176,7 +178,9 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 		
         List<String> features = new ArrayList<String>();
         w0 = words[index];
-        p0 = poses[index];
+        
+        if(poses != null)
+        	p0 = poses[index];
         
         if (words.length > index + 1) {
             w1 = words[index + 1];
@@ -210,15 +214,23 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             }
         }
         
-        //原子特征
-        if (w0Set)
+        if(w0Set)
             features.add("w0=" + w0);
         if(p0Set)
         	features.add("p0=" + p0);
         
-        if (w_1 != null) {
-            if (w_1Set) 
+        if(w_1 != null) {
+            if(w_1Set) 
                 features.add("w_1=" + w_1);
+            if(c_1Set)
+            	features.add("c_1=" + c_1);
+            if(w_1w0Set) 
+        		features.add("w_1w0=" + w_1 + w0);
+            
+            if(w1 != null) {
+        		if(w_1w1Set)
+        			features.add("w_1w1=" + w_1 + w1);
+        	}
             
             if(poses != null) {
             	if(p_1Set)
@@ -227,21 +239,43 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             		features.add("w0p_1=" + w0 + p_1);
             	if(w_1p_1Set) 
             		features.add("w_1p_1=" + w_1 + p_1);
+            	if(p_1p0Set)
+            		features.add("p_1p0=" + p_1 + p0);
+            	if(p0c_1Set)
+            		features.add("p0c_1=" + p0 + c_1);
+            	if(w_1p0Set)
+            		features.add("w_1p0=" + w_1 + p0);
+            	if(p_1p0c_1Set)
+            		features.add("p_1p0c_1=" + p_1 + p0 + c_1);
+            	if(w0p_1p0Set)
+            		features.add("w0p_1p0=" + w0 + p_1 + p0);
             	
-            	if(w1 != null) {
-            		if(w_1w1Set)
-            			features.add("w_1w1=" + w_1 + w1);
+            	if(p1 != null) {
+            		if(p_1p0p1Set)
+            			features.add("p_1p0p1=" + p_1 + p0 + p1);
+            		if(p_1p1Set)
+            			features.add("p_1p1=" + p_1 + p1);
+            		if(w1p_1p0Set) 
+            			features.add("w1p_1p0=" + w1 + p_1 + p0);
+            		if(p0p1c_1Set)
+            			features.add("p0p1c_1=" + p0 + p1 + c_1);
+
+            		if(p2 != null) {
+            			if(p_1p1p2Set)
+            				features.add("p_1p1p2=" + p_1 + p1 + p2);
+            		}
             	}
             }
             
-            if(c_1Set)
-            	features.add("c_1=" + c_1);
-            if(w_1w0Set) 
-        		features.add("w_1w0=" + w_1 + w0);
-            
-            if (w_2 != null) {
-                if (w_2Set) 
+            if(w_2 != null) {
+                if(w_2Set) 
                     features.add("w_2=" + w_2);
+                if(w_2w_1Set) 
+            		features.add("w_2w_1=" + w_2 + w_1);
+                if(c_2Set) 
+                    features.add("c_2=" + c_2);
+                if(c_2c_1Set) 
+            		features.add("c_2c_1=" + c_2 + c_1);
                 
                 if(poses != null) {
                 	if(p_2Set) 
@@ -250,26 +284,36 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
                 		features.add("w0p_2=" + w0 + p_2);
                 	if(p_2p0Set)
                 		features.add("p_2p0=" + p_2 + p0);
+                	if(p_2p_1Set)
+            			features.add("p_2p_1=" + p_2 + p_1);
+            		if(p_2p_1p0Set)
+            			features.add("p_2p_1p0=" + p_2 + p_1 + p0);
+            		if(w_2p_1p0Set)
+            			features.add("w_2p_1p0=" + w_2 + p_1 + p0);
+                	
+            		if(p1 != null) {
+            			if(p_2p0p1Set)
+            				features.add("p_2p0p1=" + p_2 + p0 + p1);
+            		}
                 }
-                
-                if (c_2Set) 
-                    features.add("c_2=" + c_2);
-                if(w_2w_1Set) 
-            		features.add("w_2w_1=" + w_2 + w_1);
-                if(c_2c_1Set) 
-            		features.add("c_2c_1=" + c_2 + c_1);
             }
         }
         
-        if (w1 != null) {
-            if (w1Set) 
+        if(w1 != null) {
+            if(w1Set) 
                 features.add("w1=" + w1);
+            if(w0w1Set)
+        		features.add("w0w1=" + w0 + w1);
             
             if(poses != null) {
-            	if (p1Set) 
+            	if(p1Set) 
             		features.add("p1=" + p1);
             	if(w0p1Set)
             		features.add("w0p1=" + w0 + p1);
+            	if(w1p0Set)
+            		features.add("w1p0=" + w1 + p0);
+            	if(p0p1Set)
+            		features.add("p0p1=" + p0 + p1);
             	if(w0p0p1Set)
             		features.add("w0p0p1=" + w0 + p0 + p1);
             	if(w1p1Set)
@@ -277,88 +321,28 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             	if(w1p0p1Set)
             		features.add("w1p0p1=" + w1 + p0 + p1);
             }
-            
-            if(w0w1Set)
-        		features.add("w0w1=" + w0 + w1);
-            
-            if (w2 != null) {
-                if (w2Set) 
+
+            if(w2 != null) {
+                if(w2Set) 
                     features.add("w2=" + w2);
+                if(w1w2Set)
+            		features.add("w1w2=" + w1 + w2);
                 
                 if(poses != null) {
-                	if (p2Set) 
+                	if(p2Set) 
                 		features.add("p2=" + p2);
                 	if(w2p2Set)
                 		features.add("w2p2=" + w2 + p2);
+                	if(p1p2Set)
+            			features.add("p1p2=" + p1 + p2);
+            		if(p0p1p2Set)
+            			features.add("p0p1p2=" + p0 + p1 + p2);
+            		if(p0p2Set)
+            			features.add("p0p2=" + p0 + p2);
+            		if(w0p2Set) 
+            			features.add("w0p2=" + w0 + p2);
                 }
-                
-                if(w1w2Set)
-            		features.add("w1w2=" + w1 + w2);
             }
-        }
-        
-        //复合特征, 训练语料中存在词性
-        if(p_1 != null) {
-        	if(p_1p0Set)
-        		features.add("p_1p0=" + p_1 + p0);
-        	if(p0c_1Set)
-        		features.add("p0c_1=" + p0 + c_1);
-        	if(w_1p0Set)
-        		features.add("w_1p0=" + w_1 + p0);
-        	
-        	if(p_1p0c_1Set)
-        		features.add("p_1p0c_1=" + p_1 + p0 + c_1);
-        	if(w0p_1p0Set)
-        		features.add("w0p_1p0=" + w0 + p_1 + p0);
-            	
-        	if(p1 != null) {
-        		if(p_1p0p1Set)
-        			features.add("p_1p0p1=" + p_1 + p0 + p1);
-        		if(p_1p1Set)
-        			features.add("p_1p1=" + p_1 + p1);
-        		if(w1p_1p0Set) 
-        			features.add("w1p_1p0=" + w1 + p_1 + p0);
-        		if(p0p1c_1Set)
-        			features.add("p0p1c_1=" + p0 + p1 + c_1);
-
-        		if(p2 != null) {
-        			if(p_1p1p2Set)
-        				features.add("p_1p1p2=" + p_1 + p1 + p2);
-        		}
-        	}
-            	
-        	if(p_2 != null) {
-        		if(p_2p_1Set)
-        			features.add("p_2p_1=" + p_2 + p_1);
-        		if(p_2p_1p0Set)
-        			features.add("p_2p_1p0=" + p_2 + p_1 + p0);
-        		if(w_2p_1p0Set)
-        			features.add("w_2p_1p0=" + w_2 + p_1 + p0);
-        		
-        		if(p1!=null) {
-        			if(p_2p0p1Set)
-        				features.add("p_2p0p1=" + p_2 + p0 + p1);
-        		}
-        	}
-        }
-        
-        //训练语料中带词性
-        if(p1 != null) {
-        	if(w1p0Set)
-        		features.add("w1p0=" + w1 + p0);
-        	if(p0p1Set)
-        		features.add("p0p1=" + p0 + p1);
-        	
-        	if(p2!=null) {
-        		if(p1p2Set)
-        			features.add("p1p2=" + p1 + p2);
-        		if(p0p1p2Set)
-        			features.add("p0p1p2=" + p0 + p1 + p2);
-        		if(p0p2Set)
-        			features.add("p0p2=" + p0 + p2);
-        		if(w0p2Set) 
-        			features.add("w0p2=" + w0 + p2);
-        	}
         }
 
         String[] contexts = features.toArray(new String[features.size()]);

@@ -14,10 +14,16 @@ import hust.tools.ca.stream.ChunkAnalysisSample;
  *</ul>
  */
 public class ChunkAnalysisParse {
-
+	
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
 	private final String OutChunk = "O";
+	private final String ChunkEnd = "E";
+	
+	
+	private List<String> chunkTags;
+	private List<String> words;
+	private List<String> poses;
 	
 	/**
 	 * 构造方法
@@ -30,10 +36,10 @@ public class ChunkAnalysisParse {
 	 * 返回由字符串句子解析而成的样本
 	 * @return	样本
 	 */
-	public ChunkAnalysisSample parse(String sentence){
-		List<String> chunkTags = new ArrayList<>();
-		List<String> words = new ArrayList<>();
-		List<String> poses = new ArrayList<>();
+	public ChunkAnalysisSample parse(String sentence, boolean contain_End){
+		chunkTags = new ArrayList<>();
+		words = new ArrayList<>();
+		poses = new ArrayList<>();
 		
 		boolean isInChunk = false;							//当前词是否在组块中
 		List<String> wordTagsInChunk = new ArrayList<>();	//临时存储在组块中的词与词性
@@ -50,18 +56,8 @@ public class ChunkAnalysisParse {
 				}else 
 					wordTagsInChunk.add(string);
 			}else {//当前词不在组块中
-				if(wordTagsInChunk != null && chunk != null) {//上一个组块中的词未处理，先处理上一个组块中的词	
-					wordTag = wordTagsInChunk.get(0).split("/");
-					words.add(wordTag[0]);
-					poses.add(wordTag[1]);
-					chunkTags.add(chunk + ChunkBegin);
-					
-					for(int i = 1; i < wordTagsInChunk.size(); i++) {
-						wordTag = wordTagsInChunk.get(i).split("/");
-						words.add(wordTag[0]);
-						poses.add(wordTag[1]);
-						chunkTags.add(chunk + InChunk);
-					}
+				if(wordTagsInChunk != null && chunk != null) {//上一个组块中的词未处理，先处理上一个组块中的词
+					processChunk(wordTagsInChunk, chunk, contain_End);
 					
 					wordTagsInChunk = new ArrayList<>();
 					chunk = null;
@@ -90,12 +86,37 @@ public class ChunkAnalysisParse {
 		}
 		
 		//句子结尾是组块，进行解析
-		if(wordTagsInChunk != null && chunk != null) {
-			wordTag = wordTagsInChunk.get(0).split("/");
+		if(wordTagsInChunk != null && chunk != null) 
+			processChunk(wordTagsInChunk, chunk, contain_End);
+		
+		return new ChunkAnalysisSample(words, poses, chunkTags);
+	}
+	
+	/**
+	 * 处理组块，为组块中的词赋予标签
+	 * @param wordTagsInChunk	待处理的组块	
+	 * @param chunk				组块的类型
+	 * @param contain_End		是否含有结束标签(BIO/BIEO)
+	 */
+	private void processChunk(List<String> wordTagsInChunk, String chunk, boolean contain_End) {
+		String[] wordTag = wordTagsInChunk.get(0).split("/");
+		words.add(wordTag[0]);
+		poses.add(wordTag[1]);
+		chunkTags.add(chunk + ChunkBegin);
+		
+		if(contain_End) {
+			for(int i = 1; i < wordTagsInChunk.size() - 1; i++) {
+				wordTag = wordTagsInChunk.get(i).split("/");
+				words.add(wordTag[0]);
+				poses.add(wordTag[1]);
+				chunkTags.add(chunk + InChunk);
+			}
+			
+			wordTag = wordTagsInChunk.get(wordTagsInChunk.size() - 1).split("/");
 			words.add(wordTag[0]);
 			poses.add(wordTag[1]);
-			chunkTags.add(chunk + ChunkBegin);
-			
+			chunkTags.add(chunk + ChunkEnd);
+		}else {
 			for(int i = 1; i < wordTagsInChunk.size(); i++) {
 				wordTag = wordTagsInChunk.get(i).split("/");
 				words.add(wordTag[0]);
@@ -103,7 +124,5 @@ public class ChunkAnalysisParse {
 				chunkTags.add(chunk + InChunk);
 			}
 		}
-		
-		return new ChunkAnalysisSample(words, poses, chunkTags);
 	}
 }

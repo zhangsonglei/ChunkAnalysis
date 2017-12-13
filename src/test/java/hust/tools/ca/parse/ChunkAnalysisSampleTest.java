@@ -44,9 +44,9 @@ public class ChunkAnalysisSampleTest {
 	@Before
 	public void setUp() throws Exception {
 		parse = new ChunkAnalysisParse();
-		sample1 = parse.parse(sentence1);
-		sample2 = parse.parse(sentence2);
-		sample3 = parse.parse(sentence3);
+		sample1 = parse.parse(sentence1, false);
+		sample2 = parse.parse(sentence2, false);
+		sample3 = parse.parse(sentence3, false);
 	}
 
 	@Test
