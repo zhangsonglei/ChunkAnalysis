@@ -22,6 +22,8 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	private boolean w0Set;		//当前词语
 	private boolean w1Set;		//后一个词
 	private boolean w2Set;		//后面第二个词
+	private boolean af0Set;		//当前词后缀
+	private boolean pf0Set;		//当前词前缀
 	
 	private boolean p_2Set;		//前面第二个词的词性标注
 	private boolean p_1Set;		//前一个词的词性标注
@@ -38,6 +40,9 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	private boolean w0w1Set;
 	private boolean w1w2Set;
 	private boolean w_1w1Set;
+	private boolean w_2w_1w0Set;
+	private boolean w_1w0w1Set;
+	private boolean w0w1w2Set;
 	
 	private boolean p_2p_1Set;
 	private boolean p_1p0Set;
@@ -72,6 +77,9 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	private boolean w_2p_1p0Set;
 	private boolean w0p_1p0Set;
 	private boolean w0p0p1Set;
+	private boolean w0w1p1Set;
+	private boolean w0w2p2Set;
+	private boolean w_1w0p_1Set;
 
 	/**
 	 * 构造方法
@@ -104,6 +112,8 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
         w0Set = (config.getProperty("feature.w0", "true").equals("true"));
         w1Set = (config.getProperty("feature.w1", "true").equals("true"));
         w2Set = (config.getProperty("feature.w2", "true").equals("true"));
+        pf0Set = (config.getProperty("feature.pf0", "true").equals("true"));
+        af0Set = (config.getProperty("feature.af0", "true").equals("true"));
         
         p_2Set = (config.getProperty("feature.p_2", "true").equals("true"));
         p_1Set = (config.getProperty("feature.p_1", "true").equals("true"));
@@ -120,6 +130,10 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
     	w0w1Set = (config.getProperty("feature.w0w1", "true").equals("true"));
     	w1w2Set = (config.getProperty("feature.w1w2", "true").equals("true"));
     	w_1w1Set = (config.getProperty("feature.w_1w1", "true").equals("true"));
+    	w_2w_1w0Set = (config.getProperty("feature.w_2w_1w0", "true").equals("true"));
+    	w_1w0w1Set = (config.getProperty("feature.w_1w0w1", "true").equals("true"));
+    	w0w1w2Set = (config.getProperty("feature.w0w1w2", "true").equals("true"));
+    	
         
         p_2p_1Set = (config.getProperty("feature.p_2p_1", "true").equals("true"));
         p_1p0Set = (config.getProperty("feature.p_1p0", "true").equals("true"));
@@ -157,6 +171,9 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
     	w_2p_1p0Set = (config.getProperty("feature.w_2p_1p0", "true").equals("true"));
     	w0p_1p0Set = (config.getProperty("feature.w0p_1p0", "true").equals("true"));
     	w0p0p1Set = (config.getProperty("feature.w0p0p1", "true").equals("true"));
+    	w0w1p1Set = (config.getProperty("feature.w0w1p1", "true").equals("true"));
+    	w0w2p2Set = (config.getProperty("feature.w0w2p2", "true").equals("true"));
+    	w_1w0p_1Set = (config.getProperty("feature.w_1w0p_1", "true").equals("true"));
 	}
 
 	@Override
@@ -173,11 +190,17 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	 * @return
 	 */
 	private String[] getContext(int index, String[] words, String[] poses, String[] chunkTags) {
-		String w_2, w_1, w0, w1, w2, p_2, p_1, p0, p1, p2, c_2, c_1;
-		w_2 = w_1 = w0 = w1 = w2 = p_2 = p_1 = p0 = p1 = p2 = c_2 = c_1 = null;
+		String w_2, w_1, w0, w1, w2, p_2, p_1, p0, p1, p2, c_2, c_1, pf0, af0;
+		w_2 = w_1 = w0 = w1 = w2 = p_2 = p_1 = p0 = p1 = p2 = c_2 = c_1 = pf0 = af0 = null;
 		
         List<String> features = new ArrayList<String>();
         w0 = words[index];
+        
+        if(w0.length() > 1) {
+        	pf0 = w0.substring(0, 2);
+        	af0 = w0.substring(w0.length() - 2, w0.length());       	
+        }else
+        	 pf0 = af0 = w0;
         
         if(poses != null)
         	p0 = poses[index];
@@ -216,6 +239,10 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
         
         if(w0Set)
             features.add("w0=" + w0);
+        if(af0Set)
+            features.add("af0=" + af0);
+        if(pf0Set)
+            features.add("pf0=" + pf0);
         if(p0Set)
         	features.add("p0=" + p0);
         
@@ -249,6 +276,8 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             		features.add("p_1p0c_1=" + p_1 + p0 + c_1);
             	if(w0p_1p0Set)
             		features.add("w0p_1p0=" + w0 + p_1 + p0);
+            	if(w_1w0p_1Set)
+            		features.add("w_1w0p_1=" + w_1 + w0 + p_1);
             	
             	if(p1 != null) {
             		if(p_1p0p1Set)
@@ -272,10 +301,17 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
                     features.add("w_2=" + w_2);
                 if(w_2w_1Set) 
             		features.add("w_2w_1=" + w_2 + w_1);
+                if(w_2w_1w0Set)
+                	features.add("w_2w_1w0=" + w_2 + w_1 + w0);
                 if(c_2Set) 
                     features.add("c_2=" + c_2);
                 if(c_2c_1Set) 
             		features.add("c_2c_1=" + c_2 + c_1);
+                
+                if(w1 != null) {
+                	if(w_1w0w1Set)
+                		features.add("w_1w0w1=" + w_1 + w0 + w1);
+                }
                 
                 if(poses != null) {
                 	if(p_2Set) 
@@ -310,6 +346,8 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             		features.add("p1=" + p1);
             	if(w0p1Set)
             		features.add("w0p1=" + w0 + p1);
+            	if(w0w1p1Set)
+            		features.add("w0w1p1=" + w0 + w1 + p1);
             	if(w1p0Set)
             		features.add("w1p0=" + w1 + p0);
             	if(p0p1Set)
@@ -320,6 +358,7 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             		features.add("w1p1=" + w1 + p1);
             	if(w1p0p1Set)
             		features.add("w1p0p1=" + w1 + p0 + p1);
+            	
             }
 
             if(w2 != null) {
@@ -327,6 +366,8 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
                     features.add("w2=" + w2);
                 if(w1w2Set)
             		features.add("w1w2=" + w1 + w2);
+                if(w0w1w2Set)
+            		features.add("w0w1w2=" + w0 + w1 + w2);
                 
                 if(poses != null) {
                 	if(p2Set) 
@@ -341,6 +382,8 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             			features.add("p0p2=" + p0 + p2);
             		if(w0p2Set) 
             			features.add("w0p2=" + w0 + p2);
+            		if(w0w2p2Set)
+            			features.add("w0w2p2=" + w0 + w2 + p2);
                 }
             }
         }

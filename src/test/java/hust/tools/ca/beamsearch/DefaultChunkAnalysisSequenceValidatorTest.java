@@ -30,7 +30,7 @@ public class DefaultChunkAnalysisSequenceValidatorTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		validator = new DefaultChunkAnalysisSequenceValidator();
+		validator = new DefaultChunkAnalysisSequenceValidator(false);
 	}
 
 	@Test

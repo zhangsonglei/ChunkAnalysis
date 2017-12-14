@@ -52,13 +52,15 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 	private List<String> characters = new ArrayList<String>();
 	private List<String> tags = new ArrayList<String>();
     private ChunkAnalysisSequenceValidator<String> sequenceValidator;
+    private static boolean isBIEO;
 	
     /**
      * 构造方法
      * @param model			组块分析模型
      * @param contextGen	上下文生成器
      */
-	public ChunkAnalysisME(ChunkAnalysisModel model, ChunkAnalysisContextGenerator contextGen) {
+	public ChunkAnalysisME(ChunkAnalysisModel model, boolean isBIEO, ChunkAnalysisContextGenerator contextGen) {
+		this.isBIEO = isBIEO;
 		init(model , contextGen);
 	}
 	
@@ -77,7 +79,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
         modelPackage = model;
         contextGenerator = contextGen;
         size = beamSize;
-        sequenceValidator = new DefaultChunkAnalysisSequenceValidator();
+        sequenceValidator = new DefaultChunkAnalysisSequenceValidator(isBIEO);
         
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
@@ -100,7 +102,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 		ChunkAnalysisModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream);
+			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream, isBIEO);
 			model = ChunkAnalysisME.train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -165,7 +167,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 		ChunkAnalysisModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream);
+			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream, isBIEO);
 			model = ChunkAnalysisME.train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           

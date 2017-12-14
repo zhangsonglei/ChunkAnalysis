@@ -35,7 +35,7 @@ public class ChunkAnalysisSampleStreamTest {
 		File file = new File(this.getClass().getClassLoader().getResource("test/train.txt").getFile());
 		FileInputStreamFactory inputStreamFactory = new FileInputStreamFactory(file);
 		PlainTextFileStream fileStream = new PlainTextFileStream(inputStreamFactory, "utf8");
-		sampleStream = new ChunkAnalysisSampleStream(fileStream);
+		sampleStream = new ChunkAnalysisSampleStream(fileStream, false);
 		parse = new ChunkAnalysisParse();
 		
 		sampleList.add(parse.parse(sentence1, false));

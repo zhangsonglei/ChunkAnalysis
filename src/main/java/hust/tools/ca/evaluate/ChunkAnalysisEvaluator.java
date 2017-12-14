@@ -40,7 +40,7 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
-	public ChunkAnalysisEvaluator(ChunkAnalysisME chunkTagger,ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
+	public ChunkAnalysisEvaluator(ChunkAnalysisME chunkTagger, boolean isBIEO ,ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
 	}

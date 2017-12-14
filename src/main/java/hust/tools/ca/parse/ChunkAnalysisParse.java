@@ -18,7 +18,7 @@ public class ChunkAnalysisParse {
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
 	private final String OutChunk = "O";
-	private final String ChunkEnd = "E";
+	private final String ChunkEnd = "_E";
 	
 	
 	private List<String> chunkTags;
@@ -36,7 +36,7 @@ public class ChunkAnalysisParse {
 	 * 返回由字符串句子解析而成的样本
 	 * @return	样本
 	 */
-	public ChunkAnalysisSample parse(String sentence, boolean contain_End){
+	public ChunkAnalysisSample parse(String sentence, boolean isBIEO){
 		chunkTags = new ArrayList<>();
 		words = new ArrayList<>();
 		poses = new ArrayList<>();
@@ -57,7 +57,7 @@ public class ChunkAnalysisParse {
 					wordTagsInChunk.add(string);
 			}else {//当前词不在组块中
 				if(wordTagsInChunk != null && chunk != null) {//上一个组块中的词未处理，先处理上一个组块中的词
-					processChunk(wordTagsInChunk, chunk, contain_End);
+					processChunk(wordTagsInChunk, chunk, isBIEO);
 					
 					wordTagsInChunk = new ArrayList<>();
 					chunk = null;
@@ -87,7 +87,7 @@ public class ChunkAnalysisParse {
 		
 		//句子结尾是组块，进行解析
 		if(wordTagsInChunk != null && chunk != null) 
-			processChunk(wordTagsInChunk, chunk, contain_End);
+			processChunk(wordTagsInChunk, chunk, isBIEO);
 		
 		return new ChunkAnalysisSample(words, poses, chunkTags);
 	}

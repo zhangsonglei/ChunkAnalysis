@@ -33,6 +33,11 @@ import opennlp.tools.util.TrainingParameters;
 public class ChunkAnalysisRun {
 
 	private static String flag = "train";
+	
+	/**
+	 * 组块位置标签是否为BIEO，不是的话使用默认的BIO
+	 */
+	private static boolean isBIEO = false;
 
 	public static class Corpus{
 		public String name;
@@ -73,16 +78,20 @@ public class ChunkAnalysisRun {
 		String cmd = args[0];
 		if(cmd.equals("-train")){
 			flag = "train";
-			runFeature();
+			isBIEO = Boolean.parseBoolean(args[1]);
+			runFeature(isBIEO);
 		}else if(cmd.equals("-model")){
 			flag = "model";
-			runFeature();
+			isBIEO = Boolean.parseBoolean(args[1]);
+			runFeature(isBIEO);
 		}else if(cmd.equals("-evaluate")){
 			flag = "evaluate";
-			runFeature();
+			isBIEO = Boolean.parseBoolean(args[1]);
+			runFeature(isBIEO);
 		}else if(cmd.equals("-cross")){
 			String corpus = args[1];
-			crossValidation(corpus);
+			isBIEO = Boolean.parseBoolean(args[2]);
+			crossValidation(corpus, isBIEO);
 		}
 	}
 	
@@ -91,7 +100,7 @@ public class ChunkAnalysisRun {
 	 * @param corpus 语料的名称
 	 * @throws IOException 
 	 */
-	private static void crossValidation(String corpusName) throws IOException {
+	private static void crossValidation(String corpusName, boolean isBIEO) throws IOException {
 		Properties config = new Properties();
 		InputStream configStream = ChunkAnalysisRun.class.getClassLoader().getResourceAsStream("properties/corpus.properties");
 		config.load(configStream);
@@ -101,18 +110,18 @@ public class ChunkAnalysisRun {
         ChunkAnalysisContextGenerator contextGen = getContextGenerator(config);
         ObjectStream<String> lineStream = new PlainTextByLineStream(new FileInputStreamFactory(new File(corpus.trainFile)), corpus.encoding);
         
-        ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream);
+        ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream, isBIEO);
 
         //默认参数
         TrainingParameters params = TrainingParameters.defaultParams();
         params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(2));
-        params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(50));
+        params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(40));
 
         //把刚才属性信息封装
         ChunkAnalysisCrossValidation crossValidator = new ChunkAnalysisCrossValidation("zh", params);
 
         System.out.println(contextGen);
-        crossValidator.evaluate(sampleStream, 10, contextGen);
+        crossValidator.evaluate(sampleStream, 10, contextGen, isBIEO);
 	}
 
 	/**
@@ -134,7 +143,7 @@ public class ChunkAnalysisRun {
 	 * 根据配置文件配置的信息获取特征
 	 * @throws IOException IO异常
 	 */
-	private static void runFeature() throws IOException {
+	private static void runFeature(boolean isBIEO) throws IOException {
 		//配置参数
 		TrainingParameters params = TrainingParameters.defaultParams();
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(1));
@@ -147,7 +156,7 @@ public class ChunkAnalysisRun {
 
         ChunkAnalysisContextGenerator contextGen = getContextGenerator(config);
 
-        runFeatureOnCorporaByFlag(contextGen, corpora, params);
+        runFeatureOnCorporaByFlag(contextGen, corpora, params, isBIEO);
 	}
 
 	/**
@@ -158,7 +167,7 @@ public class ChunkAnalysisRun {
 	 * @throws IOException 
 	 */
 	private static void runFeatureOnCorporaByFlag(ChunkAnalysisContextGenerator contextGen, Corpus[] corpora,
-			TrainingParameters params) throws IOException {
+			TrainingParameters params, boolean isBIEO) throws IOException {
 		if(flag == "train" || flag.equals("train")){
 			for (int i = 0; i < corpora.length; i++) {
 				trainOnCorpus(contextGen,corpora[i],params);
@@ -169,7 +178,7 @@ public class ChunkAnalysisRun {
 			}
 		}else if(flag == "evaluate" || flag.equals("evaluate")){
 			for (int i = 0; i < corpora.length; i++) {
-				evaluateOnCorpus(contextGen,corpora[i],params);
+				evaluateOnCorpus(contextGen,corpora[i],params, isBIEO);
 			}
 		}
 	}
@@ -198,13 +207,13 @@ public class ChunkAnalysisRun {
 	 * @throws IOException 
 	 */	
 	private static void evaluateOnCorpus(ChunkAnalysisContextGenerator contextGen, Corpus corpus,
-			TrainingParameters params) throws IOException {
+			TrainingParameters params, boolean isBIEO) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
         ChunkAnalysisModel model = ChunkAnalysisME.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
         
-        ChunkAnalysisME tagger = new ChunkAnalysisME(model,contextGen);
+        ChunkAnalysisME tagger = new ChunkAnalysisME(model,isBIEO, contextGen);
        
         ChunkAnalysisMeasure measure = new ChunkAnalysisMeasure();
         ChunkAnalysisEvaluator evaluator = null;
@@ -212,13 +221,13 @@ public class ChunkAnalysisRun {
         if(corpus.errorFile != null){
         	System.out.println("Print error to file " + corpus.errorFile);
         	printer = new ChunkAnalysisErrorPrinter(new FileOutputStream(corpus.errorFile));    	
-        	evaluator = new ChunkAnalysisEvaluator(tagger,printer);
+        	evaluator = new ChunkAnalysisEvaluator(tagger, isBIEO, printer);
         }else{
         	evaluator = new ChunkAnalysisEvaluator(tagger);
         }
         evaluator.setMeasure(measure);
         ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new FileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
-        ObjectStream<ChunkAnalysisSample> sampleStreamNoNull = new ChunkAnalysisSampleStream(linesStreamNoNull);
+        ObjectStream<ChunkAnalysisSample> sampleStreamNoNull = new ChunkAnalysisSampleStream(linesStreamNoNull, isBIEO);
         evaluator.evaluate(sampleStreamNoNull);
         ChunkAnalysisMeasure measureRes = evaluator.getMeasure();
         System.out.println("--------结果--------");

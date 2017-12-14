@@ -59,7 +59,7 @@ public class ChunkAnalysisCrossValidation {
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<ChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisContextGenerator contextGenerator) throws IOException{
+			ChunkAnalysisContextGenerator contextGenerator, boolean isBIEO) throws IOException{
 		CrossValidationPartitioner<ChunkAnalysisSample> partitioner = new CrossValidationPartitioner<ChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;
@@ -69,7 +69,7 @@ public class ChunkAnalysisCrossValidation {
 			
 			CrossValidationPartitioner.TrainingSampleStream<ChunkAnalysisSample> trainingSampleStream = partitioner.next();
 			ChunkAnalysisModel model = ChunkAnalysisME.train(encoding, trainingSampleStream, params, contextGenerator);
-			ChunkAnalysisEvaluator evaluator = new ChunkAnalysisEvaluator(new ChunkAnalysisME(model, contextGenerator), monitors);
+			ChunkAnalysisEvaluator evaluator = new ChunkAnalysisEvaluator(new ChunkAnalysisME(model, isBIEO, contextGenerator), isBIEO, monitors);
 			ChunkAnalysisMeasure measure = new ChunkAnalysisMeasure();
 			
 			evaluator.setMeasure(measure);

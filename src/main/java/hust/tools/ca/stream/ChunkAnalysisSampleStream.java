@@ -28,6 +28,8 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 	private static Logger logger = Logger.getLogger(ChunkAnalysisSampleStream.class.getName());
 
 	private ChunkAnalysisParse context;
+	
+	private boolean isBIEO;
 //	private BufferedWriter writer;
 	
 	/**
@@ -36,9 +38,10 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public ChunkAnalysisSampleStream(ObjectStream<String> samples) throws FileNotFoundException, UnsupportedEncodingException {
+	public ChunkAnalysisSampleStream(ObjectStream<String> samples, boolean isBIEO) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
 		context = new ChunkAnalysisParse();
+		this.isBIEO = isBIEO;
 //		writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("E:\\chunk.samples")), "utf8"));
 	}
 
@@ -54,7 +57,7 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 			if(sentence.compareTo("") != 0){
 				
 				try{
-					sample = context.parse(sentence, false);
+					sample = context.parse(sentence, isBIEO);
 				}catch(Exception e){
 					if (logger.isLoggable(Level.WARNING)) 	
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);
