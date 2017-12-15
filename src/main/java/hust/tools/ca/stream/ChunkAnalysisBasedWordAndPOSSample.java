@@ -12,7 +12,7 @@ import java.util.List;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisSample {
+public class ChunkAnalysisBasedWordAndPOSSample {
 	
 	public List<String> chunkTags;			//组块标记列表
 	public List<String> words;				//词语列表
@@ -25,7 +25,7 @@ public class ChunkAnalysisSample {
 	 * @param poses		词语对应的词性数组
 	 * @param chunkTags	词语组块标记数组
 	 */
-	public ChunkAnalysisSample(String[] words,String[] poses, String[] chunkTags){
+	public ChunkAnalysisBasedWordAndPOSSample(String[] words,String[] poses, String[] chunkTags){
 		this(words, poses, chunkTags, null);
 	}
 
@@ -35,7 +35,7 @@ public class ChunkAnalysisSample {
 	 * @param poses		词语对应的词性列表
 	 * @param chunkTags	词语组块标记列表
 	 */
-	public ChunkAnalysisSample(List<String> words,List<String> poses,List<String> chunkTags){
+	public ChunkAnalysisBasedWordAndPOSSample(List<String> words,List<String> poses,List<String> chunkTags){
 		this(words, poses, chunkTags, null);
 	}
 
@@ -46,7 +46,7 @@ public class ChunkAnalysisSample {
 	 * @param chunkTags			词语组块标记数组
 	 * @param additionalContext	其他上下文信息
 	 */
-	public ChunkAnalysisSample(String[] words,String[] poses, String[] chunkTags, String[][] additionalContext){
+	public ChunkAnalysisBasedWordAndPOSSample(String[] words,String[] poses, String[] chunkTags, String[][] additionalContext){
 		this(Arrays.asList(words), Arrays.asList(poses), Arrays.asList(chunkTags), additionalContext);
 	}
 
@@ -57,7 +57,7 @@ public class ChunkAnalysisSample {
 	 * @param chunkTags			词语组块标记列表
 	 * @param additionalContext	其他上下文信息
 	 */
-    public ChunkAnalysisSample(List<String> words, List<String> poses, List<String> chunkTags, String[][] additionalContext){
+    public ChunkAnalysisBasedWordAndPOSSample(List<String> words, List<String> poses, List<String> chunkTags, String[][] additionalContext){
     	this.chunkTags = Collections.unmodifiableList(chunkTags);
         this.words = Collections.unmodifiableList(words);
         this.poses = Collections.unmodifiableList(poses);
@@ -114,8 +114,8 @@ public class ChunkAnalysisSample {
 	public boolean equals(Object obj) {
 		if (this == obj) {
             return true;
-        } else if (obj instanceof ChunkAnalysisSample) {
-        	ChunkAnalysisSample a = (ChunkAnalysisSample) obj;
+        } else if (obj instanceof ChunkAnalysisBasedWordAndPOSSample) {
+        	ChunkAnalysisBasedWordAndPOSSample a = (ChunkAnalysisBasedWordAndPOSSample) obj;
 
             return Arrays.equals(getWords(), a.getWords())
                     && Arrays.equals(getChunkTags(), a.getChunkTags());

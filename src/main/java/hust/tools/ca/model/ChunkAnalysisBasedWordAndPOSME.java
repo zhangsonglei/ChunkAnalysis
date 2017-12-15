@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +13,11 @@ import java.util.Map;
 import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidator;
-import hust.tools.ca.beamsearch.DefaultChunkAnalysisSequenceValidator;
-import hust.tools.ca.event.ChunkAnalysisSampleEvent;
-import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
-import hust.tools.ca.stream.ChunkAnalysisSample;
-import hust.tools.ca.stream.ChunkAnalysisSampleStream;
+import hust.tools.ca.beamsearch.DefaultChunkAnalysisSequenceBasedWordAndPOSValidator;
+import hust.tools.ca.event.ChunkAnalysisSampleEventBasedWordAndPOS;
+import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.FileInputStreamFactory;
 import hust.tools.ca.stream.PlainTextFileStream;
 import opennlp.tools.ml.EventTrainer;
@@ -41,25 +40,30 @@ import opennlp.tools.util.TrainingParameters;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisME implements ChunkAnalysis {
+public class ChunkAnalysisBasedWordAndPOSME implements ChunkAnalysisBasedWordAndPOS {
 	
 	public static final int DEFAULT_BEAM_SIZE = 33;
-	private ChunkAnalysisContextGenerator contextGenerator;
+	private ChunkAnalysisBasedWordAndPOSContextGenerator contextGenerator;
 	private int size;
 	private Sequence bestSequence;
 	private ChunkAnalysisSequenceClassificationModel<String> model;
-	private ChunkAnalysisModel modelPackage;
-	private List<String> characters = new ArrayList<String>();
-	private List<String> tags = new ArrayList<String>();
     private ChunkAnalysisSequenceValidator<String> sequenceValidator;
-    private static boolean isBIEO;
+    private boolean isBIEO;
+    
+    /**
+     * 构造方法
+     * @param isBIEO	组块位置标签BIEO/BIO
+     */
+	public ChunkAnalysisBasedWordAndPOSME(boolean isBIEO) {
+		this.isBIEO = isBIEO;
+	}
 	
     /**
      * 构造方法
      * @param model			组块分析模型
      * @param contextGen	上下文生成器
      */
-	public ChunkAnalysisME(ChunkAnalysisModel model, boolean isBIEO, ChunkAnalysisContextGenerator contextGen) {
+	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, boolean isBIEO, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
 		this.isBIEO = isBIEO;
 		init(model , contextGen);
 	}
@@ -69,17 +73,16 @@ public class ChunkAnalysisME implements ChunkAnalysis {
      * @param model 		组块分析模型
      * @param contextGen	上下文生成器
      */
-	private void init(ChunkAnalysisModel model, ChunkAnalysisContextGenerator contextGen) {
-		int beamSize = ChunkAnalysisME.DEFAULT_BEAM_SIZE;
+	private void init(ChunkAnalysisBasedWordAndPOSModel model, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
+		int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
         String beamSizeString = model.getManifestProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 
         if (beamSizeString != null)
             beamSize = Integer.parseInt(beamSizeString);
 
-        modelPackage = model;
         contextGenerator = contextGen;
         size = beamSize;
-        sequenceValidator = new DefaultChunkAnalysisSequenceValidator(isBIEO);
+        sequenceValidator = new DefaultChunkAnalysisSequenceBasedWordAndPOSValidator(isBIEO);
         
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
@@ -97,13 +100,13 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public static ChunkAnalysisModel train(File file, TrainingParameters params, ChunkAnalysisContextGenerator contextGen,
+	public ChunkAnalysisBasedWordAndPOSModel train(File file, TrainingParameters params, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen,
 			String encoding){
-		ChunkAnalysisModel model = null;
+		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream, isBIEO);
-			model = ChunkAnalysisME.train("zh", sampleStream, params, contextGen);
+			ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
+			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -123,10 +126,10 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public static ChunkAnalysisModel train(String languageCode, ObjectStream<ChunkAnalysisSample> sampleStream, TrainingParameters params,
-			ChunkAnalysisContextGenerator contextGen) throws IOException {
+	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream, TrainingParameters params,
+			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) throws IOException {
 		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
-		int beamSize = ChunkAnalysisME.DEFAULT_BEAM_SIZE;
+		int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
         if (beamSizeString != null) {
             beamSize = Integer.parseInt(beamSizeString);
         }
@@ -137,16 +140,16 @@ public class ChunkAnalysisME implements ChunkAnalysis {
         ChunkAnalysisSequenceClassificationModel<String> chunkClassificationModel = null;
         if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
         	//sampleStream为PhraseAnalysisSampleStream对象
-            ObjectStream<Event> es = new ChunkAnalysisSampleEvent(sampleStream, contextGen);
+            ObjectStream<Event> es = new ChunkAnalysisSampleEventBasedWordAndPOS(sampleStream, contextGen);
             EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(),
                     manifestInfoEntries);
             maxentModel = trainer.train(es);                       
         }
 
         if (maxentModel != null) {
-            return new ChunkAnalysisModel(languageCode, maxentModel, beamSize, manifestInfoEntries);
+            return new ChunkAnalysisBasedWordAndPOSModel(languageCode, maxentModel, beamSize, manifestInfoEntries);
         } else {
-            return new ChunkAnalysisModel(languageCode, chunkClassificationModel, manifestInfoEntries);
+            return new ChunkAnalysisBasedWordAndPOSModel(languageCode, chunkClassificationModel, manifestInfoEntries);
         }
 	}
 
@@ -160,15 +163,15 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 	 * @param encoding 编码方式
 	 * @return
 	 */
-	public static ChunkAnalysisModel train(File file, File modelbinaryFile, File modeltxtFile, TrainingParameters params,
-			ChunkAnalysisContextGenerator contextGen, String encoding) {
+	public ChunkAnalysisBasedWordAndPOSModel train(File file, File modelbinaryFile, File modeltxtFile, TrainingParameters params,
+			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String encoding) {
 		OutputStream modelOut = null;
 		PlainTextGISModelWriter modelWriter = null;
-		ChunkAnalysisModel model = null;
+		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisSample> sampleStream = new ChunkAnalysisSampleStream(lineStream, isBIEO);
-			model = ChunkAnalysisME.train("zh", sampleStream, params, contextGen);
+			ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
+			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           
             model.serialize(modelOut);
@@ -200,14 +203,14 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 	 * @param encoding 编码方式
 	 * @return
 	 */
-	public static ChunkAnalysisModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisContextGenerator contextGen,
+	public static ChunkAnalysisBasedWordAndPOSModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen,
 			String encoding) {
 		PlainTextGISModelReader modelReader = null;
 		AbstractModel abModel = null;
-		ChunkAnalysisModel model = null;
+		ChunkAnalysisBasedWordAndPOSModel model = null;
 		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 	      
-        int beamSize = ChunkAnalysisME.DEFAULT_BEAM_SIZE;
+        int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
         if (beamSizeString != null) {
             beamSize = Integer.parseInt(beamSizeString);
         }
@@ -216,7 +219,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 			Map<String, String> manifestInfoEntries = new HashMap<String, String>();
 			modelReader = new PlainTextGISModelReader(modelFile);			
 			abModel = modelReader.getModel();
-			model =  new ChunkAnalysisModel(encoding, abModel, beamSize,manifestInfoEntries);
+			model =  new ChunkAnalysisBasedWordAndPOSModel(encoding, abModel, beamSize,manifestInfoEntries);
 	
 			System.out.println("读取模型成功");
             return model;
@@ -267,7 +270,7 @@ public class ChunkAnalysisME implements ChunkAnalysis {
 		
 		if(poses != null) {
 			for(int i = 0; i < words.length; i++)
-				words[i] = words[i]+"/"+poses[i];
+				words[i] = words[i] + "/" + poses[i];
 		}
 		
 		for(int i = 0; i < chunks.size() - 1; i++) {

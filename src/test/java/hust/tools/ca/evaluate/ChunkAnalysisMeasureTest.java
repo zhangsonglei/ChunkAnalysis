@@ -8,8 +8,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import hust.tools.ca.parse.ChunkAnalysisParse;
-import hust.tools.ca.stream.ChunkAnalysisSample;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParse;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 import hust.tools.ca.utils.Dictionary;
 
 /**
@@ -24,7 +24,7 @@ public class ChunkAnalysisMeasureTest {
 	
 	private ChunkAnalysisMeasure measure;
 	
-	private ChunkAnalysisParse parse;
+	private ChunkAnalysisBasedWordAndPOSParse parse;
 	
 	String[] words = new String[]{"忠诚", "的", "共产主义", "战士", "，", "久经考验", "无产阶级", "革命家", "同志", "逝世", 
 			"目前", "为止", "灾区", "没有", "一", "人", "因", "冻", "饿", "死亡", "大部分", "也", "出", "问题", "。",
@@ -45,14 +45,14 @@ public class ChunkAnalysisMeasureTest {
 	@Before
 	public void setUp() throws Exception {
 		Dictionary wordDict = new Dictionary(words);
-		parse = new ChunkAnalysisParse();
+		parse = new ChunkAnalysisBasedWordAndPOSParse();
 		measure = new ChunkAnalysisMeasure(wordDict);
 		
 		refList = new ArrayList<>(); refList.add(ref1);	refList.add(ref2); refList.add(ref3);
 		preList = new ArrayList<>(); preList.add(pre1); preList.add(pre2); preList.add(pre3);
 		
-		ChunkAnalysisSample ref;
-		ChunkAnalysisSample pre;
+		ChunkAnalysisBasedWordAndPOSSample ref;
+		ChunkAnalysisBasedWordAndPOSSample pre;
 		for(int i = 0; i < refList.size(); i++) {
 			ref = parse.parse(refList.get(i), false);
 			pre = parse.parse(preList.get(i), false);

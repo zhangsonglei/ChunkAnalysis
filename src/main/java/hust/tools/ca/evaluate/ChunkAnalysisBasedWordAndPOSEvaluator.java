@@ -2,8 +2,8 @@ package hust.tools.ca.evaluate;
 
 import org.apache.log4j.Logger;
 
-import hust.tools.ca.model.ChunkAnalysisME;
-import hust.tools.ca.stream.ChunkAnalysisSample;
+import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 import opennlp.tools.util.eval.Evaluator;
 
 /**
@@ -14,13 +14,13 @@ import opennlp.tools.util.eval.Evaluator;
  *<li>Date: 2017年12月7日
  *</ul>
  */
-public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
+public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<ChunkAnalysisBasedWordAndPOSSample>{
 
-	Logger logger = Logger.getLogger(ChunkAnalysisEvaluator.class);
+	Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSEvaluator.class);
 	/**
 	 * 组块分析模型
 	 */
-	private ChunkAnalysisME chunkTagger;
+	private ChunkAnalysisBasedWordAndPOSME chunkTagger;
 	
 	/**
 	 * 组块分析评估
@@ -31,7 +31,7 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	 * 构造方法
 	 * @param tagger 训练得到的模型
 	 */
-	public ChunkAnalysisEvaluator(ChunkAnalysisME chunkTagger) {
+	public ChunkAnalysisBasedWordAndPOSEvaluator(ChunkAnalysisBasedWordAndPOSME chunkTagger) {
 		this.chunkTagger = chunkTagger;
 	}
 	
@@ -40,7 +40,8 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
-	public ChunkAnalysisEvaluator(ChunkAnalysisME chunkTagger, boolean isBIEO ,ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
+	public ChunkAnalysisBasedWordAndPOSEvaluator(ChunkAnalysisBasedWordAndPOSME chunkTagger, boolean isBIEO,
+			ChunkAnalysisBasedWordAndPOSEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
 	}
@@ -63,18 +64,18 @@ public class ChunkAnalysisEvaluator extends Evaluator<ChunkAnalysisSample>{
 	
 	
 	@Override
-	protected ChunkAnalysisSample processSample(ChunkAnalysisSample sample) {
+	protected ChunkAnalysisBasedWordAndPOSSample processSample(ChunkAnalysisBasedWordAndPOSSample sample) {
 		String[] wordsRef = sample.getWords();
 		String[] posesRef = sample.getPoses();
-//		String[] chunkTagsRef = sample.getChunkTags();
+		String[] chunkTagsRef = sample.getChunkTags();
 		String[][] acRef = sample.getAditionalContext();
 		
 		String[] chunkTagsPre = chunkTagger.tag(wordsRef, posesRef, acRef);
 		
 		//将结果进行解析，用于评估
-		ChunkAnalysisSample prediction = new ChunkAnalysisSample(wordsRef, posesRef, chunkTagsPre);
-//		measure.update(wordsRef, tagsRef, wordsPre, tagsPre);
-		measure.add(sample, prediction);
+		ChunkAnalysisBasedWordAndPOSSample prediction = new ChunkAnalysisBasedWordAndPOSSample(wordsRef, posesRef, chunkTagsPre);
+		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);
+//		measure.add(sample, prediction);
 //		logger.info(sample+"\n"+prediction);
 		return prediction;
 	}

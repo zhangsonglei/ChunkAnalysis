@@ -8,7 +8,7 @@ package hust.tools.ca.feature;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public interface BeamSearchChunkAnalysisContextGenerator<T> {
+public interface BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> {
 
 	/**
 	 * 特征生成方法

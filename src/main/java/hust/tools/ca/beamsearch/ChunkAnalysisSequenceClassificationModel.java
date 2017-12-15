@@ -1,6 +1,6 @@
 package hust.tools.ca.beamsearch;
 
-import hust.tools.ca.feature.BeamSearchChunkAnalysisContextGenerator;
+import hust.tools.ca.feature.BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator;
 import opennlp.tools.util.Sequence;
 
 /**
@@ -12,6 +12,7 @@ import opennlp.tools.util.Sequence;
  *</ul>
  */
 public interface ChunkAnalysisSequenceClassificationModel<T> {
+	
 	/**
 	 * 得到最好的序列
 	 * @param words 			词语数组
@@ -22,7 +23,7 @@ public interface ChunkAnalysisSequenceClassificationModel<T> {
 	 * @return 					最好的序列
 	 */
 	Sequence bestSequence(T[] words, T[] poses, Object[] additionalContext, 
-			BeamSearchChunkAnalysisContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator);
+			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator);
 
 	/**
 	 * 返回最优的numSequences个组块标注序列
@@ -36,7 +37,7 @@ public interface ChunkAnalysisSequenceClassificationModel<T> {
 	 * @return					最优的numSequences个组块标注序列
 	 */
 	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, double minSequenceScore,
-			BeamSearchChunkAnalysisContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator);
+			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator);
 
 	/**
 	 * 返回最优的numSequences个组块标注序列
@@ -49,7 +50,7 @@ public interface ChunkAnalysisSequenceClassificationModel<T> {
 	 * @return					最优的numSequences个组块标注序列
 	 */
 	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, 
-			BeamSearchChunkAnalysisContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator);
+			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator);
 	
 	/**
 	 * 得到最好的组块标注结果

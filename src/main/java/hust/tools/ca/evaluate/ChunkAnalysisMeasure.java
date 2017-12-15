@@ -6,7 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import hust.tools.ca.stream.ChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.utils.Dictionary;
 
 /**
@@ -74,43 +75,16 @@ public class ChunkAnalysisMeasure {
 	}
 	
 	/**
-	 * 构造方法
-	 * @param wordDict	词典，用于辨别未登录词
-	 * @param reference	标准样本集
-	 * @param predict	预测样本集
+	 * 动态统计预测样本与标准样本
+	 * @param reference	标准样本
+	 * @param prediction预测样本
 	 */
-	public ChunkAnalysisMeasure(Dictionary wordDict, List<ChunkAnalysisSample> reference, List<ChunkAnalysisSample> predict) {
-		this.wordDict = wordDict;
-		referenceChunkTagMap = new HashMap<>();
-		predictChunkTagMap = new HashMap<>();
-		correctTaggedChunkTagMap = new HashMap<>();
-		statistics(reference, predict);
-	}
-
-	public long getTotalWordCounts() {
-		return totalWordCounts;
-	}
-
-	public long getCorrectTaggedWordCounts() {
-		return correctTaggedWordCounts;
-	}
-
-	public long getOOVs() {
-		return OOVs;
-	}
-
-	public long getCorrectTaggedOOVs() {
-		return correctTaggedOOVs;
-	}
-
-	/**
-	 * 统计评价指标所需的数据
-	 * @param references	标准样本
-	 * @param predictions	预测结果
-	 */
-	public void statistics(List<ChunkAnalysisSample> references, List<ChunkAnalysisSample> predictions) {
-		for(int i = 0; i < references.size(); i++)//遍历每个测试样本
-			add(references.get(i), predictions.get(i));
+	public void add(ChunkAnalysisBasedWordAndPOSSample reference, ChunkAnalysisBasedWordAndPOSSample prediction) {
+		String[] words = reference.getWords();				//每个测试样本中的词组
+		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
+		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
+		update(words, refChunkTags, preChunkTags);
+//		updateBasedWords(words, refChunkTags, preChunkTags);
 	}
 	
 	/**
@@ -118,7 +92,7 @@ public class ChunkAnalysisMeasure {
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
-	public void add(ChunkAnalysisSample reference, ChunkAnalysisSample prediction) {
+	public void add(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
 		String[] words = reference.getWords();				//每个测试样本中的词组
 		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
 		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
@@ -446,6 +420,23 @@ public class ChunkAnalysisMeasure {
 			return 0;
 		else
 			return 2 * precision * recall / (precision + recall);
+	}
+	
+
+	public long getTotalWordCounts() {
+		return totalWordCounts;
+	}
+
+	public long getCorrectTaggedWordCounts() {
+		return correctTaggedWordCounts;
+	}
+
+	public long getOOVs() {
+		return OOVs;
+	}
+
+	public long getCorrectTaggedOOVs() {
+		return correctTaggedOOVs;
 	}
 	
 	public String toString() {

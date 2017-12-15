@@ -8,11 +8,11 @@ package hust.tools.ca.beamsearch;
  *<li>Date: 2017年12月6日
  *</ul>
  */
-public class DefaultChunkAnalysisSequenceValidator implements ChunkAnalysisSequenceValidator<String> {
+public class DefaultChunkAnalysisSequenceBasedWordAndPOSValidator implements ChunkAnalysisSequenceValidator<String> {
 	
 	private boolean isBIEO;
 	
-	public DefaultChunkAnalysisSequenceValidator(boolean isBIEO) {
+	public DefaultChunkAnalysisSequenceBasedWordAndPOSValidator(boolean isBIEO) {
 		this.isBIEO = isBIEO;
 	}
 

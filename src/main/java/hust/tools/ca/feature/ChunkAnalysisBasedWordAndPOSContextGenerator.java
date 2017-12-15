@@ -8,7 +8,7 @@ package hust.tools.ca.feature;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public interface ChunkAnalysisContextGenerator extends BeamSearchChunkAnalysisContextGenerator<String>{
+public interface ChunkAnalysisBasedWordAndPOSContextGenerator extends BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<String>{
 
 	@Override
 	String[] getContext(int index, String[] words, String[] poses, String[] chunkTags, Object[] additionalContext);

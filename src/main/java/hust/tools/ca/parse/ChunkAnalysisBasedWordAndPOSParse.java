@@ -3,7 +3,7 @@ package hust.tools.ca.parse;
 import java.util.ArrayList;
 import java.util.List;
 
-import hust.tools.ca.stream.ChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 
 /**
  *<ul>
@@ -13,7 +13,7 @@ import hust.tools.ca.stream.ChunkAnalysisSample;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisParse {
+public class ChunkAnalysisBasedWordAndPOSParse {
 	
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
@@ -28,7 +28,7 @@ public class ChunkAnalysisParse {
 	/**
 	 * 构造方法
 	 */
-	public ChunkAnalysisParse() {
+	public ChunkAnalysisBasedWordAndPOSParse() {
 		
 	}
 	
@@ -36,7 +36,7 @@ public class ChunkAnalysisParse {
 	 * 返回由字符串句子解析而成的样本
 	 * @return	样本
 	 */
-	public ChunkAnalysisSample parse(String sentence, boolean isBIEO){
+	public ChunkAnalysisBasedWordAndPOSSample parse(String sentence, boolean isBIEO){
 		chunkTags = new ArrayList<>();
 		words = new ArrayList<>();
 		poses = new ArrayList<>();
@@ -89,7 +89,7 @@ public class ChunkAnalysisParse {
 		if(wordTagsInChunk != null && chunk != null) 
 			processChunk(wordTagsInChunk, chunk, isBIEO);
 		
-		return new ChunkAnalysisSample(words, poses, chunkTags);
+		return new ChunkAnalysisBasedWordAndPOSSample(words, poses, chunkTags);
 	}
 	
 	/**

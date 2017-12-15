@@ -2,13 +2,13 @@ package hust.tools.ca.cv;
 
 import java.io.IOException;
 
-import hust.tools.ca.evaluate.ChunkAnalysisEvaluateMonitor;
-import hust.tools.ca.evaluate.ChunkAnalysisEvaluator;
+import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluateMonitor;
+import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasure;
-import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
-import hust.tools.ca.model.ChunkAnalysisME;
-import hust.tools.ca.model.ChunkAnalysisModel;
-import hust.tools.ca.stream.ChunkAnalysisSample;
+import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.model.ChunkAnalysisBasedWordME;
+import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.CrossValidationPartitioner;
@@ -21,7 +21,7 @@ import opennlp.tools.util.eval.CrossValidationPartitioner;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisCrossValidation {
+public class ChunkAnalysisBasedWordCrossValidation {
 
 	/**
 	 * 语料文件字符编码
@@ -36,7 +36,7 @@ public class ChunkAnalysisCrossValidation {
 	/**
 	 * 组块分析评估监视器
 	 */
-	private ChunkAnalysisEvaluateMonitor[] monitors;
+	private ChunkAnalysisBasedWordEvaluateMonitor[] monitors;
 	
 	
 	/**
@@ -45,7 +45,7 @@ public class ChunkAnalysisCrossValidation {
 	 * @param params	训练的参数
 	 * @param monitor 	监听器
 	 */
-	public ChunkAnalysisCrossValidation(String encoding, TrainingParameters params, ChunkAnalysisEvaluateMonitor... monitors){
+	public ChunkAnalysisBasedWordCrossValidation(String encoding, TrainingParameters params, ChunkAnalysisBasedWordEvaluateMonitor... monitors){
 		this.encoding = encoding;
 		this.params = params;
 		this.monitors = monitors;
@@ -58,18 +58,19 @@ public class ChunkAnalysisCrossValidation {
 	 * @param contextGenerator	上下文
 	 * @throws IOException
 	 */
-	public void evaluate(ObjectStream<ChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisContextGenerator contextGenerator, boolean isBIEO) throws IOException{
-		CrossValidationPartitioner<ChunkAnalysisSample> partitioner = new CrossValidationPartitioner<ChunkAnalysisSample>(sampleStream, nFolds);
+	public void evaluate(ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, int nFolds,
+			ChunkAnalysisBasedWordContextGenerator contextGenerator, boolean isBIEO) throws IOException{
+		CrossValidationPartitioner<ChunkAnalysisBasedWordSample> partitioner = new CrossValidationPartitioner<ChunkAnalysisBasedWordSample>(sampleStream, nFolds);
 		
 		int run = 1;
 		//小于折数的时候
 		while(partitioner.hasNext()){
 			System.out.println("Run"+run+"...");
 			
-			CrossValidationPartitioner.TrainingSampleStream<ChunkAnalysisSample> trainingSampleStream = partitioner.next();
-			ChunkAnalysisModel model = ChunkAnalysisME.train(encoding, trainingSampleStream, params, contextGenerator);
-			ChunkAnalysisEvaluator evaluator = new ChunkAnalysisEvaluator(new ChunkAnalysisME(model, isBIEO, contextGenerator), isBIEO, monitors);
+			CrossValidationPartitioner.TrainingSampleStream<ChunkAnalysisBasedWordSample> trainingSampleStream = partitioner.next();
+			ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(isBIEO); 
+			ChunkAnalysisBasedWordModel model = me.train(encoding, trainingSampleStream, params, contextGenerator);
+			ChunkAnalysisBasedWordEvaluator evaluator = new ChunkAnalysisBasedWordEvaluator(new ChunkAnalysisBasedWordME(model, isBIEO, contextGenerator), isBIEO, monitors);
 			ChunkAnalysisMeasure measure = new ChunkAnalysisMeasure();
 			
 			evaluator.setMeasure(measure);

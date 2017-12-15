@@ -10,7 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hust.tools.ca.parse.ChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParse;
 import opennlp.tools.util.FilterObjectStream;
 import opennlp.tools.util.ObjectStream;
 
@@ -23,11 +23,11 @@ import opennlp.tools.util.ObjectStream;
  *</ul>
  */
 @SuppressWarnings("unused")
-public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkAnalysisSample>{
+public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, ChunkAnalysisBasedWordAndPOSSample>{
 
-	private static Logger logger = Logger.getLogger(ChunkAnalysisSampleStream.class.getName());
+	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSSampleStream.class.getName());
 
-	private ChunkAnalysisParse context;
+	private ChunkAnalysisBasedWordAndPOSParse context;
 	
 	private boolean isBIEO;
 //	private BufferedWriter writer;
@@ -38,9 +38,9 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public ChunkAnalysisSampleStream(ObjectStream<String> samples, boolean isBIEO) throws FileNotFoundException, UnsupportedEncodingException {
+	public ChunkAnalysisBasedWordAndPOSSampleStream(ObjectStream<String> samples, boolean isBIEO) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
-		context = new ChunkAnalysisParse();
+		context = new ChunkAnalysisBasedWordAndPOSParse();
 		this.isBIEO = isBIEO;
 //		writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("E:\\chunk.samples")), "utf8"));
 	}
@@ -49,11 +49,11 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 	 * 读取训练语料进行解析
 	 * @return 样本
 	 */	
-	public ChunkAnalysisSample read() throws IOException {
+	public ChunkAnalysisBasedWordAndPOSSample read() throws IOException {
 		String sentence = samples.read();
 		
 		if(sentence != null){
-			ChunkAnalysisSample sample = null;
+			ChunkAnalysisBasedWordAndPOSSample sample = null;
 			if(sentence.compareTo("") != 0){
 				
 				try{
@@ -62,13 +62,13 @@ public class ChunkAnalysisSampleStream extends FilterObjectStream<String, ChunkA
 					if (logger.isLoggable(Level.WARNING)) 	
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);
 	                
-					sample = new ChunkAnalysisSample(new String[]{},new String[]{},new String[]{});
+					sample = new ChunkAnalysisBasedWordAndPOSSample(new String[]{},new String[]{},new String[]{});
 				}
 //				writer.write(sample.toString());
 //				writer.newLine();
 				return sample;
 			}else 
-				return new ChunkAnalysisSample(new String[]{},new String[]{},new String[]{});
+				return new ChunkAnalysisBasedWordAndPOSSample(new String[]{},new String[]{},new String[]{});
 		}else
 			return null;
 	}

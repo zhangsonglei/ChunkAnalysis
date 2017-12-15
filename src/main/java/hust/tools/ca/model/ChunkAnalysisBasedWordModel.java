@@ -7,7 +7,9 @@ import java.util.Properties;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
+import opennlp.tools.ml.BeamSearch;
 import opennlp.tools.ml.model.MaxentModel;
+import opennlp.tools.ml.model.SequenceClassificationModel;
 import opennlp.tools.util.model.BaseModel;
 
 /**
@@ -18,17 +20,17 @@ import opennlp.tools.util.model.BaseModel;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisModel extends BaseModel{
+public class ChunkAnalysisBasedWordModel extends BaseModel{
 	
 	/**
 	 * 训练模型的类
 	 */
-	private static final String COMPONENT_NAME = "ChunkAnalysisME";
+	private static final String COMPONENT_NAME = "ChunkAnalysisBasedWordME";
 	
 	/**
 	 * 
 	 */
-	private static final String CHUNK_MODEL_ENTRY_NAME = "ChunkAnalysis.model";
+	private static final String CHUNK_MODEL_ENTRY_NAME = "ChunkAnalysisBasedWord.model";
 	
 	/**
 	 * 构造方法
@@ -36,7 +38,7 @@ public class ChunkAnalysisModel extends BaseModel{
 	 * @param modelFile 		模型文件
 	 * @throws IOException 		IO异常
 	 */
-	protected ChunkAnalysisModel(String componentName, File modelFile) throws IOException {
+	protected ChunkAnalysisBasedWordModel(String componentName, File modelFile) throws IOException {
 		super(COMPONENT_NAME, modelFile);
 	}
 
@@ -47,7 +49,7 @@ public class ChunkAnalysisModel extends BaseModel{
 	 * @param beamSize 				大小
 	 * @param manifestInfoEntries	清单中的其他信息
 	 */
-	public ChunkAnalysisModel(String encoding, MaxentModel maxentModel, int beamSize,
+	public ChunkAnalysisBasedWordModel(String encoding, MaxentModel maxentModel, int beamSize,
 			Map<String, String> manifestInfoEntries) {
 		super(COMPONENT_NAME, encoding, manifestInfoEntries, null);
 		
@@ -68,7 +70,7 @@ public class ChunkAnalysisModel extends BaseModel{
 	 * @param chunkClasssificationModel	组块分析分类模型
 	 * @param manifestInfoEntries		配置信息
 	 */
-	public ChunkAnalysisModel(String encoding, ChunkAnalysisSequenceClassificationModel<String> chunkClasssificationModel,
+	public ChunkAnalysisBasedWordModel(String encoding, ChunkAnalysisSequenceClassificationModel<String> chunkClasssificationModel,
 			Map<String, String> manifestInfoEntries) {
 		super(COMPONENT_NAME, encoding, manifestInfoEntries, null);
 		if (chunkClasssificationModel == null) {
@@ -95,21 +97,21 @@ public class ChunkAnalysisModel extends BaseModel{
 	 * @return	组块分析分类模型
 	 */
 	@SuppressWarnings("unchecked")
-	public ChunkAnalysisSequenceClassificationModel<String> getChunkAnalysisSequenceModel() {
+	public SequenceClassificationModel<String> getChunkAnalysisSequenceModel() {
 
         Properties manifest = (Properties) artifactMap.get(MANIFEST_ENTRY);
 
         if (artifactMap.get(CHUNK_MODEL_ENTRY_NAME) instanceof MaxentModel) {
             String beamSizeString = manifest.getProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 
-            int beamSize = ChunkAnalysisME.DEFAULT_BEAM_SIZE;
+            int beamSize = ChunkAnalysisBasedWordME.DEFAULT_BEAM_SIZE;
             if (beamSizeString != null) {
                 beamSize = Integer.parseInt(beamSizeString);
             }
 
-            return new ChunkAnalysisBeamSearch<String>(beamSize, (MaxentModel) artifactMap.get(CHUNK_MODEL_ENTRY_NAME));
+            return new BeamSearch<String>(beamSize, (MaxentModel) artifactMap.get(CHUNK_MODEL_ENTRY_NAME));
         } else if (artifactMap.get(CHUNK_MODEL_ENTRY_NAME) instanceof ChunkAnalysisSequenceClassificationModel) {
-            return (ChunkAnalysisSequenceClassificationModel<String>) artifactMap.get(CHUNK_MODEL_ENTRY_NAME);
+            return (SequenceClassificationModel<String>) artifactMap.get(CHUNK_MODEL_ENTRY_NAME);
         } else {
             return null;
         }

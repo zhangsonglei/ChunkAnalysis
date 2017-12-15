@@ -14,7 +14,7 @@ import java.util.Properties;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGenerator {
+public class ChunkAnalysisBasedWordAndPOSContextGenratorConf implements ChunkAnalysisBasedWordAndPOSContextGenerator {
 	
 	//原子特征模版
 	private boolean w_1Set;		//前一个词
@@ -85,9 +85,9 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	 * 构造方法
 	 * @throws IOException
 	 */
-	public ChunkAnalysisContextGenratorConf() throws IOException {
+	public ChunkAnalysisBasedWordAndPOSContextGenratorConf() throws IOException {
 		Properties featureConf = new Properties();
-        InputStream featureStream = ChunkAnalysisContextGenratorConf.class.getClassLoader().getResourceAsStream("properties/feature.properties");
+        InputStream featureStream = ChunkAnalysisBasedWordAndPOSContextGenratorConf.class.getClassLoader().getResourceAsStream("properties/feature.properties");
         featureConf.load(featureStream);
         
         init(featureConf);
@@ -97,7 +97,7 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
 	 * 构造方法
 	 * @param properties 配置文件
 	 */
-	public ChunkAnalysisContextGenratorConf(Properties properties){
+	public ChunkAnalysisBasedWordAndPOSContextGenratorConf(Properties properties){
         init(properties);
 	}
 	
@@ -200,39 +200,27 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
         	pf0 = w0.substring(0, 2);
         	af0 = w0.substring(w0.length() - 2, w0.length());       	
         }else
-        	 pf0 = af0 = w0;
-        
-        if(poses != null)
+        	pf0 = af0 = w0;
         	p0 = poses[index];
         
         if (words.length > index + 1) {
             w1 = words[index + 1];
-            
-            if(poses != null)
-            	p1 = poses[index + 1];
+            p1 = poses[index + 1];
             
             if (words.length > index + 2) {
                 w2 = words[index + 2];
-                
-                if(poses != null)
-                	p2 = poses[index + 2];
+                p2 = poses[index + 2];
             }
         }
 
         if (index - 1 >= 0) {
             w_1 = words[index - 1];
-            
-            if(poses != null)
-            	p_1 = poses[index - 1];
-            
+            p_1 = poses[index - 1];
             c_1 = chunkTags[index - 1];
             
             if (index - 2 >= 0) {
                 w_2 = words[index - 2];
-                
-                if(poses != null)
-                	p_2 = poses[index - 2];
-               
+                p_2 = poses[index - 2];
                 c_2 = chunkTags[index - 2];
             }
         }
@@ -253,51 +241,46 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
             	features.add("c_1=" + c_1);
             if(w_1w0Set) 
         		features.add("w_1w0=" + w_1 + w0);
-            
-            if(w1 != null) {
-        		if(w_1w1Set)
-        			features.add("w_1w1=" + w_1 + w1);
-        	}
-            
-            if(poses != null) {
-            	if(p_1Set)
-            		features.add("p_1=" + p_1);
-            	if(w0p_1Set)
-            		features.add("w0p_1=" + w0 + p_1);
-            	if(w_1p_1Set) 
-            		features.add("w_1p_1=" + w_1 + p_1);
-            	if(p_1p0Set)
-            		features.add("p_1p0=" + p_1 + p0);
-            	if(p0c_1Set)
-            		features.add("p0c_1=" + p0 + c_1);
-            	if(w_1p0Set)
-            		features.add("w_1p0=" + w_1 + p0);
-            	if(p_1p0c_1Set)
-            		features.add("p_1p0c_1=" + p_1 + p0 + c_1);
-            	if(w0p_1p0Set)
-            		features.add("w0p_1p0=" + w0 + p_1 + p0);
-            	if(w_1w0p_1Set)
-            		features.add("w_1w0p_1=" + w_1 + w0 + p_1);
+            if(p_1Set)
+            	features.add("p_1=" + p_1);
+            if(w0p_1Set)
+            	features.add("w0p_1=" + w0 + p_1);
+            if(w_1p_1Set) 
+            	features.add("w_1p_1=" + w_1 + p_1);
+            if(p_1p0Set)
+            	features.add("p_1p0=" + p_1 + p0);
+            if(p0c_1Set)
+            	features.add("p0c_1=" + p0 + c_1);
+            if(w_1p0Set)
+            	features.add("w_1p0=" + w_1 + p0);
+            if(p_1p0c_1Set)
+            	features.add("p_1p0c_1=" + p_1 + p0 + c_1);
+            if(w0p_1p0Set)
+            	features.add("w0p_1p0=" + w0 + p_1 + p0);
+            if(w_1w0p_1Set)
+            	features.add("w_1w0p_1=" + w_1 + w0 + p_1);
             	
-            	if(p1 != null) {
-            		if(p_1p0p1Set)
-            			features.add("p_1p0p1=" + p_1 + p0 + p1);
-            		if(p_1p1Set)
-            			features.add("p_1p1=" + p_1 + p1);
-            		if(w1p_1p0Set) 
-            			features.add("w1p_1p0=" + w1 + p_1 + p0);
-            		if(p0p1c_1Set)
-            			features.add("p0p1c_1=" + p0 + p1 + c_1);
+            if(w1 != null) {
+            	if(p_1p0p1Set)
+            		features.add("p_1p0p1=" + p_1 + p0 + p1);
+            	if(p_1p1Set)
+            		features.add("p_1p1=" + p_1 + p1);
+            	if(w1p_1p0Set) 
+            		features.add("w1p_1p0=" + w1 + p_1 + p0);
+            	if(p0p1c_1Set)
+            		features.add("p0p1c_1=" + p0 + p1 + c_1);
+            	if(w_1w1Set)
+        			features.add("w_1w1=" + w_1 + w1);
 
-            		if(p2 != null) {
-            			if(p_1p1p2Set)
-            				features.add("p_1p1p2=" + p_1 + p1 + p2);
-            		}
+            	if(w2 != null) {
+            		if(p_1p1p2Set)
+            			features.add("p_1p1p2=" + p_1 + p1 + p2);
             	}
             }
             
+            
             if(w_2 != null) {
-                if(w_2Set) 
+            	if(w_2Set) 
                     features.add("w_2=" + w_2);
                 if(w_2w_1Set) 
             		features.add("w_2w_1=" + w_2 + w_1);
@@ -307,30 +290,24 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
                     features.add("c_2=" + c_2);
                 if(c_2c_1Set) 
             		features.add("c_2c_1=" + c_2 + c_1);
+                if(p_2Set) 
+                	features.add("p_2=" + p_2);
+                if(w0p_2Set)
+                	features.add("w0p_2=" + w0 + p_2);
+                if(p_2p0Set)
+                	features.add("p_2p0=" + p_2 + p0);
+                if(p_2p_1Set)
+                	features.add("p_2p_1=" + p_2 + p_1);
+                if(p_2p_1p0Set)
+                	features.add("p_2p_1p0=" + p_2 + p_1 + p0);
+                if(w_2p_1p0Set)
+                	features.add("w_2p_1p0=" + w_2 + p_1 + p0);
                 
                 if(w1 != null) {
                 	if(w_1w0w1Set)
                 		features.add("w_1w0w1=" + w_1 + w0 + w1);
-                }
-                
-                if(poses != null) {
-                	if(p_2Set) 
-                		features.add("p_2=" + p_2);
-                	if(w0p_2Set)
-                		features.add("w0p_2=" + w0 + p_2);
-                	if(p_2p0Set)
-                		features.add("p_2p0=" + p_2 + p0);
-                	if(p_2p_1Set)
-            			features.add("p_2p_1=" + p_2 + p_1);
-            		if(p_2p_1p0Set)
-            			features.add("p_2p_1p0=" + p_2 + p_1 + p0);
-            		if(w_2p_1p0Set)
-            			features.add("w_2p_1p0=" + w_2 + p_1 + p0);
-                	
-            		if(p1 != null) {
-            			if(p_2p0p1Set)
-            				features.add("p_2p0p1=" + p_2 + p0 + p1);
-            		}
+                	if(p_2p0p1Set)
+                		features.add("p_2p0p1=" + p_2 + p0 + p1);
                 }
             }
         }
@@ -340,51 +317,44 @@ public class ChunkAnalysisContextGenratorConf implements ChunkAnalysisContextGen
                 features.add("w1=" + w1);
             if(w0w1Set)
         		features.add("w0w1=" + w0 + w1);
-            
-            if(poses != null) {
-            	if(p1Set) 
-            		features.add("p1=" + p1);
-            	if(w0p1Set)
-            		features.add("w0p1=" + w0 + p1);
-            	if(w0w1p1Set)
-            		features.add("w0w1p1=" + w0 + w1 + p1);
-            	if(w1p0Set)
-            		features.add("w1p0=" + w1 + p0);
-            	if(p0p1Set)
-            		features.add("p0p1=" + p0 + p1);
-            	if(w0p0p1Set)
-            		features.add("w0p0p1=" + w0 + p0 + p1);
-            	if(w1p1Set)
-            		features.add("w1p1=" + w1 + p1);
-            	if(w1p0p1Set)
-            		features.add("w1p0p1=" + w1 + p0 + p1);
-            	
-            }
+            if(p1Set) 
+            	features.add("p1=" + p1);
+            if(w0p1Set)
+            	features.add("w0p1=" + w0 + p1);
+            if(w0w1p1Set)
+            	features.add("w0w1p1=" + w0 + w1 + p1);
+            if(w1p0Set)
+            	features.add("w1p0=" + w1 + p0);
+            if(p0p1Set)
+            	features.add("p0p1=" + p0 + p1);
+            if(w0p0p1Set)
+            	features.add("w0p0p1=" + w0 + p0 + p1);
+            if(w1p1Set)
+            	features.add("w1p1=" + w1 + p1);
+            if(w1p0p1Set)
+            	features.add("w1p0p1=" + w1 + p0 + p1);
 
             if(w2 != null) {
-                if(w2Set) 
+            	if(w2Set) 
                     features.add("w2=" + w2);
                 if(w1w2Set)
             		features.add("w1w2=" + w1 + w2);
                 if(w0w1w2Set)
             		features.add("w0w1w2=" + w0 + w1 + w2);
-                
-                if(poses != null) {
-                	if(p2Set) 
-                		features.add("p2=" + p2);
-                	if(w2p2Set)
-                		features.add("w2p2=" + w2 + p2);
-                	if(p1p2Set)
-            			features.add("p1p2=" + p1 + p2);
-            		if(p0p1p2Set)
-            			features.add("p0p1p2=" + p0 + p1 + p2);
-            		if(p0p2Set)
-            			features.add("p0p2=" + p0 + p2);
-            		if(w0p2Set) 
-            			features.add("w0p2=" + w0 + p2);
-            		if(w0w2p2Set)
-            			features.add("w0w2p2=" + w0 + w2 + p2);
-                }
+                if(p2Set) 
+                	features.add("p2=" + p2);
+                if(w2p2Set)
+                	features.add("w2p2=" + w2 + p2);
+                if(p1p2Set)
+                	features.add("p1p2=" + p1 + p2);
+                if(p0p1p2Set)
+                	features.add("p0p1p2=" + p0 + p1 + p2);
+                if(p0p2Set)
+                	features.add("p0p2=" + p0 + p2);
+                if(w0p2Set) 
+                	features.add("w0p2=" + w0 + p2);
+                if(w0w2p2Set)
+                	features.add("w0w2p2=" + w0 + w2 + p2);
             }
         }
 

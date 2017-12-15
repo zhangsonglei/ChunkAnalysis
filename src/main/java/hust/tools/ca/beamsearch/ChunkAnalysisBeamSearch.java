@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import hust.tools.ca.feature.BeamSearchChunkAnalysisContextGenerator;
+import hust.tools.ca.feature.BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator;
 import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.util.Cache;
 import opennlp.tools.util.Sequence;
@@ -81,7 +81,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 	
 	
 	@Override
-	public Sequence bestSequence(T[] words, T[] poses, Object[] additionalContext, BeamSearchChunkAnalysisContextGenerator<T> contextGenerator,
+	public Sequence bestSequence(T[] words, T[] poses, Object[] additionalContext, BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator,
 			ChunkAnalysisSequenceValidator<T> validator) {
 		Sequence[] sequences = this.bestSequences(1, words, poses, additionalContext, contextGenerator, validator);
 		
@@ -91,7 +91,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 	
 	@Override
 	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, double minSequenceScore,
-			BeamSearchChunkAnalysisContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator) {
+			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator) {
 		PriorityQueue<Sequence> prev = new PriorityQueue<Sequence>(size);
 		PriorityQueue<Sequence> next = new PriorityQueue<Sequence>(size);
 		prev.add(new Sequence());
@@ -171,7 +171,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 
 	@Override
 	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, 
-			BeamSearchChunkAnalysisContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator) {
+			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator) {
 		
 		return this.bestSequences(numSequences, words, poses, additionalContext, zeroLog, contextGenerator, validator);
 	}
