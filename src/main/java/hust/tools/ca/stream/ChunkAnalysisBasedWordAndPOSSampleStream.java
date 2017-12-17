@@ -10,7 +10,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParse;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisParseWithBIO;
 import opennlp.tools.util.FilterObjectStream;
 import opennlp.tools.util.ObjectStream;
 
@@ -23,13 +25,11 @@ import opennlp.tools.util.ObjectStream;
  *</ul>
  */
 @SuppressWarnings("unused")
-public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, ChunkAnalysisBasedWordAndPOSSample>{
+public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSSampleStream.class.getName());
-
-	private ChunkAnalysisBasedWordAndPOSParse context;
+	private AbstractChunkAnalysisParse context;
 	
-	private boolean isBIEO;
 //	private BufferedWriter writer;
 	
 	/**
@@ -40,8 +40,11 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	 */
 	public ChunkAnalysisBasedWordAndPOSSampleStream(ObjectStream<String> samples, boolean isBIEO) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
-		context = new ChunkAnalysisBasedWordAndPOSParse();
-		this.isBIEO = isBIEO;
+		if(isBIEO)
+			context = new ChunkAnalysisParseWithBIEO();
+		else
+			context = new ChunkAnalysisParseWithBIO();
+		
 //		writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("E:\\chunk.samples")), "utf8"));
 	}
 
@@ -49,15 +52,14 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	 * 读取训练语料进行解析
 	 * @return 样本
 	 */	
-	public ChunkAnalysisBasedWordAndPOSSample read() throws IOException {
+	public AbstractChunkAnalysisSample read() throws IOException {
 		String sentence = samples.read();
 		
 		if(sentence != null){
-			ChunkAnalysisBasedWordAndPOSSample sample = null;
+			AbstractChunkAnalysisSample sample = null;
 			if(sentence.compareTo("") != 0){
-				
 				try{
-					sample = context.parse(sentence, isBIEO);
+					sample = context.parse(sentence);
 				}catch(Exception e){
 					if (logger.isLoggable(Level.WARNING)) 	
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);

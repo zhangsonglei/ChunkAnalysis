@@ -17,7 +17,7 @@ import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
-import hust.tools.ca.stream.FileInputStreamFactory;
+import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
@@ -108,7 +108,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 		Corpus[] corpora = getCorporaFromConf(config);
         //定位到某一语料
         Corpus corpus = getCorpus(corpora, corpusName);       
-        ObjectStream<String> lineStream = new PlainTextByLineStream(new FileInputStreamFactory(new File(corpus.trainFile)), corpus.encoding);
+        ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(corpus.trainFile)), corpus.encoding);
 
         //默认参数
         TrainingParameters params = TrainingParameters.defaultParams();
@@ -224,7 +224,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
         	evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(tagger);
         }
         evaluator.setMeasure(measure);
-        ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new FileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
+        ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
         ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStreamNoNull = new ChunkAnalysisBasedWordAndPOSSampleStream(linesStreamNoNull, isBIEO);
         evaluator.evaluate(sampleStreamNoNull);
         ChunkAnalysisMeasure measureRes = evaluator.getMeasure();

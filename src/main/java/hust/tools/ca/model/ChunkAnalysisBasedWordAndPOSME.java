@@ -16,10 +16,8 @@ import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidator;
 import hust.tools.ca.beamsearch.DefaultChunkAnalysisSequenceBasedWordAndPOSValidator;
 import hust.tools.ca.event.ChunkAnalysisSampleEventBasedWordAndPOS;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
-import hust.tools.ca.stream.FileInputStreamFactory;
-import hust.tools.ca.stream.PlainTextFileStream;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.ml.TrainerFactory.TrainerType;
@@ -28,7 +26,9 @@ import opennlp.tools.ml.maxent.io.PlainTextGISModelWriter;
 import opennlp.tools.ml.model.AbstractModel;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.ml.model.MaxentModel;
+import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Sequence;
 import opennlp.tools.util.TrainingParameters;
 
@@ -104,8 +104,8 @@ public class ChunkAnalysisBasedWordAndPOSME implements ChunkAnalysisBasedWordAnd
 			String encoding){
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
-			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
+			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -126,7 +126,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements ChunkAnalysisBasedWordAnd
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream, TrainingParameters params,
+	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
 			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) throws IOException {
 		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
@@ -169,8 +169,8 @@ public class ChunkAnalysisBasedWordAndPOSME implements ChunkAnalysisBasedWordAnd
 		PlainTextGISModelWriter modelWriter = null;
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
-			ObjectStream<String> lineStream = new PlainTextFileStream(new FileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
+			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           

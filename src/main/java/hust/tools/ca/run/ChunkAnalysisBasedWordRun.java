@@ -17,7 +17,7 @@ import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
-import hust.tools.ca.stream.FileInputStreamFactory;
+import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.TrainingParameters;
@@ -71,8 +71,9 @@ public class ChunkAnalysisBasedWordRun {
 			corpus.modeltxtFile = modeltxtFile;
 			corpus.modelbinaryFile = modelbinaryFile;
 			corpus.errorFile = errorFile;
-			corpuses[i] = corpus;			
+			corpuses[i] = corpus;
 		}
+		
 		return corpuses;
 	}
 	
@@ -108,7 +109,7 @@ public class ChunkAnalysisBasedWordRun {
 		Corpus[] corpora = getCorporaFromConf(config);
         //定位到某一语料
         Corpus corpus = getCorpus(corpora, corpusName);       
-        ObjectStream<String> lineStream = new PlainTextByLineStream(new FileInputStreamFactory(new File(corpus.trainFile)), corpus.encoding);
+        ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(corpus.trainFile)), corpus.encoding);
 
         //默认参数
         TrainingParameters params = TrainingParameters.defaultParams();
@@ -226,7 +227,7 @@ public class ChunkAnalysisBasedWordRun {
         	evaluator = new ChunkAnalysisBasedWordEvaluator(tagger);
         }
         evaluator.setMeasure(measure);
-        ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new FileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
+        ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
         ObjectStream<ChunkAnalysisBasedWordSample> sampleStreamNoNull = new ChunkAnalysisBasedWordSampleStream(linesStreamNoNull, isBIEO);
         evaluator.evaluate(sampleStreamNoNull);
         ChunkAnalysisMeasure measureRes = evaluator.getMeasure();

@@ -3,6 +3,7 @@ package hust.tools.ca.evaluate;
 import org.apache.log4j.Logger;
 
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.util.eval.Evaluator;
 
@@ -14,7 +15,7 @@ import opennlp.tools.util.eval.Evaluator;
  *<li>Date: 2017年12月7日
  *</ul>
  */
-public class ChunkAnalysisBasedWordEvaluator extends Evaluator<ChunkAnalysisBasedWordSample>{
+public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnalysisSample>{
 
 	Logger logger = Logger.getLogger(ChunkAnalysisBasedWordEvaluator.class);
 	/**
@@ -63,7 +64,7 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<ChunkAnalysisBase
 	
 	
 	@Override
-	protected ChunkAnalysisBasedWordSample processSample(ChunkAnalysisBasedWordSample sample) {
+	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample) {
 		String[] wordsRef = sample.getWords();
 		String[] chunkTagsRef = sample.getChunkTags();
 		String[][] acRef = sample.getAditionalContext();
@@ -71,7 +72,7 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<ChunkAnalysisBase
 		String[] chunkTagsPre = chunkTagger.tag(wordsRef, acRef);
 		
 		//将结果进行解析，用于评估
-		ChunkAnalysisBasedWordSample prediction = new ChunkAnalysisBasedWordSample(wordsRef, chunkTagsPre);
+		AbstractChunkAnalysisSample prediction = new ChunkAnalysisBasedWordSample(wordsRef, chunkTagsPre);
 		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);
 //		measure.add(sample, prediction);
 //		logger.info(sample+"\n"+prediction);

@@ -10,7 +10,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParse;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisParseWithBIO;
 import opennlp.tools.util.FilterObjectStream;
 import opennlp.tools.util.ObjectStream;
 
@@ -23,14 +25,10 @@ import opennlp.tools.util.ObjectStream;
  *</ul>
  */
 @SuppressWarnings("unused")
-public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<String, ChunkAnalysisBasedWordSample>{
+public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordSampleStream.class.getName());
-
-	private ChunkAnalysisBasedWordAndPOSParse context;
-	
-	private boolean isBIEO;
-//	private BufferedWriter writer;
+	private AbstractChunkAnalysisParse paeser;
 	
 	/**
 	 * 构造方法
@@ -40,34 +38,31 @@ public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<Strin
 	 */
 	public ChunkAnalysisBasedWordSampleStream(ObjectStream<String> samples, boolean isBIEO) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
-		context = new ChunkAnalysisBasedWordAndPOSParse();
-		this.isBIEO = isBIEO;
-//		writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("E:\\chunk.samples")), "utf8"));
+		if(isBIEO)
+			paeser = new ChunkAnalysisParseWithBIEO();
+		else
+			paeser = new ChunkAnalysisParseWithBIO();
 	}
 
 	/**
 	 * 读取训练语料进行解析
 	 * @return 样本
 	 */	
-	public ChunkAnalysisBasedWordSample read() throws IOException {
+	public AbstractChunkAnalysisSample read() throws IOException {
 		String sentence = samples.read();
 		
 		if(sentence != null){
-			ChunkAnalysisBasedWordSample sample = null;
-			ChunkAnalysisBasedWordAndPOSSample wordAndPOSSample = null;
+			AbstractChunkAnalysisSample sample = null;
 			if(sentence.compareTo("") != 0){
-				
 				try{
-					wordAndPOSSample = context.parse(sentence, isBIEO);
+					sample = paeser.parse(sentence);
 				}catch(Exception e){
-					if (logger.isLoggable(Level.WARNING)) 	
+					if (logger.isLoggable(Level.WARNING))
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);
 	                
 					sample = new ChunkAnalysisBasedWordSample(new String[]{}, new String[]{});
 				}
-				sample = new ChunkAnalysisBasedWordSample(wordAndPOSSample.getWords(), wordAndPOSSample.getChunkTags());
-//				writer.write(sample.toString());
-//				writer.newLine();
+
 				return sample;
 			}else 
 				return new ChunkAnalysisBasedWordSample(new String[]{}, new String[]{});
@@ -77,7 +72,6 @@ public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<Strin
 	
 	public void close() throws IOException {
 		samples.close();
-//		writer.close();
 	}
 	
 	public void reset() throws IOException, UnsupportedOperationException {
