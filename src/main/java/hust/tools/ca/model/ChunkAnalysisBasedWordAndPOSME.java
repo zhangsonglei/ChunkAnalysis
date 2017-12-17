@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ import opennlp.tools.util.TrainingParameters;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordAndPOSME implements ChunkAnalysisBasedWordAndPOS {
+public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	
 	public static final int DEFAULT_BEAM_SIZE = 33;
 	private ChunkAnalysisBasedWordAndPOSContextGenerator contextGenerator;
@@ -233,36 +234,25 @@ public class ChunkAnalysisBasedWordAndPOSME implements ChunkAnalysisBasedWordAnd
 		return null;
 	}
 	
+	
+	
 	/**
-	 * 得到最好的numTaggings个标记序列
-	 * @param numTaggings 个数
-	 * @param words 一个个词语
-	 * @param pos 词性标注
-	 * @return 分词加词性标注的序列
+	 * 返回词组组块标注后的结果
+	 * @param words	词组
+	 * @param poses	词组对应词性数组
+	 * @return		组块标注后的结果
 	 */
-	public String[][] tag(int numTaggings, String[] words,String[] pos) {
-        Sequence[] bestSequences = model.bestSequences(numTaggings, words, pos, null,
-        		contextGenerator, sequenceValidator);
-        String[][] tagsandposes = new String[bestSequences.length][];
-        for (int si = 0; si < tagsandposes.length; si++) {
-            List<String> t = bestSequences[si].getOutcomes();
-            tagsandposes[si] = t.toArray(new String[t.size()]);
-           
-        }
-        return tagsandposes;
-    }
-	
-	@Override
-	public String analysis(String[] words){
-		return analysis(words, null);
-	}
-	
-	@Override
 	public String analysis(String[] words,String[] poses){
 		return analysis(words, poses, null);
 	}
 	
-	@Override
+	/**
+	 * 返回词组组块标注后的结果
+	 * @param words				词组
+	 * @param pos				词组对应词性数组
+	 * @param additionaContext	其他上下文信息
+	 * @return					组块标注后的结果
+	 */
 	public String analysis(String[] words,String[] poses, Object[] additionaContext){
 		bestSequence = model.bestSequence(words, poses, additionaContext, contextGenerator,sequenceValidator);
 		List<String> chunks = bestSequence.getOutcomes();
@@ -300,40 +290,103 @@ public class ChunkAnalysisBasedWordAndPOSME implements ChunkAnalysisBasedWordAnd
 		
 		return chunksResult;
 	}
-
-	public String[] tag(String[] words){
-		return tag(words,null);
-	}
 	
-	
+	/**
+	 * 返回给定词组和词性的组块类型
+	 * @param words	待确定组块类型的词组
+	 * @param poses	词组对应的词性数组
+	 * @return		组块类型
+	 */
 	public String[] tag(String[] words,String[] poses){
 		return tag(words, poses, null);
 	}
 	
-	
+	/**
+	 * 返回给定词组和词性的组块类型
+	 * @param words				待确定组块类型的词组
+	 * @param poses				词组对应的词性数组
+	 * @param additionaContext	其他上下文信息
+	 * @return					组块类型
+	 */
 	public String[] tag(String[] words,String[] poses, Object[] additionaContext){
 		bestSequence = model.bestSequence(words, poses, additionaContext, contextGenerator,sequenceValidator);
-		List<String> t = bestSequence.getOutcomes();
-		return t.toArray(new String[t.size()]);
+		List<String> chunks = bestSequence.getOutcomes();
+		
+		return chunks.toArray(new String[chunks.size()]);
 	}
 	
+	/**
+	 * 得到最优的num个组块标注结果
+	 * @param k 	返回的标注结果个数
+	 * @param words 待确定组块类型的词组
+	 * @param pos 	词组对应的词性数组
+	 * @return 		最优的k个组块标注结果
+	 */
+	public String[][] tag(int k, String[] words, String[] pos) {
+        Sequence[] bestSequences = model.bestSequences(k, words, pos, null,
+        		contextGenerator, sequenceValidator);
+        String[][] tagsandposes = new String[bestSequences.length][];
+        for (int si = 0; si < tagsandposes.length; si++) {
+            List<String> t = bestSequences[si].getOutcomes();
+            tagsandposes[si] = t.toArray(new String[t.size()]);
+           
+        }
+        return tagsandposes;
+    }
 	
-	
-	
-	@Override
-	public Sequence[] getTopKSequences(String[] words) {
-		return getTopKSequences(words, null, null);
-	}
-
-	@Override
+	/**
+	 * 根据给定词组及其词性，返回最优的K个标注序列
+	 * @param words	待标注的词组
+	 * @param poses	与词组对应的词性数组
+	 * @return		最优的K个标注序列
+	 */
     public Sequence[] getTopKSequences(String[] characters,String[] pos) {
         return getTopKSequences(characters, pos, null);
     }
 
-	@Override
+    /**
+	 * 根据给定词组及其词性，返回最优的K个标注序列
+	 * @param words	待标注的词组
+	 * @param poses	与词组对应的词性数组
+	 * @param additionaContext
+	 * @return		最优的K个标注序列
+	 */
     public Sequence[] getTopKSequences(String[] characters, String[] pos, Object[] additionaContext) {
         return model.bestSequences(size, characters, pos, additionaContext,
         		contextGenerator, sequenceValidator);
     }
+
+	@Override
+	public Chunk[] parse(String sentence) {
+		String[] wordTags = sentence.split("//s+");
+		List<String> words = new ArrayList<>();
+		List<String> poses = new ArrayList<>();
+		
+		for(String wordTag : wordTags) {
+			words.add(wordTag.split("/")[0]);
+			poses.add(wordTag.split("/")[1]);
+		}
+		
+		String[] chunks = tag(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
+		
+		
+		return null;
+	}
+
+	@Override
+	public Chunk[][] parse(String sentence, int k) {
+		String[] wordTags = sentence.split("//s+");
+		List<String> words = new ArrayList<>();
+		List<String> poses = new ArrayList<>();
+		
+		for(String wordTag : wordTags) {
+			words.add(wordTag.split("/")[0]);
+			poses.add(wordTag.split("/")[1]);
+		}
+		
+		String[][] chunks = tag(k, words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
+		
+		return null;
+	}
 }
 

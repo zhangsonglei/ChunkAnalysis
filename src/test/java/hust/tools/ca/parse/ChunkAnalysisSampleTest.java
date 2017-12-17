@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 
 /**
  *<ul>
@@ -17,7 +17,7 @@ import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
  */
 public class ChunkAnalysisSampleTest {
 	
-	private ChunkAnalysisParseWithBIEO parse;
+	private AbstractChunkAnalysisParse parse;
 
 	//句子开始结尾都不属于组块的句子
 	private String sentence1 = "忠诚/a  的/u  [共产主义/n  战士/n]BNP  ，/w  久经考验/l  的/u  [无产阶级/n  革命家/n]BNP  [刘/nr  澜涛/nr  同志/n]BNP  逝世/v";		
@@ -37,16 +37,16 @@ public class ChunkAnalysisSampleTest {
 	private String[] poses3 = new String[]{"nt", "nt", "v", "ns", "n", "vn", "vn"};
 	private String[] tags3 = new String[]{"BNP_B", "BNP_I", "O", "BNP_B", "BNP_I", "BNP_B", "BNP_I"};
 	
-	private ChunkAnalysisBasedWordAndPOSSample sample1;
-	private ChunkAnalysisBasedWordAndPOSSample sample2;
-	private ChunkAnalysisBasedWordAndPOSSample sample3;
+	private AbstractChunkAnalysisSample sample1;
+	private AbstractChunkAnalysisSample sample2;
+	private AbstractChunkAnalysisSample sample3;
 	
 	@Before
 	public void setUp() throws Exception {
 		parse = new ChunkAnalysisParseWithBIEO();
-		sample1 = parse.parse(sentence1, false);
-		sample2 = parse.parse(sentence2, false);
-		sample3 = parse.parse(sentence3, false);
+		sample1 = parse.parse(sentence1);
+		sample2 = parse.parse(sentence2);
+		sample3 = parse.parse(sentence3);
 	}
 
 	@Test

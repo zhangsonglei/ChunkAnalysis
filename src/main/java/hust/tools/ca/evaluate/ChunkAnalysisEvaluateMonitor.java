@@ -1,7 +1,6 @@
 package hust.tools.ca.evaluate;
 
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.util.eval.EvaluationMonitor;
 
 /**
@@ -13,7 +12,7 @@ import opennlp.tools.util.eval.EvaluationMonitor;
  *</ul>
  * @param <T>
  */
-public class ChunkAnalysisBasedWordEvaluateMonitor implements EvaluationMonitor<AbstractChunkAnalysisSample>{
+public class ChunkAnalysisEvaluateMonitor implements EvaluationMonitor<AbstractChunkAnalysisSample>{
 
 	/**
 	 * 预测正确

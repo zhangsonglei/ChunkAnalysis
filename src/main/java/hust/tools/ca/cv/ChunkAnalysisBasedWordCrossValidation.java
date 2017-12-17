@@ -2,14 +2,13 @@ package hust.tools.ca.cv;
 
 import java.io.IOException;
 
-import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluateMonitor;
+import hust.tools.ca.evaluate.ChunkAnalysisEvaluateMonitor;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasure;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.CrossValidationPartitioner;
@@ -37,7 +36,7 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	/**
 	 * 组块分析评估监视器
 	 */
-	private ChunkAnalysisBasedWordEvaluateMonitor[] monitors;
+	private ChunkAnalysisEvaluateMonitor[] monitors;
 	
 	
 	/**
@@ -46,7 +45,7 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	 * @param params	训练的参数
 	 * @param monitor 	监听器
 	 */
-	public ChunkAnalysisBasedWordCrossValidation(String encoding, TrainingParameters params, ChunkAnalysisBasedWordEvaluateMonitor... monitors){
+	public ChunkAnalysisBasedWordCrossValidation(String encoding, TrainingParameters params, ChunkAnalysisEvaluateMonitor... monitors){
 		this.encoding = encoding;
 		this.params = params;
 		this.monitors = monitors;

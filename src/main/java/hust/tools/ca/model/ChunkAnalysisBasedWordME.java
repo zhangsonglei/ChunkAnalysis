@@ -43,7 +43,7 @@ import opennlp.tools.util.TrainingParameters;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordME implements ChunkAnalysisBasedWord {
+public class ChunkAnalysisBasedWordME implements Chunker {
 	
 	public static final int DEFAULT_BEAM_SIZE = 33;
 	private ChunkAnalysisBasedWordContextGenerator contextGenerator;
@@ -250,12 +250,21 @@ public class ChunkAnalysisBasedWordME implements ChunkAnalysisBasedWord {
         return tags;
     }
 	
-	@Override
+	/**
+	 * 返回词组组块标注后的结果
+	 * @param words	词组
+	 * @return		组块标注后的结果
+	 */
 	public String analysis(String[] words){
 		return analysis(words, null);
 	}
 	
-	@Override
+	/**
+	 * 返回词组组块标注后的结果
+	 * @param words				词组
+	 * @param additionaContext	其他上下文信息
+	 * @return					组块标注后的结果
+	 */
 	public String analysis(String[] words, Object[] additionaContext){
 		bestSequence = model.bestSequence(words, additionaContext, contextGenerator,sequenceValidator);
 		List<String> chunks = bestSequence.getOutcomes();
@@ -289,28 +298,78 @@ public class ChunkAnalysisBasedWordME implements ChunkAnalysisBasedWord {
 		return chunksResult;
 	}
 
+	/**
+	 * 返回词组的组块标注结果
+	 * @param words	词组
+	 * @return		词组的组块标注结果
+	 */
 	public String[] tag(String[] words){
 		return tag(words,null);
 	}
 	
+	/**
+	 * 返回词组的组块标注结果
+	 * @param words				词组
+	 * @param additionaContext	其他上下文信息
+	 * @return					词组的组块标注结果
+	 */
 	public String[] tag(String[] words, Object[] additionaContext){
 		bestSequence = model.bestSequence(words, additionaContext, contextGenerator,sequenceValidator);
 		List<String> temp = bestSequence.getOutcomes();
 		
 		return temp.toArray(new String[temp.size()]);
 	}
-	
-	
-	
-	
-	@Override
+
+	/**
+	 * 根据给定词组，返回最优的K个标注序列
+	 * @param words	待标注的词组
+	 * @return		最优的K个标注序列
+	 */
 	public Sequence[] getTopKSequences(String[] words) {
 		return getTopKSequences(words, null);
 	}
 
-	@Override
+	/**
+	 * 根据给定词组及其词性，返回最优的K个标注序列
+	 * @param words	待标注的词组
+	 * @param additionaContext
+	 * @return		最优的K个标注序列
+	 */
     public Sequence[] getTopKSequences(String[] words, Object[] additionaContext) {
         return model.bestSequences(size, words, additionaContext, contextGenerator, sequenceValidator);
     }
+
+    @Override
+	public Chunk[] parse(String sentence) {
+		String[] wordTags = sentence.split("//s+");
+		List<String> words = new ArrayList<>();
+		List<String> poses = new ArrayList<>();
+		
+		for(String wordTag : wordTags) {
+			words.add(wordTag.split("/")[0]);
+			poses.add(wordTag.split("/")[1]);
+		}
+		
+		String[] chunks = tag(words.toArray(new String[words.size()]));
+		
+		
+		return null;
+	}
+
+	@Override
+	public Chunk[][] parse(String sentence, int k) {
+		String[] wordTags = sentence.split("//s+");
+		List<String> words = new ArrayList<>();
+		List<String> poses = new ArrayList<>();
+		
+		for(String wordTag : wordTags) {
+			words.add(wordTag.split("/")[0]);
+			poses.add(wordTag.split("/")[1]);
+		}
+		
+		String[][] chunks = tag(k, words.toArray(new String[words.size()]));
+		
+		return null;
+	}
 }
 

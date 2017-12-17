@@ -6,8 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.utils.Dictionary;
 
 /**
@@ -79,20 +78,7 @@ public class ChunkAnalysisMeasure {
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
-	public void add(ChunkAnalysisBasedWordAndPOSSample reference, ChunkAnalysisBasedWordAndPOSSample prediction) {
-		String[] words = reference.getWords();				//每个测试样本中的词组
-		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
-		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
-		update(words, refChunkTags, preChunkTags);
-//		updateBasedWords(words, refChunkTags, preChunkTags);
-	}
-	
-	/**
-	 * 动态统计预测样本与标准样本
-	 * @param reference	标准样本
-	 * @param prediction预测样本
-	 */
-	public void add(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
+	public void add(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
 		String[] words = reference.getWords();				//每个测试样本中的词组
 		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
 		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记

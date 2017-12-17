@@ -3,7 +3,7 @@ package hust.tools.ca.evaluate;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 
 /**
  *<ul>
@@ -13,7 +13,7 @@ import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
  *<li>Date: 2017年12月7日
  *</ul>
  */
-public class ChunkAnalysisBasedWordErrorPrinter extends ChunkAnalysisBasedWordEvaluateMonitor {
+public class ChunkAnalysisErrorPrinter extends ChunkAnalysisEvaluateMonitor {
 	
 	private PrintStream errOut;
 	
@@ -21,13 +21,13 @@ public class ChunkAnalysisBasedWordErrorPrinter extends ChunkAnalysisBasedWordEv
 	 * 构造方法
 	 * @param out	输出流
 	 */
-	public ChunkAnalysisBasedWordErrorPrinter(OutputStream out){
+	public ChunkAnalysisErrorPrinter(OutputStream out){
 		errOut = new PrintStream(out);
 	}
 	
 	
 	@Override
-	public void missclassified(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
+	public void missclassified(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
 		 errOut.println("样本的结果：" + reference);
 		 errOut.println("预测的结果：" + prediction);
 		 

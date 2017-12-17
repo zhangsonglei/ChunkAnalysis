@@ -2,13 +2,13 @@ package hust.tools.ca.cv;
 
 import java.io.IOException;
 
-import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSEvaluateMonitor;
+import hust.tools.ca.evaluate.ChunkAnalysisEvaluateMonitor;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasure;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.eval.CrossValidationPartitioner;
@@ -36,7 +36,7 @@ public class ChunkAnalysisBasedWordAndPOSCrossValidation {
 	/**
 	 * 组块分析评估监视器
 	 */
-	private ChunkAnalysisBasedWordAndPOSEvaluateMonitor[] monitors;
+	private ChunkAnalysisEvaluateMonitor[] monitors;
 	
 	
 	/**
@@ -46,7 +46,7 @@ public class ChunkAnalysisBasedWordAndPOSCrossValidation {
 	 * @param monitor 	监听器
 	 */
 	public ChunkAnalysisBasedWordAndPOSCrossValidation(String encoding, TrainingParameters params,
-			ChunkAnalysisBasedWordAndPOSEvaluateMonitor... monitors){
+			ChunkAnalysisEvaluateMonitor... monitors){
 		this.encoding = encoding;
 		this.params = params;
 		this.monitors = monitors;
@@ -59,16 +59,16 @@ public class ChunkAnalysisBasedWordAndPOSCrossValidation {
 	 * @param contextGenerator	上下文
 	 * @throws IOException
 	 */
-	public void evaluate(ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream, int nFolds,
+	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
 			ChunkAnalysisBasedWordAndPOSContextGenerator contextGenerator, boolean isBIEO) throws IOException{
-		CrossValidationPartitioner<ChunkAnalysisBasedWordAndPOSSample> partitioner = new CrossValidationPartitioner<ChunkAnalysisBasedWordAndPOSSample>(sampleStream, nFolds);
+		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;
 		//小于折数的时候
 		while(partitioner.hasNext()){
 			System.out.println("Run"+run+"...");
 			
-			CrossValidationPartitioner.TrainingSampleStream<ChunkAnalysisBasedWordAndPOSSample> trainingSampleStream = partitioner.next();
+			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner.next();
 			ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(isBIEO);
 			ChunkAnalysisBasedWordAndPOSModel model = me.train(encoding, trainingSampleStream, params, contextGenerator);
 			ChunkAnalysisBasedWordAndPOSEvaluator evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(new ChunkAnalysisBasedWordAndPOSME(model, isBIEO, contextGenerator), isBIEO, monitors);

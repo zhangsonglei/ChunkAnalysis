@@ -3,6 +3,7 @@ package hust.tools.ca.evaluate;
 import org.apache.log4j.Logger;
 
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 import opennlp.tools.util.eval.Evaluator;
 
@@ -14,7 +15,7 @@ import opennlp.tools.util.eval.Evaluator;
  *<li>Date: 2017年12月7日
  *</ul>
  */
-public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<ChunkAnalysisBasedWordAndPOSSample>{
+public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<AbstractChunkAnalysisSample>{
 
 	Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSEvaluator.class);
 	/**
@@ -41,7 +42,7 @@ public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<ChunkAnalys
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
 	public ChunkAnalysisBasedWordAndPOSEvaluator(ChunkAnalysisBasedWordAndPOSME chunkTagger, boolean isBIEO,
-			ChunkAnalysisBasedWordAndPOSEvaluateMonitor... evaluateMonitors) {
+			ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
 	}
@@ -64,7 +65,7 @@ public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<ChunkAnalys
 	
 	
 	@Override
-	protected ChunkAnalysisBasedWordAndPOSSample processSample(ChunkAnalysisBasedWordAndPOSSample sample) {
+	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample) {
 		String[] wordsRef = sample.getWords();
 		String[] posesRef = sample.getPoses();
 		String[] chunkTagsRef = sample.getChunkTags();

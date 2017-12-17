@@ -41,7 +41,7 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnal
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
-	public ChunkAnalysisBasedWordEvaluator(ChunkAnalysisBasedWordME chunkTagger, boolean isBIEO ,ChunkAnalysisBasedWordEvaluateMonitor... evaluateMonitors) {
+	public ChunkAnalysisBasedWordEvaluator(ChunkAnalysisBasedWordME chunkTagger, boolean isBIEO ,ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
 	}

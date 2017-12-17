@@ -8,14 +8,14 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import hust.tools.ca.cv.ChunkAnalysisBasedWordAndPOSCrossValidation;
-import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSErrorPrinter;
+import hust.tools.ca.evaluate.ChunkAnalysisErrorPrinter;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasure;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenratorConf;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
@@ -117,7 +117,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
     
         //把刚才属性信息封装
         ChunkAnalysisBasedWordAndPOSCrossValidation crossValidator = new ChunkAnalysisBasedWordAndPOSCrossValidation("zh", params);
-        ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
         ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = getWordAndPOSContextGenerator(config);
         System.out.println(contextGen);
         crossValidator.evaluate(sampleStream, 10, contextGen, isBIEO);
@@ -215,17 +215,17 @@ public class ChunkAnalysisBasedWordAndPOSRun {
        
         ChunkAnalysisMeasure measure = new ChunkAnalysisMeasure();
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;
-        ChunkAnalysisBasedWordAndPOSErrorPrinter printer = null;
+        ChunkAnalysisErrorPrinter printer = null;
         if(corpus.errorFile != null){
         	System.out.println("Print error to file " + corpus.errorFile);
-        	printer = new ChunkAnalysisBasedWordAndPOSErrorPrinter(new FileOutputStream(corpus.errorFile));    	
+        	printer = new ChunkAnalysisErrorPrinter(new FileOutputStream(corpus.errorFile));    	
         	evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(tagger, isBIEO, printer);
         }else{
         	evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(tagger);
         }
         evaluator.setMeasure(measure);
         ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
-        ObjectStream<ChunkAnalysisBasedWordAndPOSSample> sampleStreamNoNull = new ChunkAnalysisBasedWordAndPOSSampleStream(linesStreamNoNull, isBIEO);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStreamNoNull = new ChunkAnalysisBasedWordAndPOSSampleStream(linesStreamNoNull, isBIEO);
         evaluator.evaluate(sampleStreamNoNull);
         ChunkAnalysisMeasure measureRes = evaluator.getMeasure();
         System.out.println("--------结果--------");
