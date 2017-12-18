@@ -10,10 +10,10 @@ package hust.tools.ca.beamsearch;
  */
 public class DefaultChunkAnalysisSequenceBasedWordAndPOSValidator implements ChunkAnalysisSequenceValidator<String> {
 	
-	private boolean isBIEO;
+	private String label;
 	
-	public DefaultChunkAnalysisSequenceBasedWordAndPOSValidator(boolean isBIEO) {
-		this.isBIEO = isBIEO;
+	public DefaultChunkAnalysisSequenceBasedWordAndPOSValidator(String label) {
+		this.label = label;
 	}
 
 	@Override
@@ -22,10 +22,21 @@ public class DefaultChunkAnalysisSequenceBasedWordAndPOSValidator implements Chu
 			if(out.equals("O") || out.split("_")[1].equals("B")) 
 				return true;
 		}else {//当前词不是句子开始位置
-			if(isBIEO)
-				return isBIEO(chunkTags, index, out);
-			else
-				return isBIO(chunkTags, index, out);
+			boolean res = false;
+			switch(label) {
+			case "BIEO":
+				res = isBIEO(chunkTags, index, out);
+				break;
+			case "BIO":
+				res = isBIO(chunkTags, index, out);
+				break;
+			default:
+				System.err.println("错误的标签类型，已默认为BIEO");
+				res = isBIEO(chunkTags, index, out);
+				break;
+			}
+			
+			return res;
 		}
 		
 		return false;

@@ -12,10 +12,10 @@ import opennlp.tools.util.SequenceValidator;
  */
 public class DefaultChunkAnalysisSequenceBasedWordValidator implements SequenceValidator<String> {
 	
-	private boolean isBIEO;
+	private String label;
 	
-	public DefaultChunkAnalysisSequenceBasedWordValidator(boolean isBIEO) {
-		this.isBIEO = isBIEO;
+	public DefaultChunkAnalysisSequenceBasedWordValidator(String label) {
+		this.label = label;
 	}
 
 	@Override
@@ -24,15 +24,33 @@ public class DefaultChunkAnalysisSequenceBasedWordValidator implements SequenceV
 			if(out.equals("O") || out.split("_")[1].equals("B")) 
 				return true;
 		}else {//当前词不是句子开始位置
-			if(isBIEO)
-				return isBIEO(chunkTags, index, out);
-			else
-				return isBIO(chunkTags, index, out);
+			boolean res = false;
+			switch(label) {
+			case "BIEO":
+				res = isBIEO(chunkTags, index, out);
+				break;
+			case "BIO":
+				res = isBIO(chunkTags, index, out);
+				break;
+			default:
+				System.err.println("错误的标签类型，已默认为BIEO");
+				res = isBIEO(chunkTags, index, out);
+				break;
+			}
+			
+			return res;
 		}
 		
 		return false;
 	}
 	
+	/**
+	 * 标签类型为BIO
+	 * @param chunkTags
+	 * @param index
+	 * @param out
+	 * @return
+	 */
 	private boolean isBIO(String[] chunkTags, int index, String out) {
 		if(index == chunkTags.length - 1) {//当前词是句子结束
 			String chunkTag = chunkTags[index - 1];
@@ -63,6 +81,13 @@ public class DefaultChunkAnalysisSequenceBasedWordValidator implements SequenceV
 		return false;
 	}
 	
+	/**
+	 * 标签类型为BIEO
+	 * @param chunkTags
+	 * @param index
+	 * @param out
+	 * @return
+	 */
 	private boolean isBIEO(String[] chunkTags, int index, String out) {
 		if(index == chunkTags.length - 1) {//当前词是句子结束
 			String chunkTag = chunkTags[index - 1];

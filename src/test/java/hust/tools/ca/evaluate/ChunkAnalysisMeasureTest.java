@@ -23,7 +23,7 @@ import hust.tools.ca.utils.Dictionary;
  */
 public class ChunkAnalysisMeasureTest {
 	
-	private ChunkAnalysisMeasure measure;
+	private ChunkAnalysisMeasureWithBIEO measure;
 	
 	private AbstractChunkAnalysisParse parse;
 	
@@ -47,7 +47,7 @@ public class ChunkAnalysisMeasureTest {
 	public void setUp() throws Exception {
 		Dictionary wordDict = new Dictionary(words);
 		parse = new ChunkAnalysisParseWithBIEO();
-		measure = new ChunkAnalysisMeasure(wordDict);
+		measure = new ChunkAnalysisMeasureWithBIEO(wordDict);
 		
 		refList = new ArrayList<>(); refList.add(ref1);	refList.add(ref2); refList.add(ref3);
 		preList = new ArrayList<>(); preList.add(pre1); preList.add(pre2); preList.add(pre3);

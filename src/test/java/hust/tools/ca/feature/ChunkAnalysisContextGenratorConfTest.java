@@ -22,7 +22,7 @@ public class ChunkAnalysisContextGenratorConfTest {
 	private String[] words;
 	private String[] poses;
 	private String[] chunkTags;
-	private ChunkAnalysisBasedWordAndPOSContextGenratorConf contextGeneratorConf;
+	private ChunkAnalysisBasedWordAndPOSContextGeneratorConf contextGeneratorConf;
 	private AbstractChunkAnalysisParse parse;
 	
 	private String[] features0 = new String[]{"w0=党中央", "p0=nt", "w1=国务院", "p1=nt", "w0w1=党中央国务院", "w2=关心", "p2=v", "w1w2=国务院关心", "p0p1=ntnt", "p1p2=ntv"};
@@ -40,7 +40,7 @@ public class ChunkAnalysisContextGenratorConfTest {
 		words = sample.getWords();
 		poses = sample.getPoses();
 		chunkTags = sample.getChunkTags();
-		contextGeneratorConf = new ChunkAnalysisBasedWordAndPOSContextGenratorConf();
+		contextGeneratorConf = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
 	}
 
 	@Test

@@ -49,14 +49,14 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	private Sequence bestSequence;
 	private ChunkAnalysisSequenceClassificationModel<String> model;
     private ChunkAnalysisSequenceValidator<String> sequenceValidator;
-    private boolean isBIEO;
+    private String label;
     
     /**
      * 构造方法
      * @param isBIEO	组块位置标签BIEO/BIO
      */
-	public ChunkAnalysisBasedWordAndPOSME(boolean isBIEO) {
-		this.isBIEO = isBIEO;
+	public ChunkAnalysisBasedWordAndPOSME(String label) {
+		this.label = label;
 	}
 	
     /**
@@ -64,8 +64,8 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
      * @param model			组块分析模型
      * @param contextGen	上下文生成器
      */
-	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, boolean isBIEO, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
-		this.isBIEO = isBIEO;
+	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, String label, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
+		this.label = label;
 		init(model , contextGen);
 	}
 	
@@ -83,7 +83,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
         contextGenerator = contextGen;
         size = beamSize;
-        sequenceValidator = new DefaultChunkAnalysisSequenceBasedWordAndPOSValidator(isBIEO);
+        sequenceValidator = new DefaultChunkAnalysisSequenceBasedWordAndPOSValidator(label);
         
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
@@ -106,7 +106,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -171,7 +171,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, isBIEO);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           
@@ -358,6 +358,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
 	@Override
 	public Chunk[] parse(String sentence) {
+		List<Chunk> chunks = new ArrayList<>();
 		String[] wordTags = sentence.split("//s+");
 		List<String> words = new ArrayList<>();
 		List<String> poses = new ArrayList<>();
@@ -367,14 +368,49 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 			poses.add(wordTag.split("/")[1]);
 		}
 		
-		String[] chunks = tag(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
+		String[] chunkTypes = tag(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
 		
 		
-		return null;
+		int start = 0;
+		int end = 0;
+		boolean isChunk = false;
+		String type = null;
+		
+		for(int i = 0; i < chunkTypes.length; i++) {			
+			if(chunkTypes[i].equals("O")) {
+				if(isChunk) {
+					end = i - 1;
+					chunks.add(new Chunk(type, join(words, poses, start, end), start, end));
+				}
+				isChunk = false;
+				
+				chunks.add(new Chunk(chunkTypes[i], words.get(i) + "/" + poses.get(i), i, i));
+			}else {
+				if(chunkTypes[i].split("_").equals("B")) {
+					if(isChunk) {
+						end = i - 1;
+						chunks.add(new Chunk(type, join(words, poses, start, end), start, end));
+					}
+					isChunk = false;
+					
+					start = i;
+					isChunk = true;
+					type = chunkTypes[i].split("_")[0];
+				}
+			}
+		}
+		
+		if(isChunk) {
+			end = chunkTypes.length - 1;
+			chunks.add(new Chunk(type, join(words, poses, start, end), start, end));
+		}
+		
+		return chunks.toArray(new Chunk[chunks.size()]);
 	}
 
 	@Override
 	public Chunk[][] parse(String sentence, int k) {
+		List<Chunk[]> chunks = new ArrayList<>();
 		String[] wordTags = sentence.split("//s+");
 		List<String> words = new ArrayList<>();
 		List<String> poses = new ArrayList<>();
@@ -384,9 +420,68 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 			poses.add(wordTag.split("/")[1]);
 		}
 		
-		String[][] chunks = tag(k, words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
+		String[][] chunkTypes = tag(k, words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
 		
-		return null;
+		int start = 0;
+		int end = 0;
+		boolean isChunk = false;
+		String type = null;
+		
+		List<Chunk> temp = new ArrayList<>();
+		for(int i = 0; i < chunkTypes.length; i++) {
+			for(int j = 0; j < chunkTypes[i].length; j++) {			
+				if(chunkTypes[i][j].equals("O")) {
+					if(isChunk) {
+						end = i - 1;
+						temp.add(new Chunk(type, join(words, poses, start, end), start, end));
+					}
+					isChunk = false;
+					
+					temp.add(new Chunk(chunkTypes[i][j], words.get(j) + "/" + poses.get(j), j, j));
+				}else {
+					if(chunkTypes[i][j].split("_").equals("B")) {
+						if(isChunk) {
+							end = j - 1;
+							temp.add(new Chunk(type, join(words, poses, start, end), start, end));
+						}
+						isChunk = false;
+						
+						start = j;
+						isChunk = true;
+						type = chunkTypes[i][j].split("_")[0];
+					}
+				}
+			}
+			
+			if(isChunk) {
+				end = chunkTypes[i].length - 1;
+				temp.add(new Chunk(type, join(words, poses, start, end), start, end));
+			}
+			
+			chunks.add(temp.toArray(new Chunk[temp.size()]));
+		}
+		
+		Chunk[][] result = new Chunk[chunks.size()][];
+		for(int i = 0; i < result.length; i++)
+			result[i] = chunks.get(i);
+		
+		return result;
+	}
+	
+	/**
+	 * 拼接字符串word/pos  word/pos  ...
+	 * @param words	带拼接的词组
+	 * @param poses	词组对应的词性
+	 * @param start	拼接的开始位置
+	 * @param end	拼接的结束位置
+	 * @return		拼接后的字符串
+	 */
+	private String join(List<String> words, List<String> poses, int start, int end) {
+		String string = "";
+		for(int i = start; i <= end; i++) 
+			string += words.get(i) + "/" + poses.get(i) + "  ";
+		
+		return string.trim();
 	}
 }
 

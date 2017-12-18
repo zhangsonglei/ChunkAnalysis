@@ -39,6 +39,10 @@ public class ChunkAnalysisBasedWordAndPOSModel extends BaseModel{
 	protected ChunkAnalysisBasedWordAndPOSModel(String componentName, File modelFile) throws IOException {
 		super(COMPONENT_NAME, modelFile);
 	}
+	
+	public ChunkAnalysisBasedWordAndPOSModel(File modelFile) throws IOException {
+		super(COMPONENT_NAME, modelFile);
+	}
 
 	/**
 	 * 构造方法

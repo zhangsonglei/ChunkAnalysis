@@ -2,9 +2,10 @@ package hust.tools.ca.cv;
 
 import java.io.IOException;
 
-import hust.tools.ca.evaluate.ChunkAnalysisEvaluateMonitor;
+import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluator;
-import hust.tools.ca.evaluate.ChunkAnalysisMeasure;
+import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
+import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
@@ -24,19 +25,9 @@ import opennlp.tools.util.eval.CrossValidationPartitioner;
 public class ChunkAnalysisBasedWordCrossValidation {
 
 	/**
-	 * 语料文件字符编码
-	 */
-	private final String encoding;
-	
-	/**
 	 * 训练的参数集
 	 */
 	private final TrainingParameters params;
-	
-	/**
-	 * 组块分析评估监视器
-	 */
-	private ChunkAnalysisEvaluateMonitor[] monitors;
 	
 	
 	/**
@@ -45,10 +36,8 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	 * @param params	训练的参数
 	 * @param monitor 	监听器
 	 */
-	public ChunkAnalysisBasedWordCrossValidation(String encoding, TrainingParameters params, ChunkAnalysisEvaluateMonitor... monitors){
-		this.encoding = encoding;
+	public ChunkAnalysisBasedWordCrossValidation(TrainingParameters params){
 		this.params = params;
-		this.monitors = monitors;
 	}
 	
 	/**
@@ -59,7 +48,7 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisBasedWordContextGenerator contextGenerator, boolean isBIEO) throws IOException{
+			ChunkAnalysisBasedWordContextGenerator contextGenerator, String label) throws IOException{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;
@@ -68,10 +57,23 @@ public class ChunkAnalysisBasedWordCrossValidation {
 			System.out.println("Run"+run+"...");
 			
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner.next();
-			ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(isBIEO); 
-			ChunkAnalysisBasedWordModel model = me.train(encoding, trainingSampleStream, params, contextGenerator);
-			ChunkAnalysisBasedWordEvaluator evaluator = new ChunkAnalysisBasedWordEvaluator(new ChunkAnalysisBasedWordME(model, isBIEO, contextGenerator), isBIEO, monitors);
-			ChunkAnalysisMeasure measure = new ChunkAnalysisMeasure();
+			ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label); 
+			ChunkAnalysisBasedWordModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
+			ChunkAnalysisBasedWordEvaluator evaluator = new ChunkAnalysisBasedWordEvaluator(new ChunkAnalysisBasedWordME(model, label, contextGenerator), label);
+
+			AbstractChunkAnalysisMeasure measure = null;
+			switch (label) {
+			case "BIO":
+				measure = new ChunkAnalysisMeasureWithBIO();
+				break;
+			case "BIEO":
+				measure = new ChunkAnalysisMeasureWithBIEO();
+				break;
+			default:
+				System.err.println("错误的标签类型，已默认为BIEO");
+				measure = new ChunkAnalysisMeasureWithBIEO();
+				break;
+			}
 			
 			evaluator.setMeasure(measure);
 	        //设置测试集（在测试集上进行评价）

@@ -20,7 +20,7 @@ import opennlp.tools.util.model.BaseModel;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordModel extends BaseModel{
+public class ChunkAnalysisBasedWordModel extends BaseModel {
 	
 	/**
 	 * 训练模型的类
@@ -39,6 +39,10 @@ public class ChunkAnalysisBasedWordModel extends BaseModel{
 	 * @throws IOException 		IO异常
 	 */
 	protected ChunkAnalysisBasedWordModel(String componentName, File modelFile) throws IOException {
+		super(COMPONENT_NAME, modelFile);
+	}
+	
+	public ChunkAnalysisBasedWordModel(File modelFile) throws IOException {
 		super(COMPONENT_NAME, modelFile);
 	}
 

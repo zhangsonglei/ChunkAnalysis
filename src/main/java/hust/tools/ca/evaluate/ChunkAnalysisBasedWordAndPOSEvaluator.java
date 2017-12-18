@@ -26,7 +26,7 @@ public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<AbstractChu
 	/**
 	 * 组块分析评估
 	 */
-	private ChunkAnalysisMeasure measure;
+	private AbstractChunkAnalysisMeasure measure;
 	
 	/**
 	 * 构造方法
@@ -41,7 +41,7 @@ public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<AbstractChu
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
-	public ChunkAnalysisBasedWordAndPOSEvaluator(ChunkAnalysisBasedWordAndPOSME chunkTagger, boolean isBIEO,
+	public ChunkAnalysisBasedWordAndPOSEvaluator(ChunkAnalysisBasedWordAndPOSME chunkTagger, String label,
 			ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
@@ -51,7 +51,7 @@ public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<AbstractChu
 	 * 设置评估指标的对象
 	 * @param measure 评估指标计算的对象
 	 */
-	public void setMeasure(ChunkAnalysisMeasure measure){
+	public void setMeasure(AbstractChunkAnalysisMeasure measure){
 		this.measure = measure;
 	}
 	
@@ -59,7 +59,7 @@ public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<AbstractChu
 	 * 得到评估的指标
 	 * @return
 	 */
-	public ChunkAnalysisMeasure getMeasure(){
+	public AbstractChunkAnalysisMeasure getMeasure(){
 		return measure;
 	}
 	

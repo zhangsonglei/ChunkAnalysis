@@ -18,6 +18,7 @@ import opennlp.tools.util.eval.Evaluator;
 public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnalysisSample>{
 
 	Logger logger = Logger.getLogger(ChunkAnalysisBasedWordEvaluator.class);
+	
 	/**
 	 * 组块分析模型
 	 */
@@ -26,7 +27,7 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnal
 	/**
 	 * 组块分析评估
 	 */
-	private ChunkAnalysisMeasure measure;
+	private AbstractChunkAnalysisMeasure measure;
 	
 	/**
 	 * 构造方法
@@ -41,7 +42,7 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnal
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
-	public ChunkAnalysisBasedWordEvaluator(ChunkAnalysisBasedWordME chunkTagger, boolean isBIEO ,ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
+	public ChunkAnalysisBasedWordEvaluator(ChunkAnalysisBasedWordME chunkTagger, String label, ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
 	}
@@ -50,7 +51,7 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnal
 	 * 设置评估指标的对象
 	 * @param measure 评估指标计算的对象
 	 */
-	public void setMeasure(ChunkAnalysisMeasure measure){
+	public void setMeasure(AbstractChunkAnalysisMeasure measure){
 		this.measure = measure;
 	}
 	
@@ -58,7 +59,7 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnal
 	 * 得到评估的指标
 	 * @return
 	 */
-	public ChunkAnalysisMeasure getMeasure(){
+	public AbstractChunkAnalysisMeasure getMeasure(){
 		return measure;
 	}
 	

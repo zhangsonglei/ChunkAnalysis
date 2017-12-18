@@ -14,7 +14,7 @@ import java.util.Properties;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordAndPOSContextGenratorConf implements ChunkAnalysisBasedWordAndPOSContextGenerator {
+public class ChunkAnalysisBasedWordAndPOSContextGeneratorConf implements ChunkAnalysisBasedWordAndPOSContextGenerator {
 	
 	//原子特征模版
 	private boolean w_1Set;		//前一个词
@@ -85,9 +85,9 @@ public class ChunkAnalysisBasedWordAndPOSContextGenratorConf implements ChunkAna
 	 * 构造方法
 	 * @throws IOException
 	 */
-	public ChunkAnalysisBasedWordAndPOSContextGenratorConf() throws IOException {
+	public ChunkAnalysisBasedWordAndPOSContextGeneratorConf() throws IOException {
 		Properties featureConf = new Properties();
-        InputStream featureStream = ChunkAnalysisBasedWordAndPOSContextGenratorConf.class.getClassLoader().getResourceAsStream("properties/feature.properties");
+        InputStream featureStream = ChunkAnalysisBasedWordAndPOSContextGeneratorConf.class.getClassLoader().getResourceAsStream("properties/feature.properties");
         featureConf.load(featureStream);
         
         init(featureConf);
@@ -97,7 +97,7 @@ public class ChunkAnalysisBasedWordAndPOSContextGenratorConf implements ChunkAna
 	 * 构造方法
 	 * @param properties 配置文件
 	 */
-	public ChunkAnalysisBasedWordAndPOSContextGenratorConf(Properties properties){
+	public ChunkAnalysisBasedWordAndPOSContextGeneratorConf(Properties properties){
         init(properties);
 	}
 	

@@ -8,11 +8,12 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import hust.tools.ca.cv.ChunkAnalysisBasedWordCrossValidation;
+import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisErrorPrinter;
-import hust.tools.ca.evaluate.ChunkAnalysisMeasure;
+import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenratorConf;
+import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
@@ -37,7 +38,7 @@ public class ChunkAnalysisBasedWordRun {
 	/**
 	 * 组块位置标签是否为BIEO，不是的话使用默认的BIO
 	 */
-	private static boolean isBIEO = false;
+	private static String label = "BIEO";
 	
 	private static InputStream configStream;
 
@@ -79,22 +80,22 @@ public class ChunkAnalysisBasedWordRun {
 	
 	public static void main(String[] args) throws IOException {
 		String cmd = args[0];
-		isBIEO = Boolean.parseBoolean(args[1]);
+		label = args[1];
 		
 		configStream = ChunkAnalysisBasedWordRun.class.getClassLoader().getResourceAsStream("properties/corpus.properties");
 		
 		if(cmd.equals("-train")){
 			flag = "train";
-			runFeature(isBIEO);
+			runFeature(label);
 		}else if(cmd.equals("-model")){
 			flag = "model";
-			runFeature(isBIEO);
+			runFeature(label);
 		}else if(cmd.equals("-evaluate")){
 			flag = "evaluate";
-			runFeature(isBIEO);
+			runFeature(label);
 		}else if(cmd.equals("-cross")){
 			String corpus = args[2];
-			crossValidation(corpus, isBIEO);
+			crossValidation(corpus, label);
 		}
 	}
 	
@@ -103,7 +104,7 @@ public class ChunkAnalysisBasedWordRun {
 	 * @param corpus 语料的名称
 	 * @throws IOException 
 	 */
-	private static void crossValidation(String corpusName, boolean isBIEO) throws IOException {
+	private static void crossValidation(String corpusName, String label) throws IOException {
 		Properties config = new Properties();
 		config.load(configStream);
 		Corpus[] corpora = getCorporaFromConf(config);
@@ -119,11 +120,11 @@ public class ChunkAnalysisBasedWordRun {
         
         //把刚才属性信息封装
 
-        ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation("zh", params);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, isBIEO);
+        ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation(params);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, label);
         ChunkAnalysisBasedWordContextGenerator contextGen = getWordContextGenerator(config);
         System.out.println(contextGen);
-        crossValidator.evaluate(sampleStream, 10, contextGen, isBIEO);
+        crossValidator.evaluate(sampleStream, 10, contextGen, label);
 	}
 
 	/**
@@ -145,7 +146,7 @@ public class ChunkAnalysisBasedWordRun {
 	 * 根据配置文件配置的信息获取特征
 	 * @throws IOException IO异常
 	 */
-	private static void runFeature(boolean isBIEO) throws IOException {
+	private static void runFeature(String label) throws IOException {
 		//配置参数
 		TrainingParameters params = TrainingParameters.defaultParams();
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(1));
@@ -156,7 +157,7 @@ public class ChunkAnalysisBasedWordRun {
         Corpus[] corpora = getCorporaFromConf(config);//获取语料
 
         ChunkAnalysisBasedWordContextGenerator contextGen = getWordContextGenerator(config);
-        runFeatureOnCorporaByFlag(contextGen, corpora, params, isBIEO);
+        runFeatureOnCorporaByFlag(contextGen, corpora, params, label);
 	}
 
 	/**
@@ -167,7 +168,7 @@ public class ChunkAnalysisBasedWordRun {
 	 * @throws IOException 
 	 */
 	private static void runFeatureOnCorporaByFlag(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus[] corpora,
-			TrainingParameters params, boolean isBIEO) throws IOException {
+			TrainingParameters params, String label) throws IOException {
 		if(flag == "train" || flag.equals("train")){
 			for (int i = 0; i < corpora.length; i++) {
 				trainOnCorpus(contextGen,corpora[i],params);
@@ -178,7 +179,7 @@ public class ChunkAnalysisBasedWordRun {
 			}
 		}else if(flag == "evaluate" || flag.equals("evaluate")){
 			for (int i = 0; i < corpora.length; i++) {
-				evaluateOnCorpus(contextGen,corpora[i],params, isBIEO);
+				evaluateOnCorpus(contextGen,corpora[i], params, label);
 			}
 		}
 	}
@@ -193,7 +194,7 @@ public class ChunkAnalysisBasedWordRun {
 		if(featureClass.equals("hsut.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenratorConf") ||
 				featureClass.equals("hsut.tools.ca.feature.ChunkAnalysisBasedWordContextGenratorConf")){
 			//初始化需要哪些特征
-        	return  new ChunkAnalysisBasedWordContextGenratorConf(config);
+        	return  new ChunkAnalysisBasedWordContextGeneratorConf(config);
 		}else{
 			return null;
 		} 
@@ -208,29 +209,29 @@ public class ChunkAnalysisBasedWordRun {
 	 * @throws IOException 
 	 */	
 	private static void evaluateOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus,
-			TrainingParameters params, boolean isBIEO) throws IOException {
+			TrainingParameters params, String label) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
         ChunkAnalysisBasedWordModel model = ChunkAnalysisBasedWordME.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
         
-        ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model,isBIEO, contextGen);
+        ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, label, contextGen);
        
-        ChunkAnalysisMeasure measure = new ChunkAnalysisMeasure();
+        ChunkAnalysisMeasureWithBIEO measure = new ChunkAnalysisMeasureWithBIEO();
         ChunkAnalysisBasedWordEvaluator evaluator = null;
         ChunkAnalysisErrorPrinter printer = null;
         if(corpus.errorFile != null){
         	System.out.println("Print error to file " + corpus.errorFile);
         	printer = new ChunkAnalysisErrorPrinter(new FileOutputStream(corpus.errorFile));    	
-        	evaluator = new ChunkAnalysisBasedWordEvaluator(tagger, isBIEO, printer);
+        	evaluator = new ChunkAnalysisBasedWordEvaluator(tagger, label, printer);
         }else{
         	evaluator = new ChunkAnalysisBasedWordEvaluator(tagger);
         }
         evaluator.setMeasure(measure);
         ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStreamNoNull = new ChunkAnalysisBasedWordSampleStream(linesStreamNoNull, isBIEO);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStreamNoNull = new ChunkAnalysisBasedWordSampleStream(linesStreamNoNull, label);
         evaluator.evaluate(sampleStreamNoNull);
-        ChunkAnalysisMeasure measureRes = evaluator.getMeasure();
+        AbstractChunkAnalysisMeasure measureRes = evaluator.getMeasure();
         System.out.println("--------结果--------");
         System.out.println(measureRes);
 	}
@@ -248,7 +249,7 @@ public class ChunkAnalysisBasedWordRun {
 			TrainingParameters params) {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(isBIEO);
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
         //训练模型
         me.train(new File(corpus.trainFile), new File(corpus.modelbinaryFile), new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);
 		
@@ -265,7 +266,7 @@ public class ChunkAnalysisBasedWordRun {
 	private static void trainOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(isBIEO);
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
         //训练模型
         me.train(new File(corpus.trainFile), params, contextGen, corpus.encoding);
 	}

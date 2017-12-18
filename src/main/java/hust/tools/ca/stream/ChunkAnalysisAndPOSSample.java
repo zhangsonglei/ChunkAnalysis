@@ -12,14 +12,14 @@ import java.util.List;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordSample  extends AbstractChunkAnalysisSample {
+public class ChunkAnalysisAndPOSSample  extends AbstractChunkAnalysisSample {
 	
 	/**
 	 * 构造方法
 	 * @param words		词语数组
 	 * @param chunkTags	词语组块标记数组
 	 */
-	public ChunkAnalysisBasedWordSample(String[] words, String[] chunkTags){
+	public ChunkAnalysisAndPOSSample(String[] words, String[] chunkTags){
 		this(words, chunkTags, null);
 	}
 
@@ -28,7 +28,7 @@ public class ChunkAnalysisBasedWordSample  extends AbstractChunkAnalysisSample {
 	 * @param words		词语列表
 	 * @param chunkTags	词语组块标记列表
 	 */
-	public ChunkAnalysisBasedWordSample(List<String> words, List<String> chunkTags){
+	public ChunkAnalysisAndPOSSample(List<String> words, List<String> chunkTags){
 		this(words, chunkTags, null);
 	}
 
@@ -38,7 +38,7 @@ public class ChunkAnalysisBasedWordSample  extends AbstractChunkAnalysisSample {
 	 * @param chunkTags			词语组块标记数组
 	 * @param additionalContext	其他上下文信息
 	 */
-	public ChunkAnalysisBasedWordSample(String[] words, String[] chunkTags, String[][] additionalContext){
+	public ChunkAnalysisAndPOSSample(String[] words, String[] chunkTags, String[][] additionalContext){
 		this(Arrays.asList(words), Arrays.asList(chunkTags), additionalContext);
 	}
 
@@ -48,7 +48,7 @@ public class ChunkAnalysisBasedWordSample  extends AbstractChunkAnalysisSample {
 	 * @param chunkTags			词语组块标记列表
 	 * @param additionalContext	其他上下文信息
 	 */
-    public ChunkAnalysisBasedWordSample(List<String> words, List<String> chunkTags, String[][] additionalContext){
+    public ChunkAnalysisAndPOSSample(List<String> words, List<String> chunkTags, String[][] additionalContext){
     	super(words, new ArrayList<>(), chunkTags, additionalContext);
 	}
 	

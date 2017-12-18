@@ -55,20 +55,6 @@ public class ChunkAnalysisBasedWordAndPOSSample extends AbstractChunkAnalysisSam
     public ChunkAnalysisBasedWordAndPOSSample(List<String> words, List<String> poses, List<String> chunkTags, String[][] additionalContext){
     	super(words, poses, chunkTags, additionalContext);
 	}
-
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (this == obj) {
-//            return true;
-//        } else if (obj instanceof ChunkAnalysisBasedWordAndPOSSample) {
-//        	ChunkAnalysisBasedWordAndPOSSample a = (ChunkAnalysisBasedWordAndPOSSample) obj;
-//
-//            return Arrays.equals(getWords(), a.getWords())
-//                    && Arrays.equals(getChunkTags(), a.getChunkTags());
-//        } else {
-//            return false;
-//        }
-//	}
 	
 	@Override
 	public String toString() {

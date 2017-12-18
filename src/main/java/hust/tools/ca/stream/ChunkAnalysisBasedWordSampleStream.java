@@ -28,7 +28,7 @@ import opennlp.tools.util.ObjectStream;
 public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordSampleStream.class.getName());
-	private AbstractChunkAnalysisParse paeser;
+	private AbstractChunkAnalysisParse parser;
 	
 	/**
 	 * 构造方法
@@ -36,12 +36,21 @@ public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<Strin
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public ChunkAnalysisBasedWordSampleStream(ObjectStream<String> samples, boolean isBIEO) throws FileNotFoundException, UnsupportedEncodingException {
+	public ChunkAnalysisBasedWordSampleStream(ObjectStream<String> samples, String label) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
-		if(isBIEO)
-			paeser = new ChunkAnalysisParseWithBIEO();
-		else
-			paeser = new ChunkAnalysisParseWithBIO();
+		
+		switch(label) {
+		case "BIEO":
+			parser = new ChunkAnalysisParseWithBIEO();
+			break;
+		case "BIO":
+			parser = new ChunkAnalysisParseWithBIO();
+			break;
+		default:
+			System.err.println("错误的标签类型，已默认为BIEO");
+			parser = new ChunkAnalysisParseWithBIEO();
+			break;
+		}
 	}
 
 	/**
@@ -55,7 +64,7 @@ public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<Strin
 			AbstractChunkAnalysisSample sample = null;
 			if(sentence.compareTo("") != 0){
 				try{
-					sample = paeser.parse(sentence);
+					sample = parser.parse(sentence);
 				}catch(Exception e){
 					if (logger.isLoggable(Level.WARNING))
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);
