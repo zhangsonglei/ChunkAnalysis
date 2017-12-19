@@ -8,6 +8,7 @@ import hust.tools.ca.feature.BeamSearchChunkAnalysisBasedWordAndPOSContextGenera
 import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.util.Cache;
 import opennlp.tools.util.Sequence;
+import opennlp.tools.util.SequenceValidator;
 
 /**
  *<ul>
@@ -82,7 +83,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 	
 	@Override
 	public Sequence bestSequence(T[] words, T[] poses, Object[] additionalContext, BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator,
-			ChunkAnalysisSequenceValidator<T> validator) {
+			SequenceValidator<T> validator) {
 		Sequence[] sequences = this.bestSequences(1, words, poses, additionalContext, contextGenerator, validator);
 		
 		return sequences.length > 0 ? sequences[0] : null;
@@ -91,7 +92,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 	
 	@Override
 	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, double minSequenceScore,
-			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator) {
+			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, SequenceValidator<T> validator) {
 		PriorityQueue<Sequence> prev = new PriorityQueue<Sequence>(size);
 		PriorityQueue<Sequence> next = new PriorityQueue<Sequence>(size);
 		prev.add(new Sequence());
@@ -131,7 +132,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 				for (p = 0; p < scores.length; ++p) {
 					if (scores[p] >= min) {
 						out = this.model.getOutcome(p);
-						if (validator.validSequence(numSeq, words, poses, outcomes, out)) {
+						if (validator.validSequence(numSeq, words, outcomes, out)) {
 							ns = new Sequence(top, out, scores[p]);
 							if (ns.getScore() > minSequenceScore) {
 								next.add(ns);
@@ -143,7 +144,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 				if (next.size() == 0) {
 					for (p = 0; p < scores.length; ++p) {
 						out = this.model.getOutcome(p);
-						if (validator.validSequence(numSeq, words, poses, outcomes, out)) {
+						if (validator.validSequence(numSeq, words, outcomes, out)) {
 							ns = new Sequence(top, out, scores[p]);
 							if (ns.getScore() > minSequenceScore) {
 								next.add(ns);
@@ -171,7 +172,7 @@ public class ChunkAnalysisBeamSearch<T> implements ChunkAnalysisSequenceClassifi
 
 	@Override
 	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, 
-			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, ChunkAnalysisSequenceValidator<T> validator) {
+			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, SequenceValidator<T> validator) {
 		
 		return this.bestSequences(numSequences, words, poses, additionalContext, zeroLog, contextGenerator, validator);
 	}

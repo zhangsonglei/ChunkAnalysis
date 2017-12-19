@@ -5,11 +5,13 @@ import java.io.IOException;
 
 import hust.tools.ca.cv.ChunkAnalysisBasedWordAndPOSCrossValidation;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordCrossValidation;
+import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
@@ -86,6 +88,12 @@ public class ChunkAnalysisCrossValidatorTool {
         	ChunkAnalysisBasedWordAndPOSCrossValidation crossValidator = new ChunkAnalysisBasedWordAndPOSCrossValidation(params);
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
         	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new  ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
+
+        	crossValidator.evaluate(sampleStream, folds, contextGen, label);
+        }else if(method.equals("cp")) {
+        	ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation(params);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
+        	ChunkAnalysisBasedWordContextGenerator contextGen = new  ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
 
         	crossValidator.evaluate(sampleStream, folds, contextGen, label);
         }else{

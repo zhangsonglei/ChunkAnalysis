@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.parse.ChunkAnalysisParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.utils.Dictionary;
 
@@ -46,7 +46,7 @@ public class ChunkAnalysisMeasureTest {
 	@Before
 	public void setUp() throws Exception {
 		Dictionary wordDict = new Dictionary(words);
-		parse = new ChunkAnalysisParseWithBIEO();
+		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
 		measure = new ChunkAnalysisMeasureWithBIEO(wordDict);
 		
 		refList = new ArrayList<>(); refList.add(ref1);	refList.add(ref2); refList.add(ref3);

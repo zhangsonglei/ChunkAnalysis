@@ -191,8 +191,9 @@ public class ChunkAnalysisBasedWordRun {
 	 */
 	private static ChunkAnalysisBasedWordContextGenerator getWordContextGenerator(Properties config) {
 		String featureClass = config.getProperty("feature.class");
-		if(featureClass.equals("hsut.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenratorConf") ||
-				featureClass.equals("hsut.tools.ca.feature.ChunkAnalysisBasedWordContextGenratorConf")){
+		if(featureClass.equals("hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGenratorConf") ||
+				featureClass.equals("hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenratorConf") ||
+				featureClass.equals("hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenratorConf")){
 			//初始化需要哪些特征
         	return  new ChunkAnalysisBasedWordContextGeneratorConf(config);
 		}else{

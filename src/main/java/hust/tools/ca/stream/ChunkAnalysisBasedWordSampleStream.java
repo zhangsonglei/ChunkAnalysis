@@ -11,8 +11,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.parse.ChunkAnalysisParseWithBIEO;
-import hust.tools.ca.parse.ChunkAnalysisParseWithBIO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import opennlp.tools.util.FilterObjectStream;
 import opennlp.tools.util.ObjectStream;
 
@@ -41,14 +43,14 @@ public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<Strin
 		
 		switch(label) {
 		case "BIEO":
-			parser = new ChunkAnalysisParseWithBIEO();
+			parser = new ChunkAnalysisBasedWordParseWithBIEO();
 			break;
 		case "BIO":
-			parser = new ChunkAnalysisParseWithBIO();
+			parser = new ChunkAnalysisBasedWordParseWithBIO();
 			break;
 		default:
 			System.err.println("错误的标签类型，已默认为BIEO");
-			parser = new ChunkAnalysisParseWithBIEO();
+			parser = new ChunkAnalysisBasedWordParseWithBIEO();
 			break;
 		}
 	}

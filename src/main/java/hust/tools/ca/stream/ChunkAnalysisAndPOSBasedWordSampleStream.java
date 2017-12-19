@@ -11,8 +11,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import opennlp.tools.util.FilterObjectStream;
 import opennlp.tools.util.ObjectStream;
 
@@ -25,32 +29,31 @@ import opennlp.tools.util.ObjectStream;
  *</ul>
  */
 @SuppressWarnings("unused")
-public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
+public class ChunkAnalysisAndPOSBasedWordSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
 
-	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSSampleStream.class.getName());
-	
+	private static Logger logger = Logger.getLogger(ChunkAnalysisAndPOSBasedWordSampleStream.class.getName());
 	private AbstractChunkAnalysisParse parser;
-		
+	
 	/**
 	 * 构造方法
 	 * @param samples	输入流
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public ChunkAnalysisBasedWordAndPOSSampleStream(ObjectStream<String> samples, String label) throws FileNotFoundException, UnsupportedEncodingException {
+	public ChunkAnalysisAndPOSBasedWordSampleStream(ObjectStream<String> samples, String label) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
 		
 		switch(label) {
-			case "BIEO":
-				parser = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
-				break;
-			case "BIO":
-				parser = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
-				break;
-			default:
-				System.err.println("错误的标签类型，已默认为BIEO");
-				parser = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
-				break;
+		case "BIEO":
+			parser = new ChunkAnalysisAndPOSBasedWordParseWithBIEO();
+			break;
+		case "BIO":
+			parser = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
+			break;
+		default:
+			System.err.println("错误的标签类型，已默认为BIEO");
+			parser = new ChunkAnalysisAndPOSBasedWordParseWithBIEO();
+			break;
 		}
 	}
 
@@ -67,23 +70,21 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 				try{
 					sample = parser.parse(sentence);
 				}catch(Exception e){
-					if (logger.isLoggable(Level.WARNING)) 	
+					if (logger.isLoggable(Level.WARNING))
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);
 	                
-					sample = new ChunkAnalysisBasedWordAndPOSSample(new String[]{},new String[]{},new String[]{});
+					sample = new ChunkAnalysisAndPOSBasedWordSample(new String[]{}, new String[]{});
 				}
-//				writer.write(sample.toString());
-//				writer.newLine();
+
 				return sample;
 			}else 
-				return new ChunkAnalysisBasedWordAndPOSSample(new String[]{},new String[]{},new String[]{});
+				return new ChunkAnalysisAndPOSBasedWordSample(new String[]{}, new String[]{});
 		}else
 			return null;
 	}
 	
 	public void close() throws IOException {
 		samples.close();
-//		writer.close();
 	}
 	
 	public void reset() throws IOException, UnsupportedOperationException {

@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import opennlp.tools.util.SequenceValidator;
+
 /**
  *<ul>
  *<li>Description: 测试验证序列合法性方法 
@@ -15,7 +17,7 @@ import org.junit.Test;
  */
 public class DefaultChunkAnalysisSequenceValidatorTest {
 	
-	private ChunkAnalysisSequenceValidator<String> validator;
+	private SequenceValidator<String> validator;
 	private String[] chunkTags1 = new String[]{"O",  "O", "BNP_B", "BNP_I", "O",  "O",  "O", "BNP_B", "BNP_I", "BNP_B", "BNP_I", "BNP_I", "O"};
 	private boolean[] actual1 = new boolean[]{ true, true, true,   true,    true, true, true, true,   true,    true,     true,    true,   true};
 	
@@ -30,29 +32,29 @@ public class DefaultChunkAnalysisSequenceValidatorTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		validator = new DefaultChunkAnalysisSequenceBasedWordAndPOSValidator("BIO");
+		validator = new DefaultChunkAnalysisSequenceValidator("BIO");
 	}
 
 	@Test
 	public void testValidSequence() {
 		boolean expected = false;
 		for(int i = 0; i < chunkTags1.length; i++) {
-			expected = validator.validSequence(i, null, null, chunkTags1, chunkTags1[i]);
+			expected = validator.validSequence(i, null, chunkTags1, chunkTags1[i]);
 			assertEquals(expected, actual1[i]);
 		}
 		
 		for(int i = 0; i < chunkTags2.length; i++) {
-			expected = validator.validSequence(i, null, null, chunkTags2, chunkTags2[i]);
+			expected = validator.validSequence(i, null, chunkTags2, chunkTags2[i]);
 			assertEquals(expected, actual2[i]);
 		}
 		
 		for(int i = 0; i < chunkTags3.length; i++) {
-			expected = validator.validSequence(i, null, null, chunkTags3, chunkTags3[i]);
+			expected = validator.validSequence(i, null, chunkTags3, chunkTags3[i]);
 			assertEquals(expected, actual3[i]);
 		}
 		
 		for(int i = 0; i < chuntag.length; i++) {
-			expected = validator.validSequence(i, null, null, chuntag, chuntag[i]);
+			expected = validator.validSequence(i, null, chuntag, chuntag[i]);
 			assertEquals(expected, actual[i]);
 		}
 	}

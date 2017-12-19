@@ -43,7 +43,7 @@ public class ChunkAnalysisSampleTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		parse = new ChunkAnalysisParseWithBIEO();
+		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
 		sample1 = parse.parse(sentence1);
 		sample2 = parse.parse(sentence2);
 		sample3 = parse.parse(sentence3);

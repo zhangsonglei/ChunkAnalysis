@@ -13,7 +13,7 @@ import java.util.Map;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
-import hust.tools.ca.beamsearch.DefaultChunkAnalysisSequenceBasedWordValidator;
+import hust.tools.ca.beamsearch.DefaultChunkAnalysisSequenceValidator;
 import hust.tools.ca.event.ChunkAnalysisSampleEventBasedWord;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
@@ -81,7 +81,7 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 
         contextGenerator = contextGen;
         size = beamSize;
-        sequenceValidator = new DefaultChunkAnalysisSequenceBasedWordValidator(label);
+        sequenceValidator = new DefaultChunkAnalysisSequenceValidator(label);
         
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
@@ -250,53 +250,53 @@ public class ChunkAnalysisBasedWordME implements Chunker {
         return tags;
     }
 	
-	/**
-	 * 返回词组组块标注后的结果
-	 * @param words	词组
-	 * @return		组块标注后的结果
-	 */
-	public String analysis(String[] words){
-		return analysis(words, null);
-	}
-	
-	/**
-	 * 返回词组组块标注后的结果
-	 * @param words				词组
-	 * @param additionaContext	其他上下文信息
-	 * @return					组块标注后的结果
-	 */
-	public String analysis(String[] words, Object[] additionaContext){
-		bestSequence = model.bestSequence(words, additionaContext, contextGenerator, sequenceValidator);
-		List<String> chunks = bestSequence.getOutcomes();
-		String chunksResult = null;
-		
-		for(int i = 0; i < chunks.size() - 1; i++) {
-			String chunk = chunks.get(i);
-			
-			if(chunk.equals("O"))
-				chunksResult += words[i] + "  ";
-			else if(chunk.split("_")[1].equals("I")) 
-				chunksResult += words[i] + "  ";	
-			else {
-				if(i > 1) {
-					String lastChunk = chunks.get(i - 1);
-					if(lastChunk.equals("O"))
-						chunksResult += "[" + words[i] + "  ";
-					else 
-						chunksResult = chunksResult.trim() + "]" + lastChunk.split("_")[0] + "[" + words[i] + "  ";
-				}else				
-					chunksResult += "[" + words[i] + "  ";
-			}
-		}
-		
-		String finalChunk = chunks.get(chunks.size() - 1);
-		if(finalChunk.equals("O"))
-			chunksResult += words[chunks.size() - 1];
-		else
-			chunksResult += words[chunks.size() - 1] + "]" + finalChunk.split("_")[0];
-		
-		return chunksResult;
-	}
+//	/**
+//	 * 返回词组组块标注后的结果
+//	 * @param words	词组
+//	 * @return		组块标注后的结果
+//	 */
+//	public String analysis(String[] words){
+//		return analysis(words, null);
+//	}
+//	
+//	/**
+//	 * 返回词组组块标注后的结果
+//	 * @param words				词组
+//	 * @param additionaContext	其他上下文信息
+//	 * @return					组块标注后的结果
+//	 */
+//	public String analysis(String[] words, Object[] additionaContext){
+//		bestSequence = model.bestSequence(words, additionaContext, contextGenerator, sequenceValidator);
+//		List<String> chunks = bestSequence.getOutcomes();
+//		String chunksResult = null;
+//		
+//		for(int i = 0; i < chunks.size() - 1; i++) {
+//			String chunk = chunks.get(i);
+//			
+//			if(chunk.equals("O"))
+//				chunksResult += words[i] + "  ";
+//			else if(chunk.split("_")[1].equals("I")) 
+//				chunksResult += words[i] + "  ";	
+//			else {
+//				if(i > 1) {
+//					String lastChunk = chunks.get(i - 1);
+//					if(lastChunk.equals("O"))
+//						chunksResult += "[" + words[i] + "  ";
+//					else 
+//						chunksResult = chunksResult.trim() + "]" + lastChunk.split("_")[0] + "[" + words[i] + "  ";
+//				}else				
+//					chunksResult += "[" + words[i] + "  ";
+//			}
+//		}
+//		
+//		String finalChunk = chunks.get(chunks.size() - 1);
+//		if(finalChunk.equals("O"))
+//			chunksResult += words[chunks.size() - 1];
+//		else
+//			chunksResult += words[chunks.size() - 1] + "]" + finalChunk.split("_")[0];
+//		
+//		return chunksResult;
+//	}
 
 	/**
 	 * 返回词组的组块标注结果
@@ -360,7 +360,7 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 				}
 				isChunk = false;
 				
-				chunks.add(new Chunk(chunkTypes[i], words[i], i, i));
+				chunks.add(new Chunk(chunkTypes[i], new String[]{words[i]}, i, i));
 			}else {
 				if(chunkTypes[i].split("_").equals("B")) {
 					if(isChunk) {
@@ -406,7 +406,7 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 					}
 					isChunk = false;
 					
-					temp.add(new Chunk(chunkTypes[i][j], words[j], j, j));
+					temp.add(new Chunk(chunkTypes[i][j], new String[]{words[j]}, j, j));
 				}else {
 					if(chunkTypes[i][j].split("_").equals("B")) {
 						if(isChunk) {
@@ -445,12 +445,12 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	 * @param end	拼接的结束位置
 	 * @return		拼接后的字符串
 	 */
-	private String join(String[] words, int start, int end) {
-		String string = "";
+	private List<String> join(String[] words, int start, int end) {
+		List<String> string = new ArrayList<>();
 		for(int i = start; i <= end; i++) 
-			string += words[i] + "  ";
+			string.add(words[i]);
 		
-		return string.trim();
+		return string;
 	}
 }
 

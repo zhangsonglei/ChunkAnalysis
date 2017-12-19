@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.parse.ChunkAnalysisParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 
 /**
@@ -18,6 +18,7 @@ import hust.tools.ca.stream.AbstractChunkAnalysisSample;
  *</ul>
  */
 public class ChunkAnalysisContextGenratorConfTest {
+	
 	private String sentence = "[党中央/nt  国务院/nt]BNP  关心/v  [西藏/ns  雪灾/n]BNP  [救灾/vn  工作/vn]BNP";
 	private String[] words;
 	private String[] poses;
@@ -35,7 +36,7 @@ public class ChunkAnalysisContextGenratorConfTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		parse = new ChunkAnalysisParseWithBIEO();
+		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
 		AbstractChunkAnalysisSample sample = parse.parse(sentence);
 		words = sample.getWords();
 		poses = sample.getPoses();

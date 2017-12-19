@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.parse.ChunkAnalysisParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.PlainTextByLineStream;
 
@@ -39,7 +39,7 @@ public class ChunkAnalysisSampleStreamTest {
 		MarkableFileInputStreamFactory inputStreamFactory = new MarkableFileInputStreamFactory(file);
 		PlainTextByLineStream fileStream = new PlainTextByLineStream(inputStreamFactory, "utf8");
 		sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(fileStream, "BIO");
-		parse = new ChunkAnalysisParseWithBIEO();
+		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
 		
 		sampleList.add(parse.parse(sentence1));
 		sampleList.add(parse.parse(sentence2));

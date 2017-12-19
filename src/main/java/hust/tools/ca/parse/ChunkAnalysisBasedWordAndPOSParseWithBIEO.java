@@ -14,11 +14,12 @@ import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
+public class ChunkAnalysisBasedWordAndPOSParseWithBIEO extends AbstractChunkAnalysisParse {
 	
 	private final String ChunkBegin = "_B";
 	private final String InChunk = "_I";
-	private final String OutChunk = "O";	
+	private final String OutChunk = "O";
+	private final String ChunkEnd = "_E";
 	
 	private List<String> chunkTags;
 	private List<String> words;
@@ -27,7 +28,7 @@ public class ChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
 	/**
 	 * 构造方法
 	 */
-	public ChunkAnalysisParseWithBIO() {
+	public ChunkAnalysisBasedWordAndPOSParseWithBIEO() {
 		
 	}
 	
@@ -41,6 +42,7 @@ public class ChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
 		String[] wordTag = null;							//词与词性标注
 		String chunk = null;								//组块的标签
 		String[] content = sentence.split("\\s+");
+		
 		for(String string : content) {
 			if(isInChunk) {	//当前词在组块中
 				if(string.contains("]")) {//当前词是组块的结束
@@ -51,37 +53,27 @@ public class ChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
 				}else 
 					wordTagsInChunk.add(string);
 			}else {//当前词不在组块中
-				if(wordTagsInChunk != null && chunk != null) {//上一个组块中的词未处理，先处理上一个组块中的词
+				if(wordTagsInChunk.size() != 0 && chunk != null) {//上一个组块中的词未处理，先处理上一个组块中的词
 					processChunk(wordTagsInChunk, chunk);
 					
 					wordTagsInChunk = new ArrayList<>();
 					chunk = null;
-					
-					if(string.startsWith("[")) {
-						wordTagsInChunk.add(string.replace("[", ""));
-						isInChunk = true;
-					}else {
-						wordTag = string.split("/");
-						words.add(wordTag[0]);
-						poses.add(wordTag[1]);
-						chunkTags.add(OutChunk);
-					}
+				}	
+				
+				if(string.startsWith("[")) {
+					wordTagsInChunk.add(string.replace("[", ""));
+					isInChunk = true;
 				}else {
-					if(string.startsWith("[")) {
-						wordTagsInChunk.add(string.replace("[", ""));
-						isInChunk = true;
-					}else {
-						wordTag = string.split("/");
-						words.add(wordTag[0]);
-						poses.add(wordTag[1]);
-						chunkTags.add(OutChunk);
-					}
+					wordTag = string.split("/");
+					words.add(wordTag[0]);
+					poses.add(wordTag[1]);
+					chunkTags.add(OutChunk);
 				}
 			}
 		}
 		
 		//句子结尾是组块，进行解析
-		if(wordTagsInChunk != null && chunk != null) 
+		if(wordTagsInChunk.size() != 0 && chunk != null) 
 			processChunk(wordTagsInChunk, chunk);
 		
 		return new ChunkAnalysisBasedWordAndPOSSample(words, poses, chunkTags);
@@ -94,16 +86,17 @@ public class ChunkAnalysisParseWithBIO extends AbstractChunkAnalysisParse {
 	 * @param contain_End		是否含有结束标签(BIO/BIEO)
 	 */
 	private void processChunk(List<String> wordTagsInChunk, String chunk) {
-		String[] wordTag = wordTagsInChunk.get(0).split("/");
-		words.add(wordTag[0]);
-		poses.add(wordTag[1]);
-		chunkTags.add(chunk + ChunkBegin);
-		
-		for(int i = 1; i < wordTagsInChunk.size(); i++) {
-			wordTag = wordTagsInChunk.get(i).split("/");
+		for(int i = 0; i < wordTagsInChunk.size(); i++) {
+			String[] wordTag = wordTagsInChunk.get(i).split("/");
 			words.add(wordTag[0]);
 			poses.add(wordTag[1]);
-			chunkTags.add(chunk + InChunk);
+			
+			if(i == 0)
+				chunkTags.add(chunk + ChunkBegin);
+			else if(i == wordTagsInChunk.size() - 1)
+				chunkTags.add(chunk + ChunkEnd);
+			else
+				chunkTags.add(chunk + InChunk);
 		}
 	}
 }

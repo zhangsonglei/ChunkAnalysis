@@ -6,15 +6,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
+import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
+import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordModel;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
@@ -95,6 +99,12 @@ public class ChunkAnalysisTrainerTool {
             ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
             ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
             ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
+            model.serialize(modelOut);
+        }else if(method.equals("cp")){
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
+            ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
+            ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
+            ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
         }else{
         	System.err.println("错误的模型方法：" + method);

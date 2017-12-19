@@ -14,7 +14,7 @@ import java.util.Properties;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBasedWordAndPOSContextGenerator {
+public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAnalysisBasedWordContextGenerator {
 	
 	//原子特征模版
 	private boolean w_1Set;		//前一个词
@@ -55,9 +55,9 @@ public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBase
 	 * 构造方法
 	 * @throws IOException
 	 */
-	public ChunkAnalysisAndPOSContextGenratorConf() throws IOException {
+	public ChunkAnalysisAndPOSBasedWordContextGeneratorConf() throws IOException {
 		Properties featureConf = new Properties();
-        InputStream featureStream = ChunkAnalysisAndPOSContextGenratorConf.class.getClassLoader().getResourceAsStream("properties/feature.properties");
+        InputStream featureStream = ChunkAnalysisAndPOSBasedWordContextGeneratorConf.class.getClassLoader().getResourceAsStream("properties/feature.properties");
         featureConf.load(featureStream);
         
         init(featureConf);
@@ -67,7 +67,7 @@ public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBase
 	 * 构造方法
 	 * @param properties 配置文件
 	 */
-	public ChunkAnalysisAndPOSContextGenratorConf(Properties properties){
+	public ChunkAnalysisAndPOSBasedWordContextGeneratorConf(Properties properties){
         init(properties);
 	}
 	
@@ -113,8 +113,8 @@ public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBase
 	}
 
 	@Override
-	public String[] getContext(int index, String[] words, String[] poses, String[] chunkTags, Object[] additionalContext) {
-		return getContext(index, words, poses, chunkTags);
+	public String[] getContext(int index, String[] words, String[] chunkTags, Object[] additionalContext) {
+		return getContext(index, words, chunkTags);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBase
 	 * @param chunkTags	组块标记序列
 	 * @return
 	 */
-	private String[] getContext(int index, String[] words, String[] poses, String[] chunkTags) {
+	private String[] getContext(int index, String[] words, String[] posChunkTags) {
 		String w_2, w_1, w0, w1, w2, p_2, p_1, c_2, c_1, pf0, af0;
 		w_2 = w_1 = w0 = w1 = w2 = p_2 = p_1 = c_2 = c_1 = pf0 = af0 = null;
 		
@@ -147,32 +147,32 @@ public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBase
 
         if (index - 1 >= 0) {
             w_1 = words[index - 1];
-            p_1 = poses[index - 1];
-            c_1 = chunkTags[index - 1];
+            p_1 = posChunkTags[index - 1].split("-")[0];
+            c_1 = posChunkTags[index - 1].split("-")[1];
             
             if (index - 2 >= 0) {
                 w_2 = words[index - 2];
-                p_2 = poses[index - 2];
-                c_2 = chunkTags[index - 2];
+                p_2 = posChunkTags[index - 2].split("-")[0];
+                c_2 = posChunkTags[index - 2].split("-")[1];
             }
         }
         
         if(w0Set)
             features.add("w0=" + w0);
-        if(af0Set)
-            features.add("af0=" + af0);
         if(pf0Set)
             features.add("pf0=" + pf0);
+        if(af0Set)
+            features.add("af0=" + af0);
        
         if(w_1 != null) {
             if(w_1Set) 
                 features.add("w_1=" + w_1);
+            if(p_1Set)
+            	features.add("p_1=" + p_1);
             if(c_1Set)
             	features.add("c_1=" + c_1);
             if(w_1w0Set) 
         		features.add("w_1w0=" + w_1 + w0);
-            if(p_1Set)
-            	features.add("p_1=" + p_1);
             if(w0p_1Set)
             	features.add("w0p_1=" + w0 + p_1);
             if(w_1p_1Set) 
@@ -188,20 +188,20 @@ public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBase
             if(w_2 != null) {
             	if(w_2Set) 
                     features.add("w_2=" + w_2);
+            	 if(p_2Set) 
+                 	features.add("p_2=" + p_2);
+            	 if(c_2Set) 
+                     features.add("c_2=" + c_2);
                 if(w_2w_1Set) 
             		features.add("w_2w_1=" + w_2 + w_1);
-                if(w_2w_1w0Set)
-                	features.add("w_2w_1w0=" + w_2 + w_1 + w0);
-                if(c_2Set) 
-                    features.add("c_2=" + c_2);
-                if(c_2c_1Set) 
-            		features.add("c_2c_1=" + c_2 + c_1);
-                if(p_2Set) 
-                	features.add("p_2=" + p_2);
-                if(w0p_2Set)
-                	features.add("w0p_2=" + w0 + p_2);
                 if(p_2p_1Set)
                 	features.add("p_2p_1=" + p_2 + p_1);
+                if(c_2c_1Set) 
+            		features.add("c_2c_1=" + c_2 + c_1);
+                if(w_2w_1w0Set)
+                	features.add("w_2w_1w0=" + w_2 + w_1 + w0);
+                if(w0p_2Set)
+                	features.add("w0p_2=" + w0 + p_2);
                 
                 if(w1 != null) {
                 	if(w_1w0w1Set)
@@ -234,9 +234,14 @@ public class ChunkAnalysisAndPOSContextGenratorConf implements ChunkAnalysisBase
 	@Override
 	public String toString() {
 		return "ChunkAnalysisContextGenratorConf{" + "w_2Set=" + w_2Set + ", w_1Set=" + w_1Set + 
-                ", w0Set=" + w0Set + ", w1Set=" + w1Set + ", w2Set=" + w2Set +              
+                ", w0Set=" + w0Set + ", w1Set=" + w1Set + ", w2Set=" + w2Set +
+                ", af0Set=" + af0Set + ", pf0Set=" + pf0Set +
                 ", p_2Set=" + p_2Set + ", p_1Set=" + p_1Set + 
                 ", c_2Set=" + c_2Set + ", c_1Set=" + c_1Set + 
-                '}';
+                ", w_2w_1Set=" + w_2w_1Set + ", w_1w0Set=" + w_1w0Set + ", w0w1Set=" + w0w1Set + ", w1w2Set=" + w1w2Set + ", w_1w1Set=" + w_1w1Set +
+                ", w_2w_1w0Set=" + w_2w_1w0Set + ", w_1w0w1Set=" + w_1w0w1Set + ", w0w1w2Set=" + w0w1w2Set +
+                ", p_2p_1Set=" + p_2p_1Set + 
+                ", c_2c_1Set=" + c_2c_1Set + 
+                 ", w0p_1Set=" + w0p_1Set + ", w_1p_1Set=" + w_1p_1Set + ", w0p_2Set=" + w0p_2Set + ", w_1w0p_1Set=" + w_1w0p_1Set + '}';
 	}
 }

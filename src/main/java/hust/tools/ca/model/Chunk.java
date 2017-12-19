@@ -1,5 +1,7 @@
 package hust.tools.ca.model;
 
+import java.util.List;
+
 /**
  *<ul>
  *<li>Description: 组块
@@ -24,13 +26,20 @@ public class Chunk {
 		
 	}
 	
-	public Chunk(String type, String string, int start, int end) {
+	public Chunk(String type, List<String> words, int start, int end) {
+		this(type, words.toArray(new String[words.size()]), start, end);
+	}
+	
+	public Chunk(String type, String[] words, int start, int end) {
 		this.type = type;
-		this.string = string;
+		this.words = words;
 		this.start = start;
 		this.end = end;
 		
-		words = string.split("//s+");
+		string = "";
+		for(String word : words)
+			string += word + "  ";
+		string.trim();
 	}
 	
 	public void setType(String type) {
