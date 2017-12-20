@@ -25,11 +25,11 @@ import opennlp.tools.util.ObjectStream;
  *</ul>
  */
 @SuppressWarnings("unused")
-public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
+public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, ChunkAnalysisBasedWordSample>{
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSSampleStream.class.getName());
 	
-	private AbstractChunkAnalysisParse parser;
+	private AbstractChunkAnalysisParse parse;
 		
 	/**
 	 * 构造方法
@@ -37,35 +37,24 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public ChunkAnalysisBasedWordAndPOSSampleStream(ObjectStream<String> samples, String label) throws FileNotFoundException, UnsupportedEncodingException {
+	public ChunkAnalysisBasedWordAndPOSSampleStream(ObjectStream<String> samples, AbstractChunkAnalysisParse parse) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
 		
-		switch(label) {
-			case "BIEO":
-				parser = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
-				break;
-			case "BIO":
-				parser = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
-				break;
-			default:
-				System.err.println("错误的标签类型，已默认为BIEO");
-				parser = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
-				break;
-		}
+		this.parse = parse;
 	}
 
 	/**
 	 * 读取训练语料进行解析
 	 * @return 样本
 	 */	
-	public AbstractChunkAnalysisSample read() throws IOException {
+	public ChunkAnalysisBasedWordSample read() throws IOException {
 		String sentence = samples.read();
 		
 		if(sentence != null){
-			AbstractChunkAnalysisSample sample = null;
+			ChunkAnalysisBasedWordSample sample = null;
 			if(sentence.compareTo("") != 0){
 				try{
-					sample = parser.parse(sentence);
+					sample = parse.parse(sentence);
 				}catch(Exception e){
 					if (logger.isLoggable(Level.WARNING)) 	
 						logger.warning("解析样本时出错, 忽略句子: " + sentence);

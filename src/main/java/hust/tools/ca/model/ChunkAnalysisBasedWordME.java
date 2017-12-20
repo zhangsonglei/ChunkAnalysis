@@ -13,10 +13,10 @@ import java.util.Map;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
-import hust.tools.ca.beamsearch.DefaultChunkAnalysisSequenceValidator;
 import hust.tools.ca.event.ChunkAnalysisSampleEventBasedWord;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.ml.BeamSearch;
 import opennlp.tools.ml.EventTrainer;
@@ -51,10 +51,9 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	private Sequence bestSequence;
 	private SequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
-    private String label;
     
-    public ChunkAnalysisBasedWordME(String label) {
-    	this.label = label;
+    public ChunkAnalysisBasedWordME(SequenceValidator<String> sequenceValidator) {
+    	this.sequenceValidator = sequenceValidator;
     }
 	
     /**
@@ -62,8 +61,8 @@ public class ChunkAnalysisBasedWordME implements Chunker {
      * @param model			组块分析模型
      * @param contextGen	上下文生成器
      */
-	public ChunkAnalysisBasedWordME(ChunkAnalysisBasedWordModel model, String label, ChunkAnalysisBasedWordContextGenerator contextGen) {
-		this.label = label;
+	public ChunkAnalysisBasedWordME(ChunkAnalysisBasedWordModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordContextGenerator contextGen) {
+		this.sequenceValidator = sequenceValidator;
 		init(model , contextGen);
 	}
 	
@@ -81,7 +80,6 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 
         contextGenerator = contextGen;
         size = beamSize;
-        sequenceValidator = new DefaultChunkAnalysisSequenceValidator(label);
         
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
@@ -100,11 +98,11 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	 * @throws FileNotFoundException 
 	 */
 	public ChunkAnalysisBasedWordModel train(File file, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
-			String encoding){
+			String encoding, AbstractChunkAnalysisParse parse){
 		ChunkAnalysisBasedWordModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, label);
+			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -125,7 +123,7 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public ChunkAnalysisBasedWordModel train(String languageCode, ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
+	public ChunkAnalysisBasedWordModel train(String languageCode, ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, TrainingParameters params,
 			ChunkAnalysisBasedWordContextGenerator contextGen) throws IOException {
 		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisBasedWordME.DEFAULT_BEAM_SIZE;
@@ -163,13 +161,13 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	 * @return
 	 */
 	public ChunkAnalysisBasedWordModel train(File file, File modelbinaryFile, File modeltxtFile, TrainingParameters params,
-			ChunkAnalysisBasedWordContextGenerator contextGen, String encoding) {
+			ChunkAnalysisBasedWordContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
 		OutputStream modelOut = null;
 		PlainTextGISModelWriter modelWriter = null;
 		ChunkAnalysisBasedWordModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, label);
+			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           

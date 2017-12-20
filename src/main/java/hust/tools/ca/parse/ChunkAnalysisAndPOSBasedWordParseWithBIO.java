@@ -3,7 +3,7 @@ package hust.tools.ca.parse;
 import java.util.ArrayList;
 import java.util.List;
 
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSample;
 
 /**
@@ -30,7 +30,7 @@ public class ChunkAnalysisAndPOSBasedWordParseWithBIO extends AbstractChunkAnaly
 		
 	}
 	
-	public AbstractChunkAnalysisSample parse(String sentence) {
+	public ChunkAnalysisBasedWordSample parse(String sentence) {
 		posChunkTags = new ArrayList<>();
 		words = new ArrayList<>();
 		

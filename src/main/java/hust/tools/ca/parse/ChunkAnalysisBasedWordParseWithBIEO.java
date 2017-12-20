@@ -3,7 +3,6 @@ package hust.tools.ca.parse;
 import java.util.ArrayList;
 import java.util.List;
 
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 
 /**
@@ -32,7 +31,7 @@ public class ChunkAnalysisBasedWordParseWithBIEO extends AbstractChunkAnalysisPa
 		
 	}
 	
-	public AbstractChunkAnalysisSample parse(String sentence){
+	public ChunkAnalysisBasedWordSample parse(String sentence){
 		chunkTags = new ArrayList<>();
 		words = new ArrayList<>();
 		poses = new ArrayList<>();

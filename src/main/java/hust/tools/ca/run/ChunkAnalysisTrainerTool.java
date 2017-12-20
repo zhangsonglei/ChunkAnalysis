@@ -6,6 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
@@ -17,13 +21,21 @@ import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
+import opennlp.tools.util.SequenceValidator;
 import opennlp.tools.util.TrainingParameters;
 
 /**
@@ -87,23 +99,63 @@ public class ChunkAnalysisTrainerTool {
 
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile), encoding);
         OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
-
+        AbstractChunkAnalysisParse parse = null;
+        
         if(method.equals("w")){
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, label);
-            ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
-            ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
+        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
+        	ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = null;
+        	SequenceValidator<String> validator = null;
+        	ChunkAnalysisBasedWordME me = null;
+        	if(label.equals("BIO")) {
+        		parse = new ChunkAnalysisBasedWordParseWithBIO();
+        		sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
+        		validator = new ChunkAnalysisSequenceValidatorWithBIO();
+        		me = new ChunkAnalysisBasedWordME(validator);
+        	}else{
+        		parse = new ChunkAnalysisBasedWordParseWithBIEO();
+        		sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
+        		validator = new ChunkAnalysisSequenceValidatorWithBIEO();
+        		me = new ChunkAnalysisBasedWordME(validator);
+        	}
+        	
             ChunkAnalysisBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
         }else if(method.equals("wp")) {
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
-            ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
-            ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
+        	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
+        	ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = null;
+        	SequenceValidator<String> validator = null;
+        	ChunkAnalysisBasedWordAndPOSME me = null;
+        	if(label.equals("BIO")) {
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
+        		sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
+        		validator = new ChunkAnalysisSequenceValidatorWithBIO();
+        		me = new ChunkAnalysisBasedWordAndPOSME(validator);
+        	}else{
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
+        		sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
+        		validator = new ChunkAnalysisSequenceValidatorWithBIEO();
+        		me = new ChunkAnalysisBasedWordAndPOSME(validator);
+        	}
+        	
             ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
         }else if(method.equals("cp")){
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
-            ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
-            ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
+        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
+        	ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = null;
+        	SequenceValidator<String> validator = null;
+        	ChunkAnalysisAndPOSBasedWordME me = null;
+        	if(label.equals("BIO")) {
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
+        		sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
+        		validator = new ChunkAnalysisAndPOSSequenceValidatorWithBIO();
+        		me = new ChunkAnalysisAndPOSBasedWordME(validator);
+        	}else{
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEO();
+        		sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
+        		validator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEO();
+        		me = new ChunkAnalysisAndPOSBasedWordME(validator);
+        	}
+        	
             ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
         }else{

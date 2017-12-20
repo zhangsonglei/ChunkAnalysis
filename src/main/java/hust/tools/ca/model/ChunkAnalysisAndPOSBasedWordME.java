@@ -11,12 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidator;
 import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
 import hust.tools.ca.event.ChunkAnalysisSampleEventBasedWord;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import opennlp.tools.ml.BeamSearch;
 import opennlp.tools.ml.EventTrainer;
@@ -51,10 +51,13 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	private Sequence bestSequence;
 	private SequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
-    private String label;
     
-    public ChunkAnalysisAndPOSBasedWordME(String label) {
-    	this.label = label;
+    public ChunkAnalysisAndPOSBasedWordME() {
+    	
+    }
+    
+    public ChunkAnalysisAndPOSBasedWordME(SequenceValidator<String> sequenceValidator) {
+    	this.sequenceValidator = sequenceValidator;
     }
 	
     /**
@@ -62,8 +65,9 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
      * @param model			组块分析模型
      * @param contextGen	上下文生成器
      */
-	public ChunkAnalysisAndPOSBasedWordME(ChunkAnalysisAndPOSBasedWordModel model, String label, ChunkAnalysisBasedWordContextGenerator contextGen) {
-		this.label = label;
+	public ChunkAnalysisAndPOSBasedWordME(ChunkAnalysisAndPOSBasedWordModel model, SequenceValidator<String> sequenceValidator,
+			ChunkAnalysisBasedWordContextGenerator contextGen) {
+		this.sequenceValidator = sequenceValidator;
 		init(model , contextGen);
 	}
 	
@@ -81,7 +85,6 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 
         contextGenerator = contextGen;
         size = beamSize;
-        sequenceValidator = new ChunkAnalysisAndPOSSequenceValidator(label);
         
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
@@ -100,11 +103,11 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	 * @throws FileNotFoundException 
 	 */
 	public ChunkAnalysisAndPOSBasedWordModel train(File file, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
-			String encoding){
+			String encoding, AbstractChunkAnalysisParse parse){
 		ChunkAnalysisAndPOSBasedWordModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
+			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -125,7 +128,7 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public ChunkAnalysisAndPOSBasedWordModel train(String languageCode, ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
+	public ChunkAnalysisAndPOSBasedWordModel train(String languageCode, ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, TrainingParameters params,
 			ChunkAnalysisBasedWordContextGenerator contextGen) throws IOException {
 		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisAndPOSBasedWordME.DEFAULT_BEAM_SIZE;
@@ -163,13 +166,13 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	 * @return
 	 */
 	public ChunkAnalysisAndPOSBasedWordModel train(File file, File modelbinaryFile, File modeltxtFile, TrainingParameters params,
-			ChunkAnalysisBasedWordContextGenerator contextGen, String encoding) {
+			ChunkAnalysisBasedWordContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
 		OutputStream modelOut = null;
 		PlainTextGISModelWriter modelWriter = null;
 		ChunkAnalysisAndPOSBasedWordModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
+			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           

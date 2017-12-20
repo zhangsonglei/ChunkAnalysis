@@ -6,13 +6,13 @@ import java.util.List;
 
 /**
  *<ul>
- *<li>Description: 样本类 
+ *<li>Description: 基于词的词性标注和组块分析样本类 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisAndPOSBasedWordSample  extends AbstractChunkAnalysisSample {
+public class ChunkAnalysisAndPOSBasedWordSample extends ChunkAnalysisBasedWordSample {
 	
 	/**
 	 * 构造方法
@@ -20,7 +20,7 @@ public class ChunkAnalysisAndPOSBasedWordSample  extends AbstractChunkAnalysisSa
 	 * @param tags		词语组块标记数组
 	 */
 	public ChunkAnalysisAndPOSBasedWordSample(String[] words, String[] tags){
-		this(words, tags, null);
+		super(words, tags, null);
 	}
 
 	/**
@@ -29,7 +29,7 @@ public class ChunkAnalysisAndPOSBasedWordSample  extends AbstractChunkAnalysisSa
 	 * @param tags		词语组块标记列表
 	 */
 	public ChunkAnalysisAndPOSBasedWordSample(List<String> words, List<String> tags){
-		this(words, tags, null);
+		super(words, tags, null);
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class ChunkAnalysisAndPOSBasedWordSample  extends AbstractChunkAnalysisSa
 	 * @param additionalContext	其他上下文信息
 	 */
 	public ChunkAnalysisAndPOSBasedWordSample(String[] words, String[] tags, String[][] additionalContext){
-		this(Arrays.asList(words), Arrays.asList(tags), additionalContext);
+		super(Arrays.asList(words), Arrays.asList(tags), additionalContext);
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class ChunkAnalysisAndPOSBasedWordSample  extends AbstractChunkAnalysisSa
 	 * @param additionalContext	其他上下文信息
 	 */
     public ChunkAnalysisAndPOSBasedWordSample(List<String> words, List<String> tags, String[][] additionalContext){
-    	super(words, new ArrayList<>(), tags, additionalContext);
+    	super(words, tags, additionalContext);
 	}
 	
 	@Override

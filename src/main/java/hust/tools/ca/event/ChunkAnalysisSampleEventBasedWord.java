@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.util.AbstractEventStream;
 import opennlp.tools.util.ObjectStream;
@@ -18,7 +18,7 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisSampleEventBasedWord extends AbstractEventStream<AbstractChunkAnalysisSample>{
+public class ChunkAnalysisSampleEventBasedWord extends AbstractEventStream<ChunkAnalysisBasedWordSample>{
 
 	/**
 	 * 上下文生成器
@@ -30,13 +30,13 @@ public class ChunkAnalysisSampleEventBasedWord extends AbstractEventStream<Abstr
 	 * @param sampleStream		样本流
 	 * @param contextgenerator	上下文生成器
 	 */
-	public ChunkAnalysisSampleEventBasedWord(ObjectStream<AbstractChunkAnalysisSample> sampleStream,ChunkAnalysisBasedWordContextGenerator contextgenerator) {
+	public ChunkAnalysisSampleEventBasedWord(ObjectStream<ChunkAnalysisBasedWordSample> sampleStream,ChunkAnalysisBasedWordContextGenerator contextgenerator) {
 		super(sampleStream);
 		this.contextgenerator = contextgenerator;
 	}
 
 	@Override
-	protected Iterator<Event> createEvents(AbstractChunkAnalysisSample sample) {
+	protected Iterator<Event> createEvents(ChunkAnalysisBasedWordSample sample) {
 		String[] words = sample.getWords();
 		String[] chunkTags = sample.getChunkTags();
 		String[][] aditionalContext = sample.getAditionalContext();

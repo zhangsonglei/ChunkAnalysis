@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 
 /**
  *<ul>
@@ -37,9 +37,9 @@ public class ChunkAnalysisSampleTest {
 	private String[] poses3 = new String[]{"nt", "nt", "v", "ns", "n", "vn", "vn"};
 	private String[] tags3 = new String[]{"BNP_B", "BNP_I", "O", "BNP_B", "BNP_I", "BNP_B", "BNP_I"};
 	
-	private AbstractChunkAnalysisSample sample1;
-	private AbstractChunkAnalysisSample sample2;
-	private AbstractChunkAnalysisSample sample3;
+	private ChunkAnalysisBasedWordSample sample1;
+	private ChunkAnalysisBasedWordSample sample2;
+	private ChunkAnalysisBasedWordSample sample3;
 	
 	@Before
 	public void setUp() throws Exception {

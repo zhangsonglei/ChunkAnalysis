@@ -13,10 +13,10 @@ import java.util.Map;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
-import hust.tools.ca.beamsearch.DefaultChunkAnalysisSequenceValidator;
 import hust.tools.ca.event.ChunkAnalysisSampleEventBasedWordAndPOS;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
@@ -49,23 +49,18 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	private Sequence bestSequence;
 	private ChunkAnalysisSequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
-    private String label;
     
-    /**
-     * 构造方法
-     * @param isBIEO	组块位置标签BIEO/BIO
-     */
-	public ChunkAnalysisBasedWordAndPOSME(String label) {
-		this.label = label;
+    
+    public ChunkAnalysisBasedWordAndPOSME() {
+
 	}
-	
-    /**
-     * 构造方法
-     * @param model			组块分析模型
-     * @param contextGen	上下文生成器
-     */
-	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, String label, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
-		this.label = label;
+
+	public ChunkAnalysisBasedWordAndPOSME(SequenceValidator<String> sequenceValidator) {
+		this.sequenceValidator = sequenceValidator;
+	}
+
+	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
+		this.sequenceValidator = sequenceValidator;
 		init(model , contextGen);
 	}
 	
@@ -83,7 +78,6 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
         contextGenerator = contextGen;
         size = beamSize;
-        sequenceValidator = new DefaultChunkAnalysisSequenceValidator(label);
         
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
@@ -102,11 +96,11 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @throws FileNotFoundException 
 	 */
 	public ChunkAnalysisBasedWordAndPOSModel train(File file, TrainingParameters params, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen,
-			String encoding){
+			String encoding, AbstractChunkAnalysisParse parse){
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
+			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -127,7 +121,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
+	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, TrainingParameters params,
 			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) throws IOException {
 		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
@@ -165,13 +159,13 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @return
 	 */
 	public ChunkAnalysisBasedWordAndPOSModel train(File file, File modelbinaryFile, File modeltxtFile, TrainingParameters params,
-			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String encoding) {
+			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
 		OutputStream modelOut = null;
 		PlainTextGISModelWriter modelWriter = null;
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
+			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           
@@ -234,63 +228,6 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		return null;
 	}
 	
-	
-	
-//	/**
-//	 * 返回词组组块标注后的结果
-//	 * @param words	词组
-//	 * @param poses	词组对应词性数组
-//	 * @return		组块标注后的结果
-//	 */
-//	public String analysis(String[] words,String[] poses){
-//		return analysis(words, poses, null);
-//	}
-//	
-//	/**
-//	 * 返回词组组块标注后的结果
-//	 * @param words				词组
-//	 * @param pos				词组对应词性数组
-//	 * @param additionaContext	其他上下文信息
-//	 * @return					组块标注后的结果
-//	 */
-//	public String analysis(String[] words,String[] poses, Object[] additionaContext){
-//		bestSequence = model.bestSequence(words, poses, additionaContext, contextGenerator,sequenceValidator);
-//		List<String> chunks = bestSequence.getOutcomes();
-//		String chunksResult = null;
-//		
-//		if(poses != null) {
-//			for(int i = 0; i < words.length; i++)
-//				words[i] = words[i] + "/" + poses[i];
-//		}
-//		
-//		for(int i = 0; i < chunks.size() - 1; i++) {
-//			String chunk = chunks.get(i);
-//			
-//			if(chunk.equals("O"))
-//				chunksResult += words[i] + "  ";
-//			else if(chunk.split("_")[1].equals("I")) 
-//				chunksResult += words[i] + "  ";	
-//			else {
-//				if(i > 1) {
-//					String lastChunk = chunks.get(i - 1);
-//					if(lastChunk.equals("O"))
-//						chunksResult += "[" + words[i] + "  ";
-//					else 
-//						chunksResult = chunksResult.trim() + "]" + lastChunk.split("_")[0] + "[" + words[i] + "  ";
-//				}else				
-//					chunksResult += "[" + words[i] + "  ";
-//			}
-//		}
-//		
-//		String finalChunk = chunks.get(chunks.size() - 1);
-//		if(finalChunk.equals("O"))
-//			chunksResult += words[chunks.size() - 1];
-//		else
-//			chunksResult += words[chunks.size() - 1] + "]" + finalChunk.split("_")[0];
-//		
-//		return chunksResult;
-//	}
-//	
 	/**
 	 * 返回给定词组和词性的组块类型
 	 * @param words	待确定组块类型的词组

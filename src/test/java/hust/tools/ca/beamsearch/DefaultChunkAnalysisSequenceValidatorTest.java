@@ -32,7 +32,7 @@ public class DefaultChunkAnalysisSequenceValidatorTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		validator = new DefaultChunkAnalysisSequenceValidator("BIO");
+		validator = new ChunkAnalysisSequenceValidatorWithBIEO("BIO");
 	}
 
 	@Test

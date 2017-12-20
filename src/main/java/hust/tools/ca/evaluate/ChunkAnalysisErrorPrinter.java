@@ -3,7 +3,7 @@ package hust.tools.ca.evaluate;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 
 /**
  *<ul>
@@ -27,7 +27,7 @@ public class ChunkAnalysisErrorPrinter extends ChunkAnalysisEvaluateMonitor {
 	
 	
 	@Override
-	public void missclassified(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
+	public void missclassified(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
 		 errOut.println("样本的结果：" + reference);
 		 errOut.println("预测的结果：" + prediction);
 		 

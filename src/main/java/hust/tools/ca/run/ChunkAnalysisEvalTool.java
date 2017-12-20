@@ -23,7 +23,7 @@ import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
@@ -61,7 +61,7 @@ public class ChunkAnalysisEvalTool {
     public static void evalChunkBasedWordAndPOS(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
         System.out.println("训练模型...");  
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
+        ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
         
         ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
         long start = System.currentTimeMillis();
@@ -83,7 +83,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, label);
+        ObjectStream<ChunkAnalysisBasedWordSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, label);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -104,7 +104,7 @@ public class ChunkAnalysisEvalTool {
     public static void evalChunkBasedWord(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
         System.out.println("训练模型...");  
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, label);
+        ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, label);
         
         ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         long start = System.currentTimeMillis();
@@ -126,7 +126,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, label);
+        ObjectStream<ChunkAnalysisBasedWordSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, label);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -147,7 +147,7 @@ public class ChunkAnalysisEvalTool {
     public static void evalChunkAndPOSBasedWord(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
         System.out.println("训练模型...");  
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
+        ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
         
         ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         long start = System.currentTimeMillis();
@@ -169,7 +169,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisAndPOSBasedWordSampleStream(goldStream, label);
+        ObjectStream<ChunkAnalysisBasedWordSample> testStream = new ChunkAnalysisAndPOSBasedWordSampleStream(goldStream, label);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);

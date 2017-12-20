@@ -34,7 +34,8 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 		
 		List<String> tempRefChunk = new ArrayList<>();		//临时存放参考样本中的组块
 		List<String> tempPreChunk = new ArrayList<>();		//临时存放预测样本中的组块
-		List<String> correctPreChunk = new ArrayList<>();	//临时存放预测正确的组块
+		List<String> correctPreChunk = new ArrayList<>();	//临时存放预测组块
+		boolean chunkOver = false;							//临时存放的预测组块是否完整
 		List<String> wordsInChunk = new ArrayList<>();		//临时存放组块中的词组
 		
 		for(int i = 0; i < words.length; i++) {//遍历样本中的每个词,统计样本中每类组块标记标准数量与预测数量
@@ -47,10 +48,11 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 			preChunkTag = preChunkTags[i];
 			if(refChunkTag.equals("O") || refChunkTag.split("_")[1].equals("B")) {//统计参考样本中各个组块数量，及预测正确的数量
 				if(tempRefChunk.size() != 0) {//存在未处理的参考组块, 进行统计
-					processChunk(tempRefChunk, correctPreChunk, wordsInChunk);
+					processChunk(tempRefChunk, correctPreChunk, wordsInChunk, chunkOver);
 					tempRefChunk = new ArrayList<>();
 					correctPreChunk = new ArrayList<>();
 					wordsInChunk = new ArrayList<>();
+					chunkOver = false;
 				}
 				
 				if(refChunkTag.equals("O")) {//当前词的组块标记为O
@@ -75,10 +77,15 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 					correctPreChunk.add(preChunkTag);
 					wordsInChunk.add(words[i]);
 				}
-			}else{//当前词的组块标记为*_I || *_E
+			}else{//当前词的组块标记为*_I
 				tempRefChunk.add(refChunkTag);
 				correctPreChunk.add(preChunkTag);
 				wordsInChunk.add(words[i]);
+				
+				if(i+1 < words.length) {
+					if(preChunkTags[i + 1].equals("O") || preChunkTags[i + 1].split("_")[1].equals("B"))
+						chunkOver = true;
+				}
 			}
 			
 			//统计预测结果中各个组块数量
@@ -105,7 +112,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 		}
 		
 		if(tempRefChunk.size() != 0) //存在未处理的参考组块, 进行统计
-			processChunk(tempRefChunk, correctPreChunk, wordsInChunk);
+			processChunk(tempRefChunk, correctPreChunk, wordsInChunk, chunkOver);
 	
 		if(tempPreChunk.size() != 0) {//存在未处理的预测组块, 进行统计
 			String chunk = tempPreChunk.get(0).split("_")[0];
@@ -122,14 +129,14 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 	 * @param correctPreChunk	对应位置的预测结果
 	 * @param wordsInChunk		组块对应的词
 	 */
-	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> wordsInChunk) {
+	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> wordsInChunk, boolean chunkOver) {
 		String chunk = tempRefChunk.get(0).split("_")[0];
 		if(referenceChunkTagMap.containsKey(chunk))
 			referenceChunkTagMap.put(chunk, referenceChunkTagMap.get(chunk) + 1);
 		else
 			referenceChunkTagMap.put(chunk, 1L);
 		
-		if(tempRefChunk.equals(correctPreChunk)) {//未处理的组块被预测正确，进行统计
+		if(tempRefChunk.equals(correctPreChunk) || chunkOver) {//未处理的组块被预测正确，进行统计
 			if(correctTaggedChunkTagMap.containsKey(chunk))
 				correctTaggedChunkTagMap.put(chunk, correctTaggedChunkTagMap.get(chunk) + 1);
 			else
@@ -143,6 +150,4 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 			correctTaggedWordCounts += wordsInChunk.size();
 		}
 	}
-	
-	
 }

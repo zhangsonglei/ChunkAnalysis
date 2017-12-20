@@ -3,7 +3,7 @@ package hust.tools.ca.evaluate;
 import org.apache.log4j.Logger;
 
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSample;
 import opennlp.tools.util.eval.Evaluator;
 
@@ -15,7 +15,7 @@ import opennlp.tools.util.eval.Evaluator;
  *<li>Date: 2017年12月7日
  *</ul>
  */
-public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChunkAnalysisSample>{
+public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<ChunkAnalysisBasedWordSample>{
 
 	Logger logger = Logger.getLogger(ChunkAnalysisAndPOSBasedWordEvaluator.class);
 	/**
@@ -27,6 +27,8 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 	 * 组块分析评估
 	 */
 	private AbstractChunkAnalysisMeasure measure;
+	
+	private POSBasedWordMeasure posMeasure;
 	
 	/**
 	 * 构造方法
@@ -41,10 +43,11 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
-	public ChunkAnalysisAndPOSBasedWordEvaluator(ChunkAnalysisAndPOSBasedWordME chunkTagger, String label,
+	public ChunkAnalysisAndPOSBasedWordEvaluator(ChunkAnalysisAndPOSBasedWordME chunkTagger, AbstractChunkAnalysisMeasure measure,
 			ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
+		this.measure = measure;
 	}
 	
 	/**
@@ -55,6 +58,9 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 		this.measure = measure;
 	}
 	
+	public void setMeasure(POSBasedWordMeasure posMeasure){
+		this.posMeasure = posMeasure;
+	}
 	/**
 	 * 得到评估的指标
 	 * @return
@@ -65,7 +71,7 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 	
 	
 	@Override
-	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample) {
+	protected ChunkAnalysisBasedWordSample processSample(ChunkAnalysisBasedWordSample sample) {
 		String[] wordsRef = sample.getWords();
 		String[] posChunksRef = sample.getChunkTags();
 		String[][] acRef = sample.getAditionalContext();
@@ -77,11 +83,17 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 
 		String[] chunksPre = new String[posChunksPre.length];
 		String[] chunksRef = new String[posChunksPre.length];
+		String[] posRef = new String[posChunksRef.length];
+		String[] posPre = new String[posChunksPre.length];
 		for(int i = 0; i < chunksPre.length; i++) {
+			posRef[i] = posChunksRef[i].split("-")[0];
+			posPre[i] = posChunksPre[i].split("-")[0];
 			chunksPre[i] = posChunksPre[i].split("-")[1];
 			chunksRef[i] = posChunksRef[i].split("-")[1];
 		}
+		
 		measure.update(wordsRef, chunksRef, chunksPre);
+		posMeasure.updateScores(wordsRef, posRef, posPre);
 //		measure.add(sample, prediction);
 //		logger.info(sample+"\n"+prediction);
 		return prediction;

@@ -1,6 +1,6 @@
 package hust.tools.ca.evaluate;
 
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.util.eval.EvaluationMonitor;
 
 /**
@@ -12,7 +12,7 @@ import opennlp.tools.util.eval.EvaluationMonitor;
  *</ul>
  * @param <T>
  */
-public class ChunkAnalysisEvaluateMonitor implements EvaluationMonitor<AbstractChunkAnalysisSample>{
+public class ChunkAnalysisEvaluateMonitor implements EvaluationMonitor<ChunkAnalysisBasedWordSample>{
 
 	/**
 	 * 预测正确
@@ -20,7 +20,7 @@ public class ChunkAnalysisEvaluateMonitor implements EvaluationMonitor<AbstractC
 	 * @param prediction	预测的结果
 	 */
 	@Override
-	public void correctlyClassified(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
+	public void correctlyClassified(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
 		
 	}
 
@@ -30,7 +30,7 @@ public class ChunkAnalysisEvaluateMonitor implements EvaluationMonitor<AbstractC
 	 * @param prediction	预测的结果
 	 */
 	@Override
-	public void missclassified(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
+	public void missclassified(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
 		
 	}
 }

@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.util.AbstractEventStream;
 import opennlp.tools.util.ObjectStream;
@@ -18,7 +19,7 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisSampleEventBasedWordAndPOS extends AbstractEventStream<AbstractChunkAnalysisSample>{
+public class ChunkAnalysisSampleEventBasedWordAndPOS extends AbstractEventStream<ChunkAnalysisBasedWordSample>{
 
 	/**
 	 * 上下文生成器
@@ -30,17 +31,18 @@ public class ChunkAnalysisSampleEventBasedWordAndPOS extends AbstractEventStream
 	 * @param sampleStream		样本流
 	 * @param contextgenerator	上下文生成器
 	 */
-	public ChunkAnalysisSampleEventBasedWordAndPOS(ObjectStream<AbstractChunkAnalysisSample> sampleStream,ChunkAnalysisBasedWordAndPOSContextGenerator contextgenerator) {
+	public ChunkAnalysisSampleEventBasedWordAndPOS(ObjectStream<ChunkAnalysisBasedWordSample> sampleStream,ChunkAnalysisBasedWordAndPOSContextGenerator contextgenerator) {
 		super(sampleStream);
 		this.contextgenerator = contextgenerator;
 	}
 
 	@Override
-	protected Iterator<Event> createEvents(AbstractChunkAnalysisSample sample) {
-		String[] words = sample.getWords();
-		String[] poses = sample.getPoses();
-		String[] chunkTags = sample.getChunkTags();
-		String[][] aditionalContext = sample.getAditionalContext();
+	protected Iterator<Event> createEvents(ChunkAnalysisBasedWordSample sample) {
+		ChunkAnalysisBasedWordAndPOSSample wordAndPOSSample = (ChunkAnalysisBasedWordAndPOSSample) sample;
+		String[] words = wordAndPOSSample.getWords();
+		String[] poses = wordAndPOSSample.getPoses();
+		String[] chunkTags = wordAndPOSSample.getChunkTags();
+		String[][] aditionalContext = wordAndPOSSample.getAditionalContext();
 		List<Event> events = generateEvents(words,poses, chunkTags, aditionalContext);
         return events.iterator();
 	}

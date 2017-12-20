@@ -4,9 +4,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.utils.Dictionary;
 
+/**
+ *<ul>
+ *<li>Description: 组块分析评价类 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月20日
+ *</ul>
+ */
 public abstract class AbstractChunkAnalysisMeasure {
 
 	/**
@@ -65,7 +73,7 @@ public abstract class AbstractChunkAnalysisMeasure {
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
-	public void add(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
+	public void add(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
 		String[] words = reference.getWords();				//每个测试样本中的词组
 		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
 		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记

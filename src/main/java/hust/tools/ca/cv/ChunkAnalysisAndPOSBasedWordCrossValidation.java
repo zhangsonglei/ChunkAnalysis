@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisAndPOSBasedWordEvaluator;
+import hust.tools.ca.evaluate.POSBasedWordMeasure;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordModel;
@@ -21,8 +22,8 @@ import opennlp.tools.util.eval.CrossValidationPartitioner;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordCrossValidation {
-
+public class ChunkAnalysisAndPOSBasedWordCrossValidation {
+	
 	/**
 	 * 训练的参数集
 	 */
@@ -34,7 +35,7 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	 * @param params	训练的参数
 	 * @param monitor 	监听器
 	 */
-	public ChunkAnalysisBasedWordCrossValidation(TrainingParameters params){
+	public ChunkAnalysisAndPOSBasedWordCrossValidation(TrainingParameters params){
 		this.params = params;
 	}
 	
@@ -42,7 +43,8 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	 * n折交叉验证评估
 	 * @param sampleStream		样本流
 	 * @param nFolds			折数
-	 * @param contextGenerator	上下文
+	 * @param contextGenerator	上下文生成器
+	 * @param measure			组块分析评价器
 	 * @throws IOException
 	 */
 	public void evaluate(ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, int nFolds,
@@ -57,12 +59,18 @@ public class ChunkAnalysisBasedWordCrossValidation {
 			CrossValidationPartitioner.TrainingSampleStream<ChunkAnalysisBasedWordSample> trainingSampleStream = partitioner.next();
 			ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(); 
 			ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
+			
 			ChunkAnalysisAndPOSBasedWordEvaluator evaluator = new ChunkAnalysisAndPOSBasedWordEvaluator(new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGenerator), measure);
 			evaluator.setMeasure(measure);
+
+			POSBasedWordMeasure posMeasure = new POSBasedWordMeasure();
+			evaluator.setMeasure(posMeasure);
+			
 	        //设置测试集（在测试集上进行评价）
 	        evaluator.evaluate(trainingSampleStream.getTestSampleStream());
 	        
 	        System.out.println(measure);
+	        System.out.println(posMeasure);
 	        run++;
 		}
 	}
