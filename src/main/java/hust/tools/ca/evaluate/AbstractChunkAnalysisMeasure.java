@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.utils.Dictionary;
 
 /**
@@ -20,7 +20,7 @@ public abstract class AbstractChunkAnalysisMeasure {
 	/**
 	 * 词典
 	 */
-	protected Dictionary wordDict;
+	protected Dictionary dict;
 	
 	/**
 	 * 预测结果中，每个组块标记的数量
@@ -61,8 +61,8 @@ public abstract class AbstractChunkAnalysisMeasure {
 		this(new Dictionary());
 	}
 	
-	public AbstractChunkAnalysisMeasure(Dictionary wordDict) {
-		this.wordDict = wordDict;
+	public AbstractChunkAnalysisMeasure(Dictionary dict) {
+		this.dict = dict;
 		referenceChunkTagMap = new HashMap<>();
 		predictChunkTagMap = new HashMap<>();
 		correctTaggedChunkTagMap = new HashMap<>();
@@ -73,11 +73,11 @@ public abstract class AbstractChunkAnalysisMeasure {
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
-	public void add(ChunkAnalysisBasedWordSample reference, ChunkAnalysisBasedWordSample prediction) {
-		String[] words = reference.getWords();				//每个测试样本中的词组
-		String[] refChunkTags = reference.getChunkTags();	//参考样本中每个词的组块标记
-		String[] preChunkTags = prediction.getChunkTags();	//预测样本中每个词的组块标记
-		update(words, refChunkTags, preChunkTags);
+	public void add(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
+		String[] tokens = reference.getTokens();				//每个测试样本中的词组
+		String[] refChunkTags = reference.getTags();	//参考样本中每个词的组块标记
+		String[] preChunkTags = prediction.getTags();	//预测样本中每个词的组块标记
+		update(tokens, refChunkTags, preChunkTags);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public abstract class AbstractChunkAnalysisMeasure {
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
-	public abstract void update(String[] words, String[] refChunkTags, String[] preChunkTags);
+	public abstract void update(String[] tokens, String[] refChunkTags, String[] preChunkTags);
 	
 	/**
 	 * 返回样本中所有组块标记的迭代器

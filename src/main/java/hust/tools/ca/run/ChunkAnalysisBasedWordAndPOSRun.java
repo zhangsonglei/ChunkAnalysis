@@ -7,20 +7,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordAndPOSCrossValidation;
 import hust.tools.ca.evaluate.ChunkAnalysisErrorPrinter;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
+import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
+import opennlp.tools.util.SequenceValidator;
 import opennlp.tools.util.TrainingParameters;
 
 /**
@@ -35,10 +42,11 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 
 	private static String flag = "train";
 	
-	/**
-	 * 组块位置标签是否为BIEO，不是的话使用默认的BIO
-	 */
-	private static String label = "BIEO";
+	private static AbstractChunkAnalysisMeasure measure;
+	
+	private static AbstractChunkAnalysisParse parse;
+	
+	private static SequenceValidator<String> validator;
 	
 	private static InputStream configStream;
 
@@ -79,22 +87,40 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	
 	public static void main(String[] args) throws IOException {
 		String cmd = args[0];
-		label = args[1];
+		String label = args[1];
+		
+		switch (label) {
+		case "BIEO":
+			measure = new ChunkAnalysisMeasureWithBIEO();
+			parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
+			validator = new ChunkAnalysisSequenceValidatorWithBIEO();
+			break;
+		case "BIO":
+			measure = new ChunkAnalysisMeasureWithBIO();
+			parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
+			validator = new ChunkAnalysisSequenceValidatorWithBIO();
+			break;
+		default:
+			measure = new ChunkAnalysisMeasureWithBIEO();
+			parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
+			validator = new ChunkAnalysisSequenceValidatorWithBIEO();
+			break;
+		}
 		
 		configStream = ChunkAnalysisBasedWordAndPOSRun.class.getClassLoader().getResourceAsStream("properties/corpus.properties");
 		
 		if(cmd.equals("-train")){
 			flag = "train";
-			runFeature(label);
+			runFeature();
 		}else if(cmd.equals("-model")){
 			flag = "model";
-			runFeature(label);
+			runFeature();
 		}else if(cmd.equals("-evaluate")){
 			flag = "evaluate";
-			runFeature(label);
+			runFeature();
 		}else if(cmd.equals("-cross")){
 			String corpus = args[2];
-			crossValidation(corpus, label);
+			crossValidation(corpus);
 		}
 	}
 	
@@ -103,7 +129,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	 * @param corpus 语料的名称
 	 * @throws IOException 
 	 */
-	private static void crossValidation(String corpusName, String label) throws IOException {
+	private static void crossValidation(String corpusName) throws IOException {
 		Properties config = new Properties();
 		config.load(configStream);
 		Corpus[] corpora = getCorporaFromConf(config);
@@ -118,10 +144,10 @@ public class ChunkAnalysisBasedWordAndPOSRun {
     
         //把刚才属性信息封装
         ChunkAnalysisBasedWordAndPOSCrossValidation crossValidator = new ChunkAnalysisBasedWordAndPOSCrossValidation(params);
-        ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
         ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = getWordAndPOSContextGenerator(config);
         System.out.println(contextGen);
-        crossValidator.evaluate(sampleStream, 10, contextGen, label);
+        crossValidator.evaluate(sampleStream, 10, contextGen, measure, validator);
 	}
 
 	/**
@@ -143,7 +169,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	 * 根据配置文件配置的信息获取特征
 	 * @throws IOException IO异常
 	 */
-	private static void runFeature(String label) throws IOException {
+	private static void runFeature() throws IOException {
 		//配置参数
 		TrainingParameters params = TrainingParameters.defaultParams();
 		params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(1));
@@ -154,7 +180,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
         Corpus[] corpora = getCorporaFromConf(config);//获取语料
         
         ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = getWordAndPOSContextGenerator(config);
-        runFeatureOnCorporaByFlag(contextGen, corpora, params, label);
+        runFeatureOnCorporaByFlag(contextGen, corpora, params);
 	}
 
 	/**
@@ -165,7 +191,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	 * @throws IOException 
 	 */
 	private static void runFeatureOnCorporaByFlag(ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, Corpus[] corpora,
-			TrainingParameters params, String label) throws IOException {
+			TrainingParameters params) throws IOException {
 		if(flag == "train" || flag.equals("train")){
 			for (int i = 0; i < corpora.length; i++) {
 				trainOnCorpus(contextGen,corpora[i],params);
@@ -176,7 +202,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 			}
 		}else if(flag == "evaluate" || flag.equals("evaluate")){
 			for (int i = 0; i < corpora.length; i++) {
-				evaluateOnCorpus(contextGen,corpora[i],params, label);
+				evaluateOnCorpus(contextGen,corpora[i],params);
 			}
 		}
 	}
@@ -207,27 +233,26 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	 * @throws IOException 
 	 */	
 	private static void evaluateOnCorpus(ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, Corpus corpus,
-			TrainingParameters params, String label) throws IOException {
+			TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
         ChunkAnalysisBasedWordAndPOSModel model = ChunkAnalysisBasedWordAndPOSME.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
         
-        ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, label, contextGen);
+        ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, validator, contextGen);
        
-        ChunkAnalysisMeasureWithBIEO measure = new ChunkAnalysisMeasureWithBIEO();
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;
         ChunkAnalysisErrorPrinter printer = null;
         if(corpus.errorFile != null){
         	System.out.println("Print error to file " + corpus.errorFile);
         	printer = new ChunkAnalysisErrorPrinter(new FileOutputStream(corpus.errorFile));    	
-        	evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(tagger, label, printer);
+        	evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(tagger, measure, printer);
         }else{
         	evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(tagger);
         }
-        evaluator.setMeasure(measure);
+
         ObjectStream<String> linesStreamNoNull = new PlainTextByLineStream(new MarkableFileInputStreamFactory(new File(corpus.testFile)), corpus.encoding);
-        ObjectStream<ChunkAnalysisBasedWordSample> sampleStreamNoNull = new ChunkAnalysisBasedWordAndPOSSampleStream(linesStreamNoNull, label);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStreamNoNull = new ChunkAnalysisBasedWordAndPOSSampleStream(linesStreamNoNull, parse);
         evaluator.evaluate(sampleStreamNoNull);
         AbstractChunkAnalysisMeasure measureRes = evaluator.getMeasure();
         System.out.println("--------结果--------");
@@ -247,9 +272,9 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 			TrainingParameters params) {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
         //训练模型
-        me.train(new File(corpus.trainFile), new File(corpus.modelbinaryFile), new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);
+        me.train(new File(corpus.trainFile), new File(corpus.modelbinaryFile), new File(corpus.modeltxtFile), params, contextGen, corpus.encoding, parse);
 		
 	}
 
@@ -264,8 +289,8 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	private static void trainOnCorpus(ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
         //训练模型
-        me.train(new File(corpus.trainFile), params, contextGen, corpus.encoding);
+        me.train(new File(corpus.trainFile), params, contextGen, corpus.encoding, parse);
 	}
 }

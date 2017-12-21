@@ -46,6 +46,25 @@ public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAn
 	private boolean c_2c_1Set;
 	
 	//混合特征
+	private boolean w_2c_2Set;
+	private boolean w_2c_1Set;
+	private boolean w_1c_2Set;
+	private boolean w_1c_1Set;
+	private boolean w0c_2Set;
+	private boolean w0c_1Set;
+	private boolean w1c_2Set;
+	private boolean w1c_1Set;
+	private boolean w2c_2Set;
+	private boolean w2c_1Set;
+	
+	private boolean p_2c_2Set;
+	private boolean p_2c_1Set;
+	private boolean p_1c_2Set;
+	private boolean p_1c_1Set;
+	
+	private boolean w_1p_2Set;
+	private boolean w1p_2Set;
+	private boolean w1p_1Set;
 	private boolean w0p_2Set;
 	private boolean w0p_1Set;
 	private boolean w_1p_1Set;
@@ -106,6 +125,25 @@ public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAn
     	c_2c_1Set = (config.getProperty("feature.c_2c_1", "true").equals("true"));
     	
     	//混合特征
+    	w_2c_2Set = (config.getProperty("feature.w_2c_2", "true").equals("true"));
+    	w_2c_1Set = (config.getProperty("feature.w_2c_1", "true").equals("true"));
+    	w_1c_2Set = (config.getProperty("feature.w_1c_2", "true").equals("true"));
+    	w_1c_1Set = (config.getProperty("feature.w_1c_1", "true").equals("true"));
+    	w0c_2Set = (config.getProperty("feature.w0c_2", "true").equals("true"));
+    	w0c_1Set = (config.getProperty("feature.w0c_1", "true").equals("true"));
+    	w1c_2Set = (config.getProperty("feature.w1c_2", "true").equals("true"));
+    	w1c_1Set = (config.getProperty("feature.w1c_1", "true").equals("true"));
+    	w2c_2Set = (config.getProperty("feature.w2c_2", "true").equals("true"));
+    	w2c_1Set = (config.getProperty("feature.w2c_1", "true").equals("true"));
+    	
+    	p_2c_2Set = (config.getProperty("feature.p_2c_2", "true").equals("true"));
+    	p_2c_1Set = (config.getProperty("feature.p_2c_1", "true").equals("true"));
+    	p_1c_2Set = (config.getProperty("feature.p_1c_2", "true").equals("true"));
+    	p_1c_1Set = (config.getProperty("feature.p_1c_1", "true").equals("true"));
+    	
+    	w_1p_2Set = (config.getProperty("feature.w_1p_2", "true").equals("true"));
+    	w1p_2Set = (config.getProperty("feature.w1p_2", "true").equals("true"));
+    	w1p_1Set = (config.getProperty("feature.w1p_1", "true").equals("true"));
     	w0p_2Set = (config.getProperty("feature.w0p_2", "true").equals("true"));
     	w0p_1Set = (config.getProperty("feature.w0p_1", "true").equals("true"));
     	w_1p_1Set = (config.getProperty("feature.w_1p_1", "true").equals("true"));
@@ -171,6 +209,12 @@ public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAn
             	features.add("p_1=" + p_1);
             if(c_1Set)
             	features.add("c_1=" + c_1);
+            if(w0c_1Set)
+            	features.add("w0c_1=" + w0 + c_1);
+            if(w_1c_1Set)
+            	features.add("w_1c_1=" + w_1 + c_1);
+            if(p_1c_1Set)
+            	features.add("p_1c_1=" + p_1 + c_1);
             if(w_1w0Set) 
         		features.add("w_1w0=" + w_1 + w0);
             if(w0p_1Set)
@@ -181,31 +225,65 @@ public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAn
             	features.add("w_1w0p_1=" + w_1 + w0 + p_1);
             	
             if(w1 != null) {
+            	if(w1c_1Set)
+                	features.add("w1c_1=" + w1 + c_1);
             	if(w_1w1Set)
         			features.add("w_1w1=" + w_1 + w1);
+            	if(w1p_1Set)
+            		features.add("w1p_1=" + w1 + p_1);
+            	
+            	if(w2 != null) {
+            		if(w2c_1Set)
+                    	features.add("w2c_1=" + w2 + c_1);
+            	}
             }
 
             if(w_2 != null) {
             	if(w_2Set) 
-                    features.add("w_2=" + w_2);
-            	 if(p_2Set) 
-                 	features.add("p_2=" + p_2);
-            	 if(c_2Set) 
+            		features.add("w_2=" + w_2);
+            	if(p_2Set) 
+            		features.add("p_2=" + p_2);
+            	if(c_2Set) 
                      features.add("c_2=" + c_2);
                 if(w_2w_1Set) 
             		features.add("w_2w_1=" + w_2 + w_1);
+                if(w_2c_1Set) 
+            		features.add("w_2c_1=" + w_2 + c_1);
+                if(w_2c_2Set) 
+            		features.add("w_2c_2=" + w_2 + c_2);
+                if(w_1c_2Set) 
+            		features.add("w_1c_2=" + w_1 + c_2);
+                if(w0c_2Set) 
+            		features.add("w0c_2=" + w0 + c_2);
                 if(p_2p_1Set)
                 	features.add("p_2p_1=" + p_2 + p_1);
+                if(p_2c_2Set)
+                	features.add("p_2c_2=" + p_2 + c_2);
+                if(p_1c_2Set)
+                	features.add("p_1c_2=" + p_1 + c_2);
+                if(p_2c_1Set)
+                	features.add("p_2c_1=" + p_2 + c_1);
                 if(c_2c_1Set) 
             		features.add("c_2c_1=" + c_2 + c_1);
                 if(w_2w_1w0Set)
                 	features.add("w_2w_1w0=" + w_2 + w_1 + w0);
                 if(w0p_2Set)
                 	features.add("w0p_2=" + w0 + p_2);
+                if(w_1p_2Set) 
+            		features.add("w_1p_2=" + w_1 + p_2);
                 
                 if(w1 != null) {
+                	if(w1p_2Set)
+                		features.add("w1p_2=" + w1 + p_2);
+                	if(w1c_2Set)
+                		features.add("w1c_2=" + w1 + c_2);
                 	if(w_1w0w1Set)
                 		features.add("w_1w0w1=" + w_1 + w0 + w1);
+                	
+                	if(w2 != null) {
+                		if(w2c_2Set)
+                        	features.add("w2c_2=" + w2 + c_2);
+                	}
                 }
             }
         }

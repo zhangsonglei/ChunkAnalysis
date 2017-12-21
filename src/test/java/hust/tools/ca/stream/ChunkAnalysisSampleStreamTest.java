@@ -31,14 +31,14 @@ public class ChunkAnalysisSampleStreamTest {
 	private String sentence2 = "[党中央/nt  国务院/nt]BNP  关心/v  [西藏/ns  雪灾/n]BNP  [救灾/vn  工作/vn]BNP";
 	private String sentence3 = "[目前/t  为止/v]BTP  ，/w  灾区/n  没有/v  [一/m  人/n]BNP  因/p  冻/v  因/p  饿/a  死亡/v  ，/w  [大部分/m  牲畜/n]BNP  [也/d  没有/d]BDP  [出/v  问题/n]BVP  。/w  ";
 
-	private List<ChunkAnalysisBasedWordSample> sampleList = new ArrayList<>();
+	private List<AbstractChunkAnalysisSample> sampleList = new ArrayList<>();
 
 	@Before
 	public void setUp() throws Exception {
 		File file = new File(this.getClass().getClassLoader().getResource("test/train.txt").getFile());
 		MarkableFileInputStreamFactory inputStreamFactory = new MarkableFileInputStreamFactory(file);
 		PlainTextByLineStream fileStream = new PlainTextByLineStream(inputStreamFactory, "utf8");
-		sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(fileStream, "BIO");
+		sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(fileStream, new ChunkAnalysisBasedWordAndPOSParseWithBIEO());
 		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
 		
 		sampleList.add(parse.parse(sentence1));
@@ -48,9 +48,9 @@ public class ChunkAnalysisSampleStreamTest {
 
 	@Test
 	public void test() throws IOException {
-		List<ChunkAnalysisBasedWordSample> list = new ArrayList<>();
+		List<AbstractChunkAnalysisSample> list = new ArrayList<>();
 		
-		ChunkAnalysisBasedWordSample sample = null;
+		AbstractChunkAnalysisSample sample = null;
 		while((sample = sampleStream.read()) != null) {
 			list.add(sample);
 		}

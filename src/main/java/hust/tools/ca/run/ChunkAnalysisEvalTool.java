@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisAndPOSBasedWordEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSEvaluator;
@@ -23,13 +27,20 @@ import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
+import opennlp.tools.util.SequenceValidator;
 import opennlp.tools.util.TrainingParameters;
 
 /**
@@ -42,12 +53,11 @@ import opennlp.tools.util.TrainingParameters;
  */
 public class ChunkAnalysisEvalTool {
 	
-	/**
-	 * 样本中组块的标注方法BIO/BIEO
-	 */
-	private static String label = "BIEO";
-	
 	private static AbstractChunkAnalysisMeasure measure;
+	
+	private static AbstractChunkAnalysisParse parse;
+	
+	private static SequenceValidator<String> sequenceValidator;
 
 	/**
 	 * 依据黄金标准评价基于词和词性的标注效果, 各种评价指标结果会输出到控制台，错误的结果会输出到指定文件
@@ -61,21 +71,21 @@ public class ChunkAnalysisEvalTool {
     public static void evalChunkBasedWordAndPOS(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
         System.out.println("训练模型...");  
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, label);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
         
         ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
         long start = System.currentTimeMillis();
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(sequenceValidator);
         ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
         System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisBasedWordAndPOSME chunkTagger = new ChunkAnalysisBasedWordAndPOSME(model, label, contextGen);
+        ChunkAnalysisBasedWordAndPOSME chunkTagger = new ChunkAnalysisBasedWordAndPOSME(model, sequenceValidator, contextGen);
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;       
         
         if (errorFile != null) {
         	ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
-            evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(chunkTagger, label, errorMonitor);
+            evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(chunkTagger, measure, errorMonitor);
         }
         else
             evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(chunkTagger);
@@ -83,7 +93,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<ChunkAnalysisBasedWordSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, label);
+        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, parse);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -104,21 +114,21 @@ public class ChunkAnalysisEvalTool {
     public static void evalChunkBasedWord(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
         System.out.println("训练模型...");  
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, label);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
         
         ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         long start = System.currentTimeMillis();
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(sequenceValidator);
         ChunkAnalysisBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
         System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisBasedWordME chunkTagger = new ChunkAnalysisBasedWordME(model, label, contextGen);
+        ChunkAnalysisBasedWordME chunkTagger = new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGen);
         ChunkAnalysisBasedWordEvaluator evaluator = null;       
         
         if (errorFile != null) {
         	ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
-            evaluator = new ChunkAnalysisBasedWordEvaluator(chunkTagger, label, errorMonitor);
+            evaluator = new ChunkAnalysisBasedWordEvaluator(chunkTagger, measure, errorMonitor);
         }
         else
             evaluator = new ChunkAnalysisBasedWordEvaluator(chunkTagger);
@@ -126,7 +136,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<ChunkAnalysisBasedWordSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, label);
+        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordSampleStream(goldStream, parse);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -147,21 +157,21 @@ public class ChunkAnalysisEvalTool {
     public static void evalChunkAndPOSBasedWord(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
         System.out.println("训练模型...");  
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, label);
+        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
         
         ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         long start = System.currentTimeMillis();
-        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
+        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(sequenceValidator);
         ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
         System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisAndPOSBasedWordME chunkTagger = new ChunkAnalysisAndPOSBasedWordME(model, label, contextGen);
+        ChunkAnalysisAndPOSBasedWordME chunkTagger = new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGen);
         ChunkAnalysisAndPOSBasedWordEvaluator evaluator = null;       
         
         if (errorFile != null) {
         	ChunkAnalysisEvaluateMonitor errorMonitor = new ChunkAnalysisErrorPrinter(new FileOutputStream(errorFile));
-            evaluator = new ChunkAnalysisAndPOSBasedWordEvaluator(chunkTagger, label, errorMonitor);
+            evaluator = new ChunkAnalysisAndPOSBasedWordEvaluator(chunkTagger, measure, errorMonitor);
         }
         else
             evaluator = new ChunkAnalysisAndPOSBasedWordEvaluator(chunkTagger);
@@ -169,7 +179,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<ChunkAnalysisBasedWordSample> testStream = new ChunkAnalysisAndPOSBasedWordSampleStream(goldStream, label);
+        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisAndPOSBasedWordSampleStream(goldStream, parse);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -188,6 +198,7 @@ public class ChunkAnalysisEvalTool {
             return;
         }
         
+        String label = "BIEO";	
         String method = "wp";
         String modelFile = null;
         String goldFile = null;
@@ -225,34 +236,51 @@ public class ChunkAnalysisEvalTool {
             }
         }
         
-        switch(label) {
-		case "BIEO":
-			measure = new ChunkAnalysisMeasureWithBIEO();
-			break;
-		case "BIO":
-			measure = new ChunkAnalysisMeasureWithBIO();
-			break;
-		default:
-			System.err.println("错误的标签类型，已默认为BIEO");
-			measure = new ChunkAnalysisMeasureWithBIEO();
-			break;
-        }
-        
         TrainingParameters params = TrainingParameters.defaultParams();
         params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
 
         if(method.equals("w")) {
+        	if(label.equals("BIO")) {
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
+        		parse = new ChunkAnalysisBasedWordParseWithBIO();
+        		measure = new ChunkAnalysisMeasureWithBIO();
+        	}else{
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
+        		parse = new ChunkAnalysisBasedWordParseWithBIEO();
+        		measure = new ChunkAnalysisMeasureWithBIEO();
+        	}
+        	
         	if (errorFile != null)
         		evalChunkBasedWord(new File(modelFile), params, new File(goldFile), encoding, new File(errorFile));
         	else
         		evalChunkBasedWord(new File(modelFile), params, new File(goldFile), encoding, null);
         }else if(method.equals("wp")){
+        	if(label.equals("BIO")) {
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
+        		measure = new ChunkAnalysisMeasureWithBIO();
+        	}else{
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
+        		parse = new ChunkAnalysisBasedWordParseWithBIEO();
+        		measure = new ChunkAnalysisMeasureWithBIEO();
+        	}
+        	
         	if (errorFile != null)
         		evalChunkBasedWordAndPOS(new File(modelFile), params, new File(goldFile), encoding, new File(errorFile));
         	else
         		evalChunkBasedWordAndPOS(new File(modelFile), params, new File(goldFile), encoding, null);
         }else if(method.equals("cp")) {
+        	if(label.equals("BIO")) {
+        		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIO();
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
+        		measure = new ChunkAnalysisMeasureWithBIO();
+        	}else{
+        		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEO();
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEO();
+        		measure = new ChunkAnalysisMeasureWithBIEO();
+        	}
+        	
         	if (errorFile != null)
         		evalChunkAndPOSBasedWord(new File(modelFile), params, new File(goldFile), encoding, new File(errorFile));
         	else

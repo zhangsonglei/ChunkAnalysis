@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.utils.Dictionary;
 
 /**
@@ -52,8 +52,8 @@ public class ChunkAnalysisMeasureTest {
 		refList = new ArrayList<>(); refList.add(ref1);	refList.add(ref2); refList.add(ref3);
 		preList = new ArrayList<>(); preList.add(pre1); preList.add(pre2); preList.add(pre3);
 		
-		ChunkAnalysisBasedWordSample ref;
-		ChunkAnalysisBasedWordSample pre;
+		AbstractChunkAnalysisSample ref;
+		AbstractChunkAnalysisSample pre;
 		for(int i = 0; i < refList.size(); i++) {
 			ref = parse.parse(refList.get(i));
 			pre = parse.parse(preList.get(i));

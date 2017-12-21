@@ -3,7 +3,7 @@ package hust.tools.ca.evaluate;
 import org.apache.log4j.Logger;
 
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSample;
 import opennlp.tools.util.eval.Evaluator;
 
@@ -15,7 +15,7 @@ import opennlp.tools.util.eval.Evaluator;
  *<li>Date: 2017年12月7日
  *</ul>
  */
-public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<ChunkAnalysisBasedWordSample>{
+public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChunkAnalysisSample>{
 
 	Logger logger = Logger.getLogger(ChunkAnalysisAndPOSBasedWordEvaluator.class);
 	/**
@@ -71,9 +71,9 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<ChunkAnalys
 	
 	
 	@Override
-	protected ChunkAnalysisBasedWordSample processSample(ChunkAnalysisBasedWordSample sample) {
-		String[] wordsRef = sample.getWords();
-		String[] posChunksRef = sample.getChunkTags();
+	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample) {
+		String[] wordsRef = sample.getTokens();
+		String[] posChunksRef = sample.getTags();
 		String[][] acRef = sample.getAditionalContext();
 		
 		String[] posChunksPre = chunkTagger.tag(wordsRef, acRef);

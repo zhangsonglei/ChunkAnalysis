@@ -6,7 +6,7 @@ import java.util.List;
 
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.util.AbstractEventStream;
 import opennlp.tools.util.ObjectStream;
@@ -19,7 +19,7 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisSampleEventBasedWordAndPOS extends AbstractEventStream<ChunkAnalysisBasedWordSample>{
+public class ChunkAnalysisBasedWordAndPOSSampleEvent extends AbstractEventStream<AbstractChunkAnalysisSample>{
 
 	/**
 	 * 上下文生成器
@@ -31,17 +31,17 @@ public class ChunkAnalysisSampleEventBasedWordAndPOS extends AbstractEventStream
 	 * @param sampleStream		样本流
 	 * @param contextgenerator	上下文生成器
 	 */
-	public ChunkAnalysisSampleEventBasedWordAndPOS(ObjectStream<ChunkAnalysisBasedWordSample> sampleStream,ChunkAnalysisBasedWordAndPOSContextGenerator contextgenerator) {
+	public ChunkAnalysisBasedWordAndPOSSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,ChunkAnalysisBasedWordAndPOSContextGenerator contextgenerator) {
 		super(sampleStream);
 		this.contextgenerator = contextgenerator;
 	}
 
 	@Override
-	protected Iterator<Event> createEvents(ChunkAnalysisBasedWordSample sample) {
+	protected Iterator<Event> createEvents(AbstractChunkAnalysisSample sample) {
 		ChunkAnalysisBasedWordAndPOSSample wordAndPOSSample = (ChunkAnalysisBasedWordAndPOSSample) sample;
-		String[] words = wordAndPOSSample.getWords();
+		String[] words = wordAndPOSSample.getTokens();
 		String[] poses = wordAndPOSSample.getPoses();
-		String[] chunkTags = wordAndPOSSample.getChunkTags();
+		String[] chunkTags = wordAndPOSSample.getTags();
 		String[][] aditionalContext = wordAndPOSSample.getAditionalContext();
 		List<Event> events = generateEvents(words,poses, chunkTags, aditionalContext);
         return events.iterator();

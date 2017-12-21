@@ -18,39 +18,39 @@ public class ChunkAnalysisMeasureWithBIEO extends AbstractChunkAnalysisMeasure {
 		this(new Dictionary());
 	}
 	
-	public ChunkAnalysisMeasureWithBIEO(Dictionary wordDict) {
-		super(wordDict);
+	public ChunkAnalysisMeasureWithBIEO(Dictionary dict) {
+		super(dict);
 	}
 	
 	/**
 	 * 动态统计预测样本与标准样本
-	 * @param words		样本中的词组
+	 * @param tokens	样本中的词组
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
-	public void update(String[] words, String[] refChunkTags, String[] preChunkTags) {
+	public void update(String[] tokens, String[] refChunkTags, String[] preChunkTags) {
 		String refChunkTag;									//参考样本中当前词的组块标记
 		String preChunkTag;									//预测样本中当前词的组块标记
 		
 		List<String> tempRefChunk = new ArrayList<>();		//临时存放参考样本中的组块
 		List<String> tempPreChunk = new ArrayList<>();		//临时存放预测样本中的组块
 		List<String> correctPreChunk = new ArrayList<>();	//临时存放预测正确的组块
-		List<String> wordsInChunk = new ArrayList<>();		//临时存放组块中的词组
+		List<String> tokensInChunk = new ArrayList<>();		//临时存放组块中的词组
 		
-		for(int i = 0; i < words.length; i++) {//遍历样本中的每个词,统计样本中每类组块标记标准数量与预测数量
+		for(int i = 0; i < tokens.length; i++) {//遍历样本中的每个词,统计样本中每类组块标记标准数量与预测数量
 			totalWordCounts++;
 			
-			if(!wordDict.contains(words[i])) 
+			if(!dict.contains(tokens[i])) 
 				OOVs++;
 			
 			refChunkTag = refChunkTags[i];
 			preChunkTag = preChunkTags[i];
 			if(refChunkTag.equals("O") || refChunkTag.split("_")[1].equals("B")) {//统计参考样本中各个组块数量，及预测正确的数量
 				if(tempRefChunk.size() != 0) {//存在未处理的参考组块, 进行统计
-					processChunk(tempRefChunk, correctPreChunk, wordsInChunk);
+					processChunk(tempRefChunk, correctPreChunk, tokensInChunk);
 					tempRefChunk = new ArrayList<>();
 					correctPreChunk = new ArrayList<>();
-					wordsInChunk = new ArrayList<>();
+					tokensInChunk = new ArrayList<>();
 				}
 				
 				if(refChunkTag.equals("O")) {//当前词的组块标记为O
@@ -65,7 +65,7 @@ public class ChunkAnalysisMeasureWithBIEO extends AbstractChunkAnalysisMeasure {
 						else
 							correctTaggedChunkTagMap.put(refChunkTag, 1L);
 						
-						if(!wordDict.contains(words[i]))//被预测正确的非组块为未登录词
+						if(!dict.contains(tokens[i]))//被预测正确的非组块为未登录词
 							correctTaggedOOVs++;
 						
 						correctTaggedWordCounts++;
@@ -73,12 +73,12 @@ public class ChunkAnalysisMeasureWithBIEO extends AbstractChunkAnalysisMeasure {
 				}else {//当前词的组块标记为*_B
 					tempRefChunk.add(refChunkTag);
 					correctPreChunk.add(preChunkTag);
-					wordsInChunk.add(words[i]);
+					tokensInChunk.add(tokens[i]);
 				}
 			}else{//当前词的组块标记为*_I || *_E
 				tempRefChunk.add(refChunkTag);
 				correctPreChunk.add(preChunkTag);
-				wordsInChunk.add(words[i]);
+				tokensInChunk.add(tokens[i]);
 			}
 			
 			//统计预测结果中各个组块数量
@@ -105,7 +105,7 @@ public class ChunkAnalysisMeasureWithBIEO extends AbstractChunkAnalysisMeasure {
 		}
 		
 		if(tempRefChunk.size() != 0) //存在未处理的参考组块, 进行统计
-			processChunk(tempRefChunk, correctPreChunk, wordsInChunk);
+			processChunk(tempRefChunk, correctPreChunk, tokensInChunk);
 	
 		if(tempPreChunk.size() != 0) {//存在未处理的预测组块, 进行统计
 			String chunk = tempPreChunk.get(0).split("_")[0];
@@ -122,7 +122,7 @@ public class ChunkAnalysisMeasureWithBIEO extends AbstractChunkAnalysisMeasure {
 	 * @param correctPreChunk	对应位置的预测结果
 	 * @param wordsInChunk		组块对应的词
 	 */
-	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> wordsInChunk) {
+	private void processChunk(List<String> tempRefChunk, List<String> correctPreChunk, List<String> tokensInChunk) {
 		String chunk = tempRefChunk.get(0).split("_")[0];
 		if(referenceChunkTagMap.containsKey(chunk))
 			referenceChunkTagMap.put(chunk, referenceChunkTagMap.get(chunk) + 1);
@@ -135,14 +135,12 @@ public class ChunkAnalysisMeasureWithBIEO extends AbstractChunkAnalysisMeasure {
 			else
 				correctTaggedChunkTagMap.put(chunk, 1L);
 		
-			for(String word : wordsInChunk) {//遍历被正确预测的组块的所有词，统计未登录词
-				if(!wordDict.contains(word))
+			for(String token : tokensInChunk) {//遍历被正确预测的组块的所有词，统计未登录词
+				if(!dict.contains(token))
 					correctTaggedOOVs++;
 			}
 			
-			correctTaggedWordCounts += wordsInChunk.size();
+			correctTaggedWordCounts += tokensInChunk.size();
 		}
 	}
-	
-	
 }

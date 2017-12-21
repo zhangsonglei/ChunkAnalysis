@@ -28,7 +28,7 @@ import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
@@ -103,7 +103,7 @@ public class ChunkAnalysisTrainerTool {
         
         if(method.equals("w")){
         	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
-        	ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = null;
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = null;
         	SequenceValidator<String> validator = null;
         	ChunkAnalysisBasedWordME me = null;
         	if(label.equals("BIO")) {
@@ -122,7 +122,7 @@ public class ChunkAnalysisTrainerTool {
             model.serialize(modelOut);
         }else if(method.equals("wp")) {
         	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
-        	ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = null;
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = null;
         	SequenceValidator<String> validator = null;
         	ChunkAnalysisBasedWordAndPOSME me = null;
         	if(label.equals("BIO")) {
@@ -141,7 +141,7 @@ public class ChunkAnalysisTrainerTool {
             model.serialize(modelOut);
         }else if(method.equals("cp")){
         	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
-        	ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = null;
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = null;
         	SequenceValidator<String> validator = null;
         	ChunkAnalysisAndPOSBasedWordME me = null;
         	if(label.equals("BIO")) {

@@ -3,6 +3,7 @@ package hust.tools.ca.evaluate;
 import org.apache.log4j.Logger;
 
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import opennlp.tools.util.eval.Evaluator;
 
@@ -14,7 +15,7 @@ import opennlp.tools.util.eval.Evaluator;
  *<li>Date: 2017年12月7日
  *</ul>
  */
-public class ChunkAnalysisBasedWordEvaluator extends Evaluator<ChunkAnalysisBasedWordSample>{
+public class ChunkAnalysisBasedWordEvaluator extends Evaluator<AbstractChunkAnalysisSample>{
 
 	Logger logger = Logger.getLogger(ChunkAnalysisBasedWordEvaluator.class);
 	
@@ -41,9 +42,10 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<ChunkAnalysisBase
 	 * @param tagger 训练得到的模型
 	 * @param evaluateMonitors 评估的监控管理器
 	 */
-	public ChunkAnalysisBasedWordEvaluator(ChunkAnalysisBasedWordME chunkTagger, String label, ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
+	public ChunkAnalysisBasedWordEvaluator(ChunkAnalysisBasedWordME chunkTagger, AbstractChunkAnalysisMeasure measure, ChunkAnalysisEvaluateMonitor... evaluateMonitors) {
 		super(evaluateMonitors);
 		this.chunkTagger = chunkTagger;
+		this.measure = measure;
 	}
 	
 	/**
@@ -64,15 +66,15 @@ public class ChunkAnalysisBasedWordEvaluator extends Evaluator<ChunkAnalysisBase
 	
 	
 	@Override
-	protected ChunkAnalysisBasedWordSample processSample(ChunkAnalysisBasedWordSample sample) {
-		String[] wordsRef = sample.getWords();
-		String[] chunkTagsRef = sample.getChunkTags();
+	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample) {
+		String[] wordsRef = sample.getTokens();
+		String[] chunkTagsRef = sample.getTags();
 		String[][] acRef = sample.getAditionalContext();
 		
 		String[] chunkTagsPre = chunkTagger.tag(wordsRef, acRef);
 		
 		//将结果进行解析，用于评估
-		ChunkAnalysisBasedWordSample prediction = new ChunkAnalysisBasedWordSample(wordsRef, chunkTagsPre);
+		AbstractChunkAnalysisSample prediction = new ChunkAnalysisBasedWordSample(wordsRef, chunkTagsPre);
 		measure.update(wordsRef, chunkTagsRef, chunkTagsPre);
 //		measure.add(sample, prediction);
 //		logger.info(sample+"\n"+prediction);

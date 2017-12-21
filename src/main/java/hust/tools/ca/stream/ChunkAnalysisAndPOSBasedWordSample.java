@@ -12,7 +12,7 @@ import java.util.List;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisAndPOSBasedWordSample extends ChunkAnalysisBasedWordSample {
+public class ChunkAnalysisAndPOSBasedWordSample extends AbstractChunkAnalysisSample {
 	
 	/**
 	 * 构造方法
@@ -55,17 +55,17 @@ public class ChunkAnalysisAndPOSBasedWordSample extends ChunkAnalysisBasedWordSa
 	@Override
 	public String toString() {
 		String res = "";
-		List<String> wordTags = new ArrayList<>();
+		List<String> words = new ArrayList<>();
 		String chunk = null;
-		for(int i = 0; i < words.size(); i++) {
-			String pos = chunkTags.get(i).split("-")[0];
-			String chunkTag = chunkTags.get(i).split("-")[1];
+		for(int i = 0; i < tokens.size(); i++) {
+			String pos = tags.get(i).split("-")[0];
+			String chunkTag = tags.get(i).split("-")[1];
 					
 			if(chunkTag.equals("O")) {
-				if(wordTags.size() != 0) {
+				if(words.size() != 0) {
 					res += "[";
-					for(String wordTag : wordTags)
-						res +=  wordTag + "  ";
+					for(String word : words)
+						res +=  word + "  ";
 					
 					res += res.trim() + "]" + chunk + "  ";
 					
@@ -73,12 +73,12 @@ public class ChunkAnalysisAndPOSBasedWordSample extends ChunkAnalysisBasedWordSa
 					chunk = null;
 				}
 				
-				res += words.get(i) + "  ";
+				res += tokens.get(i) + "  ";
 			}else {
 				if(chunkTag.split("_")[1].equals("B")) {
-					if(wordTags.size() != 0) {
+					if(words.size() != 0) {
 						res += "[";
-						for(String wordTag : wordTags)
+						for(String wordTag : words)
 							res += wordTag + "  ";
 						
 						res += res.trim() + "]" + chunk + "  ";
@@ -87,17 +87,17 @@ public class ChunkAnalysisAndPOSBasedWordSample extends ChunkAnalysisBasedWordSa
 						chunk = null;
 					}
 					
-					words.add(words.get(i));
+					words.add(tokens.get(i));
 					chunk =  chunkTag.split("_")[0];
 				}else
-					words.add(words.get(i) + "/" + pos);				
+					words.add(tokens.get(i) + "/" + pos);				
 			}
 		}
 		
-		if(wordTags.size() != 0) {
+		if(words.size() != 0) {
 			res += "[";
-			for(String wordTag : wordTags)
-				res +=  wordTag + "  ";
+			for(String word : words)
+				res +=  word + "  ";
 			
 			res += res.trim() + "]" + chunk + "  ";
 		}

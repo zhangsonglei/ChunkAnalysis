@@ -13,10 +13,10 @@ import java.util.Map;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
-import hust.tools.ca.event.ChunkAnalysisSampleEventBasedWordAndPOS;
+import hust.tools.ca.event.ChunkAnalysisBasedWordAndPOSSampleEvent;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
@@ -100,7 +100,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -121,7 +121,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, TrainingParameters params,
+	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
 			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) throws IOException {
 		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
@@ -135,7 +135,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
         ChunkAnalysisSequenceClassificationModel<String> chunkClassificationModel = null;
         if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
         	//sampleStream为PhraseAnalysisSampleStream对象
-            ObjectStream<Event> es = new ChunkAnalysisSampleEventBasedWordAndPOS(sampleStream, contextGen);
+            ObjectStream<Event> es = new ChunkAnalysisBasedWordAndPOSSampleEvent(sampleStream, contextGen);
             EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(),
                     manifestInfoEntries);
             maxentModel = trainer.train(es);                       
@@ -165,7 +165,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<ChunkAnalysisBasedWordSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           

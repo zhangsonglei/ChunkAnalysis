@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 
 /**
  *<ul>
@@ -37,10 +37,10 @@ public class ChunkAnalysisContextGenratorConfTest {
 	@Before
 	public void setUp() throws Exception {
 		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
-		ChunkAnalysisBasedWordSample sample = parse.parse(sentence);
-		words = sample.getWords();
+		ChunkAnalysisBasedWordAndPOSSample sample = (ChunkAnalysisBasedWordAndPOSSample) parse.parse(sentence);
+		words = sample.getTokens();
 		poses = sample.getPoses();
-		chunkTags = sample.getChunkTags();
+		chunkTags = sample.getTags();
 		contextGeneratorConf = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
 	}
 

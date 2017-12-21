@@ -25,7 +25,7 @@ import opennlp.tools.util.ObjectStream;
  *</ul>
  */
 @SuppressWarnings("unused")
-public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, ChunkAnalysisBasedWordSample>{
+public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSSampleStream.class.getName());
 	
@@ -47,11 +47,11 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	 * 读取训练语料进行解析
 	 * @return 样本
 	 */	
-	public ChunkAnalysisBasedWordSample read() throws IOException {
+	public AbstractChunkAnalysisSample read() throws IOException {
 		String sentence = samples.read();
 		
 		if(sentence != null){
-			ChunkAnalysisBasedWordSample sample = null;
+			AbstractChunkAnalysisSample sample = null;
 			if(sentence.compareTo("") != 0){
 				try{
 					sample = parse.parse(sentence);

@@ -7,7 +7,7 @@ import hust.tools.ca.evaluate.ChunkAnalysisAndPOSBasedWordEvaluator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordModel;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.SequenceValidator;
 import opennlp.tools.util.TrainingParameters;
@@ -45,16 +45,16 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	 * @param contextGenerator	上下文
 	 * @throws IOException
 	 */
-	public void evaluate(ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, int nFolds,
+	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
 			ChunkAnalysisBasedWordContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, SequenceValidator<String> sequenceValidator) throws IOException{
-		CrossValidationPartitioner<ChunkAnalysisBasedWordSample> partitioner = new CrossValidationPartitioner<ChunkAnalysisBasedWordSample>(sampleStream, nFolds);
+		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;
 		//小于折数的时候
 		while(partitioner.hasNext()){
 			System.out.println("Run"+run+"...");
 			
-			CrossValidationPartitioner.TrainingSampleStream<ChunkAnalysisBasedWordSample> trainingSampleStream = partitioner.next();
+			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner.next();
 			ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(); 
 			ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
 			ChunkAnalysisAndPOSBasedWordEvaluator evaluator = new ChunkAnalysisAndPOSBasedWordEvaluator(new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGenerator), measure);

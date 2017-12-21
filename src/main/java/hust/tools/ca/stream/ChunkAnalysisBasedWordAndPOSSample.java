@@ -12,7 +12,7 @@ import java.util.List;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSample {
+public class ChunkAnalysisBasedWordAndPOSSample extends AbstractChunkAnalysisSample {
 	
 	/**
 	 * 词组对应的词性
@@ -31,9 +31,9 @@ public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSa
 
 	/**
 	 * 构造方法
-	 * @param words		词语列表
-	 * @param poses		词语对应的词性列表
-	 * @param chunkTags	词语组块标记列表
+	 * @param words		词语序列
+	 * @param poses		词语对应的词性序列
+	 * @param chunkTags	词语组块标记序列
 	 */
 	public ChunkAnalysisBasedWordAndPOSSample(List<String> words,List<String> poses,List<String> chunkTags){
 		this(words, poses, chunkTags, null);
@@ -52,9 +52,9 @@ public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSa
 
 	/**
 	 * 构造方法
-	 * @param words				词语列表
-	 * @param poses				词语对应的词性列表
-	 * @param chunkTags			词语组块标记列表
+	 * @param words				词语序列
+	 * @param poses				词语对应的词性序列
+	 * @param chunkTags			词语组块标记序列
 	 * @param additionalContext	其他上下文信息
 	 */
     public ChunkAnalysisBasedWordAndPOSSample(List<String> words, List<String> poses, List<String> chunkTags, String[][] additionalContext){
@@ -72,16 +72,14 @@ public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSa
     	
     	return null;
     }
-    
-    
 	
     @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.deepHashCode(additionalContext);
-		result = prime * result + ((chunkTags == null) ? 0 : chunkTags.hashCode());
-		result = prime * result + ((words == null) ? 0 : words.hashCode());
+		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
+		result = prime * result + ((tokens == null) ? 0 : tokens.hashCode());
 		result = prime * result + ((poses == null) ? 0 : poses.hashCode());
 		return result;
 	}
@@ -97,15 +95,15 @@ public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSa
 		ChunkAnalysisBasedWordAndPOSSample other = (ChunkAnalysisBasedWordAndPOSSample) obj;
 		if (!Arrays.deepEquals(additionalContext, other.additionalContext))
 			return false;
-		if (chunkTags == null) {
-			if (other.chunkTags != null)
+		if (tags == null) {
+			if (other.tags != null)
 				return false;
-		} else if (!chunkTags.equals(other.chunkTags))
+		} else if (!tags.equals(other.tags))
 			return false;
-		if (words == null) {
-			if (other.words != null)
+		if (tokens == null) {
+			if (other.tokens != null)
 				return false;
-		} else if (!words.equals(other.words))
+		} else if (!tokens.equals(other.tokens))
 			return false;
 		if (poses == null) {
 			if (other.poses != null)
@@ -121,8 +119,8 @@ public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSa
 		List<String> wordTags = new ArrayList<>();
 		String chunk = null;
 		
-		for(int i = 0; i < words.size(); i++) {
-			if(chunkTags.get(i).equals("O")) {
+		for(int i = 0; i < tokens.size(); i++) {
+			if(tags.get(i).equals("O")) {
 				if(wordTags.size() != 0) {
 					res += "[";
 					for(String wordTag : wordTags)
@@ -134,9 +132,9 @@ public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSa
 					chunk = null;
 				}
 				
-				res += words.get(i)+ "/" + poses.get(i) + "  ";
+				res += tokens.get(i)+ "/" + poses.get(i) + "  ";
 			}else {
-				if(chunkTags.get(i).split("_")[1].equals("B")) {
+				if(tags.get(i).split("_")[1].equals("B")) {
 					if(wordTags.size() != 0) {
 						res += "[";
 						for(String wordTag : wordTags)
@@ -148,10 +146,10 @@ public class ChunkAnalysisBasedWordAndPOSSample extends ChunkAnalysisBasedWordSa
 						chunk = null;
 					}
 					
-					wordTags.add(words.get(i) + "/" + poses.get(i));
-					chunk =  chunkTags.get(i).split("_")[0];
+					wordTags.add(tokens.get(i) + "/" + poses.get(i));
+					chunk =  tags.get(i).split("_")[0];
 				}else
-					wordTags.add(words.get(i) + "/" + poses.get(i));				
+					wordTags.add(tokens.get(i) + "/" + poses.get(i));				
 			}
 		}
 		

@@ -3,6 +3,7 @@ package hust.tools.ca.parse;
 import java.util.ArrayList;
 import java.util.List;
 
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 
 /**
@@ -21,7 +22,6 @@ public class ChunkAnalysisBasedWordParseWithBIO extends AbstractChunkAnalysisPar
 	
 	private List<String> chunkTags;
 	private List<String> words;
-	private List<String> poses;
 	
 	/**
 	 * 构造方法
@@ -30,10 +30,9 @@ public class ChunkAnalysisBasedWordParseWithBIO extends AbstractChunkAnalysisPar
 		
 	}
 	
-	public ChunkAnalysisBasedWordSample parse(String sentence){
+	public AbstractChunkAnalysisSample parse(String sentence){
 		chunkTags = new ArrayList<>();
 		words = new ArrayList<>();
-		poses = new ArrayList<>();
 		
 		boolean isInChunk = false;							//当前词是否在组块中
 		List<String> wordTagsInChunk = new ArrayList<>();	//临时存储在组块中的词与词性
@@ -63,7 +62,6 @@ public class ChunkAnalysisBasedWordParseWithBIO extends AbstractChunkAnalysisPar
 				}else {
 					wordTag = string.split("/");
 					words.add(wordTag[0]);
-					poses.add(wordTag[1]);
 					chunkTags.add(OutChunk);
 				}
 			}
@@ -86,7 +84,6 @@ public class ChunkAnalysisBasedWordParseWithBIO extends AbstractChunkAnalysisPar
 		for(int i = 0; i < wordTagsInChunk.size(); i++) {
 			String[] wordTag = wordTagsInChunk.get(i).split("/");
 			words.add(wordTag[0]);
-			poses.add(wordTag[1]);
 			
 			if(i == 0)
 				chunkTags.add(chunk + ChunkBegin);

@@ -7,7 +7,7 @@ import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSEvaluator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordAndPOSModel;
-import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
+import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.SequenceValidator;
 import opennlp.tools.util.TrainingParameters;
@@ -46,16 +46,16 @@ public class ChunkAnalysisBasedWordAndPOSCrossValidation {
 	 * @param measure			组块分析评价器
 	 * @throws IOException
 	 */
-	public void evaluate(ObjectStream<ChunkAnalysisBasedWordSample> sampleStream, int nFolds,
+	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
 			ChunkAnalysisBasedWordAndPOSContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, SequenceValidator<String> sequenceValidator) throws IOException{
-		CrossValidationPartitioner<ChunkAnalysisBasedWordSample> partitioner = new CrossValidationPartitioner<ChunkAnalysisBasedWordSample>(sampleStream, nFolds);
+		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;
 		//小于折数的时候
 		while(partitioner.hasNext()){
 			System.out.println("Run"+run+"...");
 			
-			CrossValidationPartitioner.TrainingSampleStream<ChunkAnalysisBasedWordSample> trainingSampleStream = partitioner.next();
+			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner.next();
 			ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
 			ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
 			ChunkAnalysisBasedWordAndPOSEvaluator evaluator = new ChunkAnalysisBasedWordAndPOSEvaluator(new ChunkAnalysisBasedWordAndPOSME(model, sequenceValidator, contextGenerator), measure);
