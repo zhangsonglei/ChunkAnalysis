@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  *<ul>
- *<li>Description: 基于词的组块分析样本 
+ *<li>Description: 组块标注样本抽象类
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月20日
@@ -106,6 +106,6 @@ public abstract class AbstractChunkAnalysisSample {
     	return additionalContext;
     }
 	
-	@Override
-	public abstract String toString();
+//	@Override
+//	public abstract String toString();
 }

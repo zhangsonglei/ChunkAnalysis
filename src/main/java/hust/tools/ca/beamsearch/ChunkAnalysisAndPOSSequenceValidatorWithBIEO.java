@@ -4,7 +4,7 @@ import opennlp.tools.util.SequenceValidator;
 
 /**
  *<ul>
- *<li>Description: BIO序列验证类,验证当前组块标记是否合法
+ *<li>Description: BIEO序列验证类, 验证当前组块标记是否合法，（组块最小长度为2）
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月6日

@@ -37,7 +37,7 @@ import opennlp.tools.util.TrainingParameters;
 
 /**
  *<ul>
- *<li>Description: 组块分析模型的训练 
+ *<li>Description: 基于词的组块分析模型训练 类
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日
@@ -252,54 +252,6 @@ public class ChunkAnalysisBasedWordME implements Chunker {
         
         return tags;
     }
-	
-//	/**
-//	 * 返回词组组块标注后的结果
-//	 * @param words	词组
-//	 * @return		组块标注后的结果
-//	 */
-//	public String analysis(String[] words){
-//		return analysis(words, null);
-//	}
-//	
-//	/**
-//	 * 返回词组组块标注后的结果
-//	 * @param words				词组
-//	 * @param additionaContext	其他上下文信息
-//	 * @return					组块标注后的结果
-//	 */
-//	public String analysis(String[] words, Object[] additionaContext){
-//		bestSequence = model.bestSequence(words, additionaContext, contextGenerator, sequenceValidator);
-//		List<String> chunks = bestSequence.getOutcomes();
-//		String chunksResult = null;
-//		
-//		for(int i = 0; i < chunks.size() - 1; i++) {
-//			String chunk = chunks.get(i);
-//			
-//			if(chunk.equals("O"))
-//				chunksResult += words[i] + "  ";
-//			else if(chunk.split("_")[1].equals("I")) 
-//				chunksResult += words[i] + "  ";	
-//			else {
-//				if(i > 1) {
-//					String lastChunk = chunks.get(i - 1);
-//					if(lastChunk.equals("O"))
-//						chunksResult += "[" + words[i] + "  ";
-//					else 
-//						chunksResult = chunksResult.trim() + "]" + lastChunk.split("_")[0] + "[" + words[i] + "  ";
-//				}else				
-//					chunksResult += "[" + words[i] + "  ";
-//			}
-//		}
-//		
-//		String finalChunk = chunks.get(chunks.size() - 1);
-//		if(finalChunk.equals("O"))
-//			chunksResult += words[chunks.size() - 1];
-//		else
-//			chunksResult += words[chunks.size() - 1] + "]" + finalChunk.split("_")[0];
-//		
-//		return chunksResult;
-//	}
 
 	/**
 	 * 返回词组的组块标注结果

@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  *<ul>
- *<li>Description: 组块
+ *<li>Description: 组块信息类
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月17日
@@ -14,7 +14,7 @@ public class Chunk {
 	
 	private String type;
 	
-	private String[] words;
+	private String[] tokens;
 	
 	private String string;
 	
@@ -26,19 +26,19 @@ public class Chunk {
 		
 	}
 	
-	public Chunk(String type, List<String> words, int start, int end) {
-		this(type, words.toArray(new String[words.size()]), start, end);
+	public Chunk(String type, List<String> tokens, int start, int end) {
+		this(type, tokens.toArray(new String[tokens.size()]), start, end);
 	}
 	
-	public Chunk(String type, String[] words, int start, int end) {
+	public Chunk(String type, String[] tokens, int start, int end) {
 		this.type = type;
-		this.words = words;
+		this.tokens = tokens;
 		this.start = start;
 		this.end = end;
 		
 		string = "";
-		for(String word : words)
-			string += word + "  ";
+		for(String token : tokens)
+			string += token + "  ";
 		string.trim();
 	}
 	
@@ -46,8 +46,8 @@ public class Chunk {
 		this.type = type;
 	}
 	
-	public void setWords(String[] words) {
-		this.words = words;
+	public void setWords(String[] tokens) {
+		this.tokens = tokens;
 	}
 	
 	public void setString(String string) {
@@ -74,8 +74,8 @@ public class Chunk {
 	 * 或取组块中的词组
 	 * @return
 	 */
-	public String[] getWords() {
-		return words;
+	public String[] getTokens() {
+		return tokens;
 	}
 
 	/**

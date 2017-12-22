@@ -16,7 +16,7 @@ import opennlp.tools.util.eval.CrossValidationPartitioner;
 
 /**
  *<ul>
- *<li>Description: 交叉验证 
+ *<li>Description: 基于词的词性标注和组块分析交叉验证 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日

@@ -16,20 +16,20 @@ public interface ChunkAnalysisSequenceClassificationModel<T> {
 	
 	/**
 	 * 得到最好的序列
-	 * @param words 			词语数组
+	 * @param tokens 			词或字组
 	 * @param poses 			词性数组
 	 * @param additionalContext	其他上下文信息
 	 * @param contextGenerator	上下文生成器
 	 * @param validator			序列的验证器
 	 * @return 					最好的序列
 	 */
-	Sequence bestSequence(T[] words, T[] poses, Object[] additionalContext, 
+	Sequence bestSequence(T[] tokens, T[] poses, Object[] additionalContext, 
 			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, SequenceValidator<T> validator);
 
 	/**
 	 * 返回最优的numSequences个组块标注序列
 	 * @param numSequences		返回的序列数量
-	 * @param words				词语数组
+	 * @param tokens			词或字组
 	 * @param poses				词组对应的词性数组
 	 * @param additionalContext 其他上下文信息
 	 * @param minSequenceScore 	标记所得最小的分数的限制
@@ -37,20 +37,20 @@ public interface ChunkAnalysisSequenceClassificationModel<T> {
 	 * @param validator 		序列的验证器
 	 * @return					最优的numSequences个组块标注序列
 	 */
-	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, double minSequenceScore,
+	public Sequence[] bestSequences(int numSequences, T[] tokens, T[] poses, Object[] additionalContext, double minSequenceScore,
 			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, SequenceValidator<T> validator);
 
 	/**
 	 * 返回最优的numSequences个组块标注序列
 	 * @param numSequences 		返回的序列数量
-	 * @param words 			词语数组
+	 * @param tokens 			词或字组
 	 * @param poses 			词组对应的词性数组
 	 * @param additionalContext	其他上下文信息
 	 * @param contextGenerator 	上下文生成器
 	 * @param validator			序列的验证器
 	 * @return					最优的numSequences个组块标注序列
 	 */
-	public Sequence[] bestSequences(int numSequences, T[] words, T[] poses, Object[] additionalContext, 
+	public Sequence[] bestSequences(int numSequences, T[] tokens, T[] poses, Object[] additionalContext, 
 			BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> contextGenerator, SequenceValidator<T> validator);
 	
 	/**

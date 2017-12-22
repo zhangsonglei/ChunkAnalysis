@@ -12,7 +12,7 @@ import opennlp.tools.util.ObjectStream;
 
 /**
  *<ul>
- *<li>Description: 事件生成类 
+ *<li>Description: 基于词的事件生成类 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日

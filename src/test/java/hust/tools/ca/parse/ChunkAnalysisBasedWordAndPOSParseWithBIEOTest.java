@@ -15,7 +15,7 @@ import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
  *<li>Date: 2017年12月5日
  *</ul>
  */
-public class ChunkAnalysisSampleTest {
+public class ChunkAnalysisBasedWordAndPOSParseWithBIEOTest {
 	
 	private AbstractChunkAnalysisParse parse;
 

@@ -25,7 +25,6 @@ public class ChunkAnalysisErrorPrinter extends ChunkAnalysisEvaluateMonitor {
 		errOut = new PrintStream(out);
 	}
 	
-	
 	@Override
 	public void missclassified(AbstractChunkAnalysisSample reference, AbstractChunkAnalysisSample prediction) {
 		 errOut.println("样本的结果：" + reference);

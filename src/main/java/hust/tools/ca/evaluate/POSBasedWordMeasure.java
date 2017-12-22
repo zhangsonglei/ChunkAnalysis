@@ -2,6 +2,14 @@ package hust.tools.ca.evaluate;
 
 import java.util.HashSet;
 
+/**
+ *<ul>
+ *<li>Description: 基于词的词性标注评价
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月20日
+ *</ul>
+ */
 public class POSBasedWordMeasure {
 	
 	/**

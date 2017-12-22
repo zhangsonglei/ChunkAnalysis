@@ -9,7 +9,7 @@ import hust.tools.ca.utils.Dictionary;
 
 /**
  *<ul>
- *<li>Description: 组块分析评价类 
+ *<li>Description: 组块分析评价抽象类 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月20日
@@ -82,7 +82,7 @@ public abstract class AbstractChunkAnalysisMeasure {
 
 	/**
 	 * 动态统计预测样本与标准样本
-	 * @param words		样本中的词组
+	 * @param tokens	样本中的词或字组
 	 * @param reference	标准样本
 	 * @param prediction预测样本
 	 */
@@ -225,54 +225,13 @@ public abstract class AbstractChunkAnalysisMeasure {
 	}
 	
 	public String toString() {
-		return "Accuracy = " + getAccuracy() + "\t" + 
-						  "Precision = " + getPrecision() + "\t" + 
-						  "Rcall = " + getRecall() + "\t" + 
-						  "F = " + getF() + "\n" + 
-						  "BNP_P = " + getPrecision("BNP") + "\t" + 
-						  "BNP_R = " + getRecall("BNP") + "\t" + 
-						  "BNP_F = " + getF("BNP") + "\n" + 
-						  "BAP_P = " + getPrecision("BAP") + "\t" + 
-						  "BAP_R = " + getRecall("BAP") + "\t" + 
-						  "BAP_F = " + getF("BAP") + "\n" + 
-						  "BVP_P = " + getPrecision("BVP") + "\t" + 
-						  "BVP_R = " + getRecall("BVP") + "\t" + 
-						  "BVP_F = " + getF("BVP") + "\n" + 
-						  "BDP_P = " + getPrecision("BDP") + "\t" + 
-						  "BDP_R = " + getRecall("BDP") + "\t" + 
-						  "BDP_F = " + getF("BDP") + "\n" + 
-						  "BQP_P = " + getPrecision("BQP") + "\t" + 
-						  "BQP_R = " + getRecall("BQP") + "\t" + 
-						  "BQP_F = " + getF("BQP") + "\n" + 
-						  "BTP_P = " + getPrecision("BTP") + "\t" + 
-						  "BTP_R = " + getRecall("BTP") + "\t" + 
-						  "BTP_F = " + getF("BTP") + "\n" + 
-						  "BFP_P = " + getPrecision("BFP") + "\t" + 
-						  "BFP_R = " + getRecall("BFP") + "\t" + 
-						  "BFP_F = " + getF("BFP") + "\n" +
-						  "BNT_P = " + getPrecision("BNT") + "\t" + 
-						  "BNT_R = " + getRecall("BNT") + "\t" + 
-						  "BNT_F = " + getF("BNT") + "\n" +
-						  "BNS_P = " + getPrecision("BNS") + "\t" + 
-						  "BNS_R = " + getRecall("BNS") + "\t" + 
-						  "BNS_F = " + getF("BNS") + "\n" +
-						  "BNZ_P = " + getPrecision("BNZ") + "\t" + 
-						  "BNZ_R = " + getRecall("BNZ") + "\t" + 
-						  "BNZ_F = " + getF("BNZ") + "\n" +
-						  "BSV_P = " + getPrecision("BSV") + "\t" + 
-						  "BSV_R = " + getRecall("BSV") + "\t" + 
-						  "BSV_F = " + getF("BSV") + "\n"+
-						  "Ref_O=" + referenceChunkTagMap.get("O")+"\t"+"Pre_O="+predictChunkTagMap.get("O")+"\tcorrect="+correctTaggedChunkTagMap.get("O")+"\n"+
-						  "Ref_BNP=" + referenceChunkTagMap.get("BNP")+"\tPre_BNP="+predictChunkTagMap.get("BNP")+"\tcorrect="+correctTaggedChunkTagMap.get("BNP")+"\n"+
-						  "Ref_BAP=" + referenceChunkTagMap.get("BAP")+"\tPre_BAP="+predictChunkTagMap.get("BAP")+"\tcorrect="+correctTaggedChunkTagMap.get("BAP")+"\n"+
-						  "Ref_BVP=" + referenceChunkTagMap.get("BVP")+"\tPre_BVP="+predictChunkTagMap.get("BVP")+"\tcorrect="+correctTaggedChunkTagMap.get("BVP")+"\n"+
-						  "Ref_BDP=" + referenceChunkTagMap.get("BDP")+"\tPre_BDP="+predictChunkTagMap.get("BDP")+"\tcorrect="+correctTaggedChunkTagMap.get("BDP")+"\n"+
-						  "Ref_BQP=" + referenceChunkTagMap.get("BQP")+"\tPre_BQP="+predictChunkTagMap.get("BQP")+"\tcorrect="+correctTaggedChunkTagMap.get("BQP")+"\n"+
-						  "Ref_BTP=" + referenceChunkTagMap.get("BTP")+"\tPre_BTP="+predictChunkTagMap.get("BTP")+"\tcorrect="+correctTaggedChunkTagMap.get("BTP")+"\n"+
-						  "Ref_BFP=" + referenceChunkTagMap.get("BFP")+"\tPre_BFP="+predictChunkTagMap.get("BFP")+"\tcorrect="+correctTaggedChunkTagMap.get("BFP")+"\n"+
-						  "Ref_BNT=" + referenceChunkTagMap.get("BNT")+"\tPre_BNT="+predictChunkTagMap.get("BNT")+"\tcorrect="+correctTaggedChunkTagMap.get("BNT")+"\n"+
-						  "Ref_BNS=" + referenceChunkTagMap.get("BNS")+"\tPre_BNS="+predictChunkTagMap.get("BNS")+"\tcorrect="+correctTaggedChunkTagMap.get("BNS")+"\n"+
-						  "Ref_BNZ=" + referenceChunkTagMap.get("BNZ")+"\tPre_BNZ="+predictChunkTagMap.get("BNZ")+"\tcorrect="+correctTaggedChunkTagMap.get("BNZ")+"\n"+
-						  "Ref_BSV=" + referenceChunkTagMap.get("BSV")+"\tPre_BSV="+predictChunkTagMap.get("BSV")+"\tcorrect="+correctTaggedChunkTagMap.get("BSV");
+		String result = "";
+		result += "A = " + getAccuracy() + "\tP = " + getPrecision() + "\tR = " + getRecall() + "\tF = " + getF() + "\n";
+		for(Entry<String, Long> entry : referenceChunkTagMap.entrySet()) {
+			String chunk = entry.getKey();
+			result += chunk + "\tP = " + getPrecision(chunk) + "\tR = " + getRecall(chunk) + "\tF = " + getF(chunk) + 
+					"\tRef = " + referenceChunkTagMap.get(chunk) + "\tPre = " + predictChunkTagMap.get(chunk) + "\tcorrect = " + correctTaggedChunkTagMap.get(chunk) + "\n";
+		}
+		return result;
 	}
 }

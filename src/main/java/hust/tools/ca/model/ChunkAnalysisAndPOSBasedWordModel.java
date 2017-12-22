@@ -14,7 +14,7 @@ import opennlp.tools.util.model.BaseModel;
 
 /**
  *<ul>
- *<li>Description: 组块分析模型 
+ *<li>Description: 基于词的词性标注和组块分析模型 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日

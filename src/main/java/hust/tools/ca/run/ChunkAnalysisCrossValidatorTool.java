@@ -4,14 +4,17 @@ import java.io.File;
 import java.io.IOException;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
 import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEOS;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.cv.ChunkAnalysisAndPOSBasedWordCrossValidation;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordAndPOSCrossValidation;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordCrossValidation;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
+import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEOS;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
@@ -21,8 +24,10 @@ import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
@@ -101,10 +106,14 @@ public class ChunkAnalysisCrossValidatorTool {
         		parse = new ChunkAnalysisBasedWordParseWithBIO();
         		measure = new ChunkAnalysisMeasureWithBIO();
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
-        	}else {
+        	}else if(label.equals("BIEO")){
         		parse = new ChunkAnalysisBasedWordParseWithBIEO();
         		measure = new ChunkAnalysisMeasureWithBIEO();
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
+        	}else{
+        		parse = new ChunkAnalysisBasedWordParseWithBIEOS();
+        		measure = new ChunkAnalysisMeasureWithBIEOS();
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
         	}
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
@@ -117,10 +126,14 @@ public class ChunkAnalysisCrossValidatorTool {
         		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
         		measure = new ChunkAnalysisMeasureWithBIO();
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
-        	}else {
+        	}else if(label.equals("BIEO")) {
         		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
         		measure = new ChunkAnalysisMeasureWithBIEO();
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
+        	}else {
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+        		measure = new ChunkAnalysisMeasureWithBIEOS();
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
         	}
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
@@ -133,10 +146,14 @@ public class ChunkAnalysisCrossValidatorTool {
         		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
         		measure = new ChunkAnalysisMeasureWithBIO();
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIO();
-        	}else {
+        	}else if(label.equals("BIEO")) {
         		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
         		measure = new ChunkAnalysisMeasureWithBIEO();
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEO();
+        	}else {
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+        		measure = new ChunkAnalysisMeasureWithBIEOS();
+        		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEOS();
         	}
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);

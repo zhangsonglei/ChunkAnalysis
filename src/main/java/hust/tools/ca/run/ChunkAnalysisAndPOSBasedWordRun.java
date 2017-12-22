@@ -8,12 +8,14 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
 import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
 import hust.tools.ca.cv.ChunkAnalysisAndPOSBasedWordCrossValidation;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisAndPOSBasedWordEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisErrorPrinter;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
+import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEOS;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
@@ -21,6 +23,7 @@ import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordModel;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
@@ -32,7 +35,7 @@ import opennlp.tools.util.TrainingParameters;
 
 /**
  *<ul>
- *<li>Description: 组块分析应用程序 
+ *<li>Description: 基于词的词性标注和组块分析运行类
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日
@@ -91,6 +94,11 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 		String label = args[1];
 		
 		switch (label) {
+		case "BIEOS":
+			measure = new ChunkAnalysisMeasureWithBIEOS();
+			parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEOS();
+			validator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEOS();
+			break;
 		case "BIEO":
 			measure = new ChunkAnalysisMeasureWithBIEO();
 			parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEO();
@@ -141,14 +149,14 @@ public class ChunkAnalysisAndPOSBasedWordRun {
         //默认参数
         TrainingParameters params = TrainingParameters.defaultParams();
         params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(2));
-        params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(30));
+        params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(40));
     
         
         //把刚才属性信息封装
 
         ChunkAnalysisAndPOSBasedWordCrossValidation crossValidator = new ChunkAnalysisAndPOSBasedWordCrossValidation(params);
         ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
-        ChunkAnalysisBasedWordContextGenerator contextGen = getWordContextGenerator(config);
+        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf(config);
         System.out.println(contextGen);
         crossValidator.evaluate(sampleStream, 10, contextGen, measure, validator);
 	}
@@ -182,7 +190,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
         config.load(configStream);
         Corpus[] corpora = getCorporaFromConf(config);//获取语料
 
-        ChunkAnalysisBasedWordContextGenerator contextGen = getWordContextGenerator(config);
+        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf(config);
         runFeatureOnCorporaByFlag(contextGen, corpora, params);
 	}
 
@@ -208,23 +216,6 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 				evaluateOnCorpus(contextGen,corpora[i], params);
 			}
 		}
-	}
-
-	/**
-	 * 得到用于运行的特征类
-	 * @param config
-	 * @return
-	 */
-	private static ChunkAnalysisBasedWordContextGenerator getWordContextGenerator(Properties config) {
-		String featureClass = config.getProperty("feature.class");
-		if(featureClass.equals("hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGenratorConf") ||
-				featureClass.equals("hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenratorConf") ||
-				featureClass.equals("hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenratorConf")){
-			//初始化需要哪些特征
-        	return  new ChunkAnalysisAndPOSBasedWordContextGeneratorConf(config);
-		}else{
-			return null;
-		} 
 	}
 	
 	/**

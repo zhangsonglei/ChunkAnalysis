@@ -1,12 +1,11 @@
 package hust.tools.ca.stream;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  *<ul>
- *<li>Description: 基于词的词性标注和组块分析样本类 
+ *<li>Description: 基于词的组块分析样本类 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日
@@ -52,55 +51,55 @@ public class ChunkAnalysisBasedWordSample extends AbstractChunkAnalysisSample {
     	super(words, tags, additionalContext);
 	}
 	
-    @Override
-	public String toString() {
-		String res = "";
-		List<String> words = new ArrayList<>();
-		String chunk = null;
-		
-		for(int i = 0; i < tokens.size(); i++) {
-			if(tags.get(i).equals("O")) {
-				if(words.size() != 0) {
-					res += "[";
-					for(String word : words)
-						res +=  word + "  ";
-					
-					res += res.trim() + "]" + chunk + "  ";
-					
-					words = new ArrayList<>();
-					chunk = null;
-				}
-				
-				res += tokens.get(i) + "  ";
-			}else {
-				if(tags.get(i).split("_")[1].equals("B")) {
-					if(words.size() != 0) {
-						res += "[";
-						for(String word : words)
-							res += word + "  ";
-						
-						res += res.trim() + "]" + chunk + "  ";
-						
-						words = new ArrayList<>();
-						chunk = null;
-					}
-					
-					words.add(tokens.get(i));
-					chunk =  tags.get(i).split("_")[0];
-				}else
-					words.add(tokens.get(i));				
-			}
-		}
-		
-		if(words.size() != 0) {
-			res += "[";
-			for(String word : words)
-				res +=  word + "  ";
-			
-			res += res.trim() + "]" + chunk + "  ";
-		}
-		
-		return res.trim();
-	}
+//    @Override
+//	public String toString() {
+//		String res = "";
+//		List<String> words = new ArrayList<>();
+//		String chunk = null;
+//		
+//		for(int i = 0; i < tokens.size(); i++) {
+//			if(tags.get(i).equals("O")) {
+//				if(words.size() != 0) {
+//					res += "[";
+//					for(String word : words)
+//						res +=  word + "  ";
+//					
+//					res += res.trim() + "]" + chunk + "  ";
+//					
+//					words = new ArrayList<>();
+//					chunk = null;
+//				}
+//				
+//				res += tokens.get(i) + "  ";
+//			}else {
+//				if(tags.get(i).split("_")[1].equals("B")) {
+//					if(words.size() != 0) {
+//						res += "[";
+//						for(String word : words)
+//							res += word + "  ";
+//						
+//						res += res.trim() + "]" + chunk + "  ";
+//						
+//						words = new ArrayList<>();
+//						chunk = null;
+//					}
+//					
+//					words.add(tokens.get(i));
+//					chunk =  tags.get(i).split("_")[0];
+//				}else
+//					words.add(tokens.get(i));				
+//			}
+//		}
+//		
+//		if(words.size() != 0) {
+//			res += "[";
+//			for(String word : words)
+//				res +=  word + "  ";
+//			
+//			res += res.trim() + "]" + chunk + "  ";
+//		}
+//		
+//		return res.trim();
+//	}
 }
 

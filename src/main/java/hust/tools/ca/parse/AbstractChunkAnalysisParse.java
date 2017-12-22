@@ -2,6 +2,14 @@ package hust.tools.ca.parse;
 
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 
+/**
+ *<ul>
+ *<li>Description: 样本解析抽象类 
+ *<li>Company: HUST
+ *<li>@author Sonly
+ *<li>Date: 2017年12月22日
+ *</ul>
+ */
 public abstract class AbstractChunkAnalysisParse {
 
 	/**

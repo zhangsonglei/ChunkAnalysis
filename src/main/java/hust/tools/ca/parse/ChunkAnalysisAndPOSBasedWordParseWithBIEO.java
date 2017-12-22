@@ -8,7 +8,7 @@ import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSample;
 
 /**
  *<ul>
- *<li>Description:  对样本进行解析
+ *<li>Description:  基于词的词性标注和组块分析的BIEO样本解析（组块最小长度为2）
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日

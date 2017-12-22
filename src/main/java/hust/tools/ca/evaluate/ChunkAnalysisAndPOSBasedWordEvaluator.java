@@ -1,7 +1,5 @@
 package hust.tools.ca.evaluate;
 
-import org.apache.log4j.Logger;
-
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSample;
@@ -9,15 +7,14 @@ import opennlp.tools.util.eval.Evaluator;
 
 /**
  *<ul>
- *<li>Description: 评估类 
+ *<li>Description: 基于词的词性标注和组块分析评价器 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月7日
  *</ul>
  */
 public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChunkAnalysisSample>{
-
-	Logger logger = Logger.getLogger(ChunkAnalysisAndPOSBasedWordEvaluator.class);
+	
 	/**
 	 * 组块分析模型
 	 */
@@ -28,6 +25,9 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 	 */
 	private AbstractChunkAnalysisMeasure measure;
 	
+	/**
+	 * 词性标注评估
+	 */
 	private POSBasedWordMeasure posMeasure;
 	
 	/**
@@ -95,7 +95,6 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 		measure.update(wordsRef, chunksRef, chunksPre);
 		posMeasure.updateScores(wordsRef, posRef, posPre);
 //		measure.add(sample, prediction);
-//		logger.info(sample+"\n"+prediction);
 		return prediction;
 	}
 }

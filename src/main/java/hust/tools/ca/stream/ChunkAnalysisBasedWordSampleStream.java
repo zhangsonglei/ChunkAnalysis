@@ -20,7 +20,7 @@ import opennlp.tools.util.ObjectStream;
 
 /**
  *<ul>
- *<li>Description: 组块分析样本流 
+ *<li>Description: 基于词的组块分析样本流 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日

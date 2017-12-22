@@ -6,7 +6,7 @@ import hust.tools.ca.utils.Dictionary;
 
 /**
  *<ul>
- *<li>Description: 组块分析模型评价 
+ *<li>Description: BIO组块分析模型评价 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月2日
@@ -77,7 +77,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 					correctPreChunk.add(preChunkTag);
 					tokensInChunk.add(tokens[i]);
 				}
-			}else{//当前词的组块标记为*_I
+			}else {//当前词的组块标记为*_I
 				tempRefChunk.add(refChunkTag);
 				correctPreChunk.add(preChunkTag);
 				tokensInChunk.add(tokens[i]);
@@ -136,7 +136,7 @@ public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 		else
 			referenceChunkTagMap.put(chunk, 1L);
 		
-		if(tempRefChunk.equals(correctPreChunk) || chunkOver) {//未处理的组块被预测正确，进行统计
+		if(tempRefChunk.equals(correctPreChunk) && chunkOver) {//未处理的组块被预测正确，进行统计
 			if(correctTaggedChunkTagMap.containsKey(chunk))
 				correctTaggedChunkTagMap.put(chunk, correctTaggedChunkTagMap.get(chunk) + 1);
 			else

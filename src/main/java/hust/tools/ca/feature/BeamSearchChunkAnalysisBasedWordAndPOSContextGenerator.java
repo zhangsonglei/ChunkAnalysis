@@ -13,11 +13,11 @@ public interface BeamSearchChunkAnalysisBasedWordAndPOSContextGenerator<T> {
 	/**
 	 * 特征生成方法
 	 * @param index				当前位置
-	 * @param words 			词语数组
+	 * @param tokens 			词或字组
  	 * @param poses 			词性数组
 	 * @param chunkTags			组块标记数组
 	 * @param additionalContext	其他上下文信息
 	 * @return
 	 */
-	String[] getContext(int index, T[] words, T[] poses, String[] chunkTags, Object[] additionalContext);
+	String[] getContext(int index, T[] tokens, T[] poses, String[] chunkTags, Object[] additionalContext);
 }

@@ -8,7 +8,7 @@ import java.util.Properties;
 
 /**
  *<ul>
- *<li>Description: 特征生成类 
+ *<li>Description: 基于词的组块分析模型特征生成类
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日

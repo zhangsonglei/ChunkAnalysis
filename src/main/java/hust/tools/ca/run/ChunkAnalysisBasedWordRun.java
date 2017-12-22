@@ -8,18 +8,21 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEOS;
 import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordCrossValidation;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisErrorPrinter;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
+import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEOS;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
@@ -32,7 +35,7 @@ import opennlp.tools.util.TrainingParameters;
 
 /**
  *<ul>
- *<li>Description: 组块分析应用程序 
+ *<li>Description: 基于词的组块分析运行类
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月3日
@@ -91,6 +94,11 @@ public class ChunkAnalysisBasedWordRun {
 		String label = args[1];
 		
 		switch (label) {
+		case "BIEOS":
+			measure = new ChunkAnalysisMeasureWithBIEOS();
+			parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+			validator = new ChunkAnalysisSequenceValidatorWithBIEOS();
+			break;
 		case "BIEO":
 			measure = new ChunkAnalysisMeasureWithBIEO();
 			parse = new ChunkAnalysisBasedWordParseWithBIEO();
@@ -148,7 +156,7 @@ public class ChunkAnalysisBasedWordRun {
 
         ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation(params);
         ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
-        ChunkAnalysisBasedWordContextGenerator contextGen = getWordContextGenerator(config);
+        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf(config);
         System.out.println(contextGen);
         crossValidator.evaluate(sampleStream, 10, contextGen, measure, validator);
 	}
@@ -182,7 +190,7 @@ public class ChunkAnalysisBasedWordRun {
         config.load(configStream);
         Corpus[] corpora = getCorporaFromConf(config);//获取语料
 
-        ChunkAnalysisBasedWordContextGenerator contextGen = getWordContextGenerator(config);
+        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf(config);
         runFeatureOnCorporaByFlag(contextGen, corpora, params);
 	}
 
@@ -210,23 +218,6 @@ public class ChunkAnalysisBasedWordRun {
 		}
 	}
 
-	/**
-	 * 得到用于运行的特征类
-	 * @param config
-	 * @return
-	 */
-	private static ChunkAnalysisBasedWordContextGenerator getWordContextGenerator(Properties config) {
-		String featureClass = config.getProperty("feature.class");
-		if(featureClass.equals("hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGenratorConf") ||
-				featureClass.equals("hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenratorConf") ||
-				featureClass.equals("hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenratorConf")){
-			//初始化需要哪些特征
-        	return  new ChunkAnalysisBasedWordContextGeneratorConf(config);
-		}else{
-			return null;
-		} 
-	}
-	
 	/**
 	 * 读取模型，评估模型
 	 * @param contextGen 上下文特征生成器

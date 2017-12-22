@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  *<ul>
- *<li>Description: 词典类 
+ *<li>Description: 词/字典类 
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月8日
@@ -29,33 +29,33 @@ public class Dictionary {
 	 * 构造方法
 	 * @param words	待添加的词集合
 	 */
-	public Dictionary(Collection<String> words) {
+	public Dictionary(Collection<String> tokens) {
 		this();
-		dict.addAll(words);
+		dict.addAll(tokens);
 	}
 
 	/**
 	 * 构造方法
-	 * @param words	待添加的词数组
+	 * @param tokens	待添加的词或字数组
 	 */
-	public Dictionary(String[] words) {
-		this(Arrays.asList(words));
+	public Dictionary(String[] tokens) {
+		this(Arrays.asList(tokens));
 	}
 	
 	/**
 	 * 构造方法
-	 * @param words	待添加的词列表
+	 * @param tokens	待添加的词或字列表
 	 */
-	public Dictionary(List<String> words) {
+	public Dictionary(List<String> tokens) {
 		this();
 		
-		for(String word : words)
-			add(word);
+		for(String token : tokens)
+			add(token);
 	}
 	
 	/**
-	 * 返回词典的大小
-	 * @return	词典大小
+	 * 返回词或字典的大小
+	 * @return	词或字典的大小
 	 */
 	public int size() {
 		return dict.size();
@@ -63,23 +63,23 @@ public class Dictionary {
 	
 	/**
 	 * 向词典中添加元素，添加成功返回true，否则返回false
-	 * @param words
+	 * @param token
 	 * @return
 	 */
-	public boolean add(String word) {
-		if(!contains(word)) {
-			dict.add(word);
-			if(contains(word))
+	public boolean add(String token) {
+		if(!contains(token)) {
+			dict.add(token);
+			if(contains(token))
 				return true;
 		}
 		
 		return false;
 	}
 	
-	public boolean remove(String word) {
-		if(contains(word)) {
-			dict.remove(word);
-			if(!contains(word))
+	public boolean remove(String token) {
+		if(contains(token)) {
+			dict.remove(token);
+			if(!contains(token))
 				return true;
 		}
 		
@@ -88,11 +88,11 @@ public class Dictionary {
 	
 	/**
 	 * 查询词典是否包含给定词
-	 * @param word	待查询的词
+	 * @param token	待查询的词或字
 	 * @return		true-存在/false-不存在
 	 */
-	public boolean contains(String word) {
-		return dict.contains(word);
+	public boolean contains(String token) {
+		return dict.contains(token);
 	}
 	
 	/**
