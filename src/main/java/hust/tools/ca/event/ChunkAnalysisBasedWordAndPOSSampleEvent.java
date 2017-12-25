@@ -43,7 +43,7 @@ public class ChunkAnalysisBasedWordAndPOSSampleEvent extends AbstractEventStream
 		String[] poses = wordAndPOSSample.getPoses();
 		String[] chunkTags = wordAndPOSSample.getTags();
 		String[][] aditionalContext = wordAndPOSSample.getAditionalContext();
-		List<Event> events = generateEvents(words,poses, chunkTags, aditionalContext);
+		List<Event> events = generateEvents(words, poses, chunkTags, aditionalContext);
         return events.iterator();
 	}
 

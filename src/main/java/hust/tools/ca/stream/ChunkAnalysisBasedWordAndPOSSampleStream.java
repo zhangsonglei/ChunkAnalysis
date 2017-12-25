@@ -1,18 +1,12 @@
 package hust.tools.ca.stream;
 
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
-import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
 import opennlp.tools.util.FilterObjectStream;
 import opennlp.tools.util.ObjectStream;
 
@@ -24,7 +18,6 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-@SuppressWarnings("unused")
 public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSSampleStream.class.getName());
@@ -61,8 +54,6 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	                
 					sample = new ChunkAnalysisBasedWordAndPOSSample(new String[]{},new String[]{},new String[]{});
 				}
-//				writer.write(sample.toString());
-//				writer.newLine();
 				return sample;
 			}else 
 				return new ChunkAnalysisBasedWordAndPOSSample(new String[]{},new String[]{},new String[]{});
@@ -72,7 +63,6 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	
 	public void close() throws IOException {
 		samples.close();
-//		writer.close();
 	}
 	
 	public void reset() throws IOException, UnsupportedOperationException {

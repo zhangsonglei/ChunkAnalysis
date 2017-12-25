@@ -52,13 +52,8 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	private SequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
     
-    
     public ChunkAnalysisBasedWordME() {
     	
-    }
-    
-    public ChunkAnalysisBasedWordME(SequenceValidator<String> sequenceValidator) {
-    	this.sequenceValidator = sequenceValidator;
     }
 	
     /**
@@ -205,7 +200,7 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	 * @param encoding 编码方式
 	 * @return
 	 */
-	public static ChunkAnalysisBasedWordModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
+	public ChunkAnalysisBasedWordModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
 			String encoding) {
 		PlainTextGISModelReader modelReader = null;
 		AbstractModel abModel = null;

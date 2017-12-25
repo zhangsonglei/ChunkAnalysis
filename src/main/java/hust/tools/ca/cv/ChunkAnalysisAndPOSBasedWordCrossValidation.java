@@ -47,8 +47,7 @@ public class ChunkAnalysisAndPOSBasedWordCrossValidation {
 	 * @param measure			组块分析评价器
 	 * @throws IOException
 	 */
-	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisBasedWordContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, SequenceValidator<String> sequenceValidator) throws IOException{
+	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds, ChunkAnalysisBasedWordContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, SequenceValidator<String> sequenceValidator) throws IOException{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;
@@ -57,9 +56,9 @@ public class ChunkAnalysisAndPOSBasedWordCrossValidation {
 			System.out.println("Run"+run+"...");
 			
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner.next();
-			ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(); 
-			ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
 			
+			ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
+			ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
 			ChunkAnalysisAndPOSBasedWordEvaluator evaluator = new ChunkAnalysisAndPOSBasedWordEvaluator(new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGenerator), measure);
 			evaluator.setMeasure(measure);
 

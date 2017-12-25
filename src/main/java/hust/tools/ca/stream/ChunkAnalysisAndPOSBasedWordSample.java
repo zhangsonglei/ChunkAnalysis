@@ -1,7 +1,10 @@
 package hust.tools.ca.stream;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import hust.tools.ca.model.Chunk;
 
 /**
  *<ul>
@@ -50,58 +53,63 @@ public class ChunkAnalysisAndPOSBasedWordSample extends AbstractChunkAnalysisSam
     public ChunkAnalysisAndPOSBasedWordSample(List<String> words, List<String> tags, String[][] additionalContext){
     	super(words, tags, additionalContext);
 	}
+
+	@Override
+	public Chunk[] toChunk() {
+		return null;
+	}
 	
-//	@Override
-//	public String toString() {
-//		String res = "";
-//		List<String> words = new ArrayList<>();
-//		String chunk = null;
-//		for(int i = 0; i < tokens.size(); i++) {
-//			String pos = tags.get(i).split("-")[0];
-//			String chunkTag = tags.get(i).split("-")[1];
-//					
-//			if(chunkTag.equals("O")) {
-//				if(words.size() != 0) {
-//					res += "[";
-//					for(String word : words)
-//						res +=  word + "  ";
-//					
-//					res += res.trim() + "]" + chunk + "  ";
-//					
-//					words = new ArrayList<>();
-//					chunk = null;
-//				}
-//				
-//				res += tokens.get(i) + "  ";
-//			}else {
-//				if(chunkTag.split("_")[1].equals("B")) {
-//					if(words.size() != 0) {
-//						res += "[";
-//						for(String wordTag : words)
-//							res += wordTag + "  ";
-//						
-//						res += res.trim() + "]" + chunk + "  ";
-//						
-//						words = new ArrayList<>();
-//						chunk = null;
-//					}
-//					
-//					words.add(tokens.get(i));
-//					chunk =  chunkTag.split("_")[0];
-//				}else
-//					words.add(tokens.get(i) + "/" + pos);				
-//			}
-//		}
-//		
-//		if(words.size() != 0) {
-//			res += "[";
-//			for(String word : words)
-//				res +=  word + "  ";
-//			
-//			res += res.trim() + "]" + chunk + "  ";
-//		}
-//		
-//		return res.trim();
-//	}
+	@Override
+	public String toString() {
+		String res = "";
+		List<String> words = new ArrayList<>();
+		String chunk = null;
+		for(int i = 0; i < tokens.size(); i++) {
+			String pos = tags.get(i).split("-")[0];
+			String chunkTag = tags.get(i).split("-")[1];
+					
+			if(chunkTag.equals("O")) {
+				if(words.size() != 0) {
+					res += "[";
+					for(String word : words)
+						res +=  word + "  ";
+					
+					res += res.trim() + "]" + chunk + "  ";
+					
+					words = new ArrayList<>();
+					chunk = null;
+				}
+				
+				res += tokens.get(i) + "  ";
+			}else {
+				if(chunkTag.split("_")[1].equals("B")) {
+					if(words.size() != 0) {
+						res += "[";
+						for(String wordTag : words)
+							res += wordTag + "  ";
+						
+						res += res.trim() + "]" + chunk + "  ";
+						
+						words = new ArrayList<>();
+						chunk = null;
+					}
+					
+					words.add(tokens.get(i));
+					chunk =  chunkTag.split("_")[0];
+				}else
+					words.add(tokens.get(i) + "/" + pos);				
+			}
+		}
+		
+		if(words.size() != 0) {
+			res += "[";
+			for(String word : words)
+				res +=  word + "  ";
+			
+			res += res.trim() + "]" + chunk + "  ";
+		}
+		
+		return res.trim();
+	}
 }
 

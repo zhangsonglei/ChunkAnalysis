@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import hust.tools.ca.model.Chunk;
+
 /**
  *<ul>
  *<li>Description: 组块标注样本抽象类
@@ -106,6 +108,10 @@ public abstract class AbstractChunkAnalysisSample {
     	return additionalContext;
     }
 	
-//	@Override
-//	public abstract String toString();
+	public abstract Chunk[] toChunk();
+    
+    @Override
+	public abstract String toString();
+	
+	
 }

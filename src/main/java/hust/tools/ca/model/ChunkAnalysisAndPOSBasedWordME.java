@@ -51,13 +51,9 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	private Sequence bestSequence;
 	private SequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
-    
+
     public ChunkAnalysisAndPOSBasedWordME() {
     	
-    }
-    
-    public ChunkAnalysisAndPOSBasedWordME(SequenceValidator<String> sequenceValidator) {
-    	this.sequenceValidator = sequenceValidator;
     }
 	
     /**
@@ -205,7 +201,7 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	 * @param encoding 编码方式
 	 * @return
 	 */
-	public static ChunkAnalysisAndPOSBasedWordModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
+	public ChunkAnalysisAndPOSBasedWordModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
 			String encoding) {
 		PlainTextGISModelReader modelReader = null;
 		AbstractModel abModel = null;
@@ -295,105 +291,105 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
     }
 
     @Override
-	public Chunk[] parse(String sentence) {
-    	List<Chunk> chunks = new ArrayList<>();
-		String[] words = sentence.split("//s+");
-		
-		String[] posChunks = tag(words);
-		
-		int start = 0;
-		int end = 0;
-		boolean isChunk = false;
-		String type = null;
-		
-		for(int i = 0; i < posChunks.length; i++) {
-			String chunkTag = posChunks[i].split("-")[1];
-			
-			if(chunkTag.equals("O")) {
-				if(isChunk) {
-					end = i - 1;
-					chunks.add(new Chunk(type, join(words, start, end), start, end));
-				}
-				isChunk = false;
-				
-				chunks.add(new Chunk(chunkTag, new String[]{words[i]}, i, i));
-			}else {
-				if(chunkTag.split("_").equals("B")) {
-					if(isChunk) {
-						end = i - 1;
-						chunks.add(new Chunk(type, join(words, start, end), start, end));
-					}
-					isChunk = false;
-					
-					start = i;
-					isChunk = true;
-					type = chunkTag.split("_")[0];
-				}
-			}
-		}
-		
-		if(isChunk) {
-			end = posChunks.length - 1;
-			chunks.add(new Chunk(type, join(words, start, end), start, end));
-		}
-		
-		return chunks.toArray(new Chunk[chunks.size()]);
-	}
+   	public Chunk[] parse(String sentence) {
+       	List<Chunk> chunks = new ArrayList<>();
+   		String[] words = sentence.split("//s+");
+   		
+   		String[] posChunks = tag(words);
+   		
+   		int start = 0;
+   		int end = 0;
+   		boolean isChunk = false;
+   		String type = null;
+   		
+   		for(int i = 0; i < posChunks.length; i++) {
+   			String chunkTag = posChunks[i].split("-")[1];
+   			
+   			if(chunkTag.equals("O")) {
+   				if(isChunk) {
+   					end = i - 1;
+   					chunks.add(new Chunk(type, join(words, start, end), start, end));
+   				}
+   				isChunk = false;
+   				
+   				chunks.add(new Chunk(chunkTag, new String[]{words[i]}, i, i));
+   			}else {
+   				if(chunkTag.split("_").equals("B")) {
+   					if(isChunk) {
+   						end = i - 1;
+   						chunks.add(new Chunk(type, join(words, start, end), start, end));
+   					}
+   					isChunk = false;
+   					
+   					start = i;
+   					isChunk = true;
+   					type = chunkTag.split("_")[0];
+   				}
+   			}
+   		}
+   		
+   		if(isChunk) {
+   			end = posChunks.length - 1;
+   			chunks.add(new Chunk(type, join(words, start, end), start, end));
+   		}
+   		
+   		return chunks.toArray(new Chunk[chunks.size()]);
+   	}
 
-	@Override
-	public Chunk[][] parse(String sentence, int k) {
-		List<Chunk[]> chunks = new ArrayList<>();
-		String[] words = sentence.split("//s+");
+   	@Override
+   	public Chunk[][] parse(String sentence, int k) {
+   		List<Chunk[]> chunks = new ArrayList<>();
+   		String[] words = sentence.split("//s+");
 
-		String[][] posChunks = tag(k, words);
-		
-		int start = 0;
-		int end = 0;
-		boolean isChunk = false;
-		String type = null;
-		
-		List<Chunk> temp = new ArrayList<>();
-		for(int i = 0; i < posChunks.length; i++) {
-			for(int j = 0; j < posChunks[i].length; j++) {	
-				String chunkTag = posChunks[i][j].split("-")[1];
-				
-				if(chunkTag.equals("O")) {
-					if(isChunk) {
-						end = i - 1;
-						temp.add(new Chunk(type, join(words, start, end), start, end));
-					}
-					isChunk = false;
-					
-					temp.add(new Chunk(chunkTag, new String[]{words[j]}, j, j));
-				}else {
-					if(chunkTag.split("_").equals("B")) {
-						if(isChunk) {
-							end = j - 1;
-							temp.add(new Chunk(type, join(words, start, end), start, end));
-						}
-						isChunk = false;
-						
-						start = j;
-						isChunk = true;
-						type = chunkTag.split("_")[0];
-					}
-				}
-			}
-			
-			if(isChunk) {
-				end = posChunks[i].length - 1;
-				temp.add(new Chunk(type, join(words, start, end), start, end));
-			}
-			
-			chunks.add(temp.toArray(new Chunk[temp.size()]));
-		}
-		
-		Chunk[][] result = new Chunk[chunks.size()][];
-		for(int i = 0; i < result.length; i++)
-			result[i] = chunks.get(i);
-		
-		return result;
-	}
+   		String[][] posChunks = tag(k, words);
+   		
+   		int start = 0;
+   		int end = 0;
+   		boolean isChunk = false;
+   		String type = null;
+   		
+   		List<Chunk> temp = new ArrayList<>();
+   		for(int i = 0; i < posChunks.length; i++) {
+   			for(int j = 0; j < posChunks[i].length; j++) {	
+   				String chunkTag = posChunks[i][j].split("-")[1];
+   				
+   				if(chunkTag.equals("O")) {
+   					if(isChunk) {
+   						end = i - 1;
+   						temp.add(new Chunk(type, join(words, start, end), start, end));
+   					}
+   					isChunk = false;
+   					
+   					temp.add(new Chunk(chunkTag, new String[]{words[j]}, j, j));
+   				}else {
+   					if(chunkTag.split("_").equals("B")) {
+   						if(isChunk) {
+   							end = j - 1;
+   							temp.add(new Chunk(type, join(words, start, end), start, end));
+   						}
+   						isChunk = false;
+   						
+   						start = j;
+   						isChunk = true;
+   						type = chunkTag.split("_")[0];
+   					}
+   				}
+   			}
+   			
+   			if(isChunk) {
+   				end = posChunks[i].length - 1;
+   				temp.add(new Chunk(type, join(words, start, end), start, end));
+   			}
+   			
+   			chunks.add(temp.toArray(new Chunk[temp.size()]));
+   		}
+   		
+   		Chunk[][] result = new Chunk[chunks.size()][];
+   		for(int i = 0; i < result.length; i++)
+   			result[i] = chunks.get(i);
+   		
+   		return result;
+   	}
 	
 	/**
 	 * 拼接字符串word/pos  word/pos  ...

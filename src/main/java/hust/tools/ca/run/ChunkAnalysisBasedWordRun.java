@@ -22,8 +22,8 @@ import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
@@ -50,7 +50,7 @@ public class ChunkAnalysisBasedWordRun {
 	private static AbstractChunkAnalysisParse parse;
 	
 	private static SequenceValidator<String> validator;
-	
+		
 	private static InputStream configStream;
 
 	public static class Corpus{
@@ -96,7 +96,7 @@ public class ChunkAnalysisBasedWordRun {
 		switch (label) {
 		case "BIEOS":
 			measure = new ChunkAnalysisMeasureWithBIEOS();
-			parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+			parse = new ChunkAnalysisBasedWordParseWithBIEOS();
 			validator = new ChunkAnalysisSequenceValidatorWithBIEOS();
 			break;
 		case "BIEO":
@@ -231,7 +231,8 @@ public class ChunkAnalysisBasedWordRun {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
-        ChunkAnalysisBasedWordModel model = ChunkAnalysisBasedWordME.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
+        ChunkAnalysisBasedWordModel model = me.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
         
         ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, validator, contextGen);
        

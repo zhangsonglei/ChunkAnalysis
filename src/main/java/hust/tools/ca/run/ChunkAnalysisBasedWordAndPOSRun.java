@@ -50,7 +50,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	private static AbstractChunkAnalysisParse parse;
 	
 	private static SequenceValidator<String> validator;
-	
+		
 	private static InputStream configStream;
 
 	public static class Corpus{
@@ -228,8 +228,8 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
-        ChunkAnalysisBasedWordAndPOSModel model = ChunkAnalysisBasedWordAndPOSME.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
-        
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
+        ChunkAnalysisBasedWordAndPOSModel model = me.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding); 
         ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, validator, contextGen);
        
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;
@@ -263,8 +263,8 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 			TrainingParameters params) {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
         //训练模型
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
         me.train(new File(corpus.trainFile), new File(corpus.modelbinaryFile), new File(corpus.modeltxtFile), params, contextGen, corpus.encoding, parse);
 		
 	}
@@ -280,8 +280,8 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	private static void trainOnCorpus(ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
         //训练模型
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
         me.train(new File(corpus.trainFile), params, contextGen, corpus.encoding, parse);
 	}
 }

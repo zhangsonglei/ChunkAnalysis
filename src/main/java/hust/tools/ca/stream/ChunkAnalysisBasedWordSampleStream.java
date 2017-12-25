@@ -1,20 +1,12 @@
 package hust.tools.ca.stream;
 
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
-import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
-import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
-import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
-import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import opennlp.tools.util.FilterObjectStream;
 import opennlp.tools.util.ObjectStream;
 
@@ -26,7 +18,6 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-@SuppressWarnings("unused")
 public class ChunkAnalysisBasedWordSampleStream extends FilterObjectStream<String, AbstractChunkAnalysisSample>{
 
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordSampleStream.class.getName());

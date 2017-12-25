@@ -19,10 +19,13 @@ import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
@@ -42,9 +45,9 @@ import opennlp.tools.util.TrainingParameters;
  *</ul>
  */
 public class ChunkAnalysisTrainerTool {
-	 	
+	
     private static void usage() {
-        System.out.println(ChunkAnalysisTrainerTool.class.getName() + " -data <corpusFile> -method <method> -label <label> -model <modelFile> -encoding <encoding> "
+        System.out.println(ChunkAnalysisTrainerTool.class.getName() + " -data <corpusFile> -type <type> -method <method> -label <label> -model <modelFile> -encoding <encoding> "
                 + " [-cutoff <num>] [-iters <num>]");
     }
 
@@ -56,7 +59,9 @@ public class ChunkAnalysisTrainerTool {
 
         int cutoff = 3;
         int iters = 100;
-        
+       
+        //Maxent,Perceptron,MaxentQn,NaiveBayes
+        String type = "Maxent";
         String method = "wp";
         String label = "BIEO";
         File corpusFile = null;
@@ -66,6 +71,9 @@ public class ChunkAnalysisTrainerTool {
         for (int i = 0; i < args.length; i++) {
             if(args[i].equals("-data")) {
                 corpusFile = new File(args[i + 1]);
+                i++;
+            }else if(args[i].equals("-type")) {
+            	type = args[i + 1];
                 i++;
             }else if(args[i].equals("-method")) {
             	method = args[i + 1];
@@ -91,45 +99,50 @@ public class ChunkAnalysisTrainerTool {
         TrainingParameters params = TrainingParameters.defaultParams();
         params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
-
+        params.put(TrainingParameters.ALGORITHM_PARAM, type);
+        
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile), encoding);
         OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
         AbstractChunkAnalysisParse parse = null;
         
         if(method.equals("w")){
-        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
-        	
-        	if(label.equals("BIO")) 
-        		parse = new ChunkAnalysisBasedWordParseWithBIO();
-        	else
+        	if(label.equals("BIEOS"))
+        		parse = new ChunkAnalysisBasedWordParseWithBIEOS();
+        	else if(label.equals("BIEO"))
         		parse = new ChunkAnalysisBasedWordParseWithBIEO();
-    		
+        	else
+        		parse = new ChunkAnalysisBasedWordParseWithBIO();
+        	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
         	ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
+        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         	ChunkAnalysisBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
         	model.serialize(modelOut);
         }else if(method.equals("wp")) {
-        	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
-        	
-        	if(label.equals("BIO"))
-        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
-        	else
+        	if(label.equals("BIEOS"))
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+        	else if(label.equals("BIEO"))
         		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
+        	else 
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
         	
-        	ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
     		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
-            ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
+    		ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
+        	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
+
+    		ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
         }else if(method.equals("cp")){
-        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
-        	
-        	if(label.equals("BIO")) 
-        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
-        	else
+        	if(label.equals("BIEOS")) 
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEOS();
+        	else if(label.equals("BIEO"))
         		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEO();
+        	else 
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
         	ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
+        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         	ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
         }else{

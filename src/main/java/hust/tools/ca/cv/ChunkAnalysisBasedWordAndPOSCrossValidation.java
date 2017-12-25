@@ -46,8 +46,8 @@ public class ChunkAnalysisBasedWordAndPOSCrossValidation {
 	 * @param measure			组块分析评价器
 	 * @throws IOException
 	 */
-	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds,
-			ChunkAnalysisBasedWordAndPOSContextGenerator contextGenerator, AbstractChunkAnalysisMeasure measure, SequenceValidator<String> sequenceValidator) throws IOException{
+	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds, ChunkAnalysisBasedWordAndPOSContextGenerator contextGenerator, 
+			AbstractChunkAnalysisMeasure measure, SequenceValidator<String> sequenceValidator) throws IOException{
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;

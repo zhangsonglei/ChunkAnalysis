@@ -50,13 +50,8 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	private ChunkAnalysisSequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
     
-    
     public ChunkAnalysisBasedWordAndPOSME() {
 
-	}
-
-	public ChunkAnalysisBasedWordAndPOSME(SequenceValidator<String> sequenceValidator) {
-		this.sequenceValidator = sequenceValidator;
 	}
 
 	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
@@ -198,7 +193,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @param encoding 编码方式
 	 * @return
 	 */
-	public static ChunkAnalysisBasedWordAndPOSModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen,
+	public ChunkAnalysisBasedWordAndPOSModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen,
 			String encoding) {
 		PlainTextGISModelReader modelReader = null;
 		AbstractModel abModel = null;
@@ -293,7 +288,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
         		contextGenerator, sequenceValidator);
     }
 
-	@Override
+    @Override
 	public Chunk[] parse(String sentence) {
 		List<Chunk> chunks = new ArrayList<>();
 		String[] wordTags = sentence.split("//s+");

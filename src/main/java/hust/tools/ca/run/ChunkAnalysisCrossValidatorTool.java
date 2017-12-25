@@ -50,7 +50,7 @@ import opennlp.tools.util.TrainingParameters;
 public class ChunkAnalysisCrossValidatorTool {
 	    
     private static void usage() {
-        System.out.println(ChunkAnalysisCrossValidatorTool.class.getName() + " -data <corpusFile> -method <method> -label <label> -encoding <encoding> [-folds <nFolds>] [-cutoff <num>] [-iters <num>]");
+        System.out.println(ChunkAnalysisCrossValidatorTool.class.getName() + " -data <corpusFile> -type <type> -method <method> -label <label> -encoding <encoding> [-folds <nFolds>] [-cutoff <num>] [-iters <num>]");
     }
 
     public static void main(String[] args) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
@@ -62,7 +62,8 @@ public class ChunkAnalysisCrossValidatorTool {
         int cutoff = 3;
         int iters = 100;
         int folds = 10;
-        
+        //Maxent, Perceptron, MaxentQn, NaiveBayes
+        String type = "Maxent";
         String method = "wp";
         String label = "BIEO";
         File corpusFile = null;
@@ -70,6 +71,9 @@ public class ChunkAnalysisCrossValidatorTool {
         for(int i = 0; i < args.length; i++) {
             if (args[i].equals("-data")) {
                 corpusFile = new File(args[i + 1]);
+                i++;
+            }else if(args[i].equals("-type")) {
+            	type = args[i + 1];
                 i++;
             }else if(args[i].equals("-method")) {
             	method = args[i + 1];
@@ -95,25 +99,26 @@ public class ChunkAnalysisCrossValidatorTool {
         TrainingParameters params = TrainingParameters.defaultParams();
         params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
+        params.put(TrainingParameters.ALGORITHM_PARAM, type.toUpperCase());
         
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile), encoding);
         AbstractChunkAnalysisParse parse = null;
         AbstractChunkAnalysisMeasure measure = null;
         SequenceValidator<String> sequenceValidator = null;
         
-        if(method.equals("w")) {
-        	if(label.equals("BIO")) {
-        		parse = new ChunkAnalysisBasedWordParseWithBIO();
-        		measure = new ChunkAnalysisMeasureWithBIO();
-        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
-        	}else if(label.equals("BIEO")){
-        		parse = new ChunkAnalysisBasedWordParseWithBIEO();
-        		measure = new ChunkAnalysisMeasureWithBIEO();
-        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
-        	}else{
+        if(method.equals("w")) {        	
+        	if(label.equals("BIEOS")) {
         		parse = new ChunkAnalysisBasedWordParseWithBIEOS();
         		measure = new ChunkAnalysisMeasureWithBIEOS();
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
+        	}else if(label.equals("BIEO")) {
+        		parse = new ChunkAnalysisBasedWordParseWithBIEO();
+        		measure = new ChunkAnalysisMeasureWithBIEO();
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
+        	}else {
+        		parse = new ChunkAnalysisBasedWordParseWithBIO();
+        		measure = new ChunkAnalysisMeasureWithBIO();
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();	
         	}
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
@@ -121,19 +126,19 @@ public class ChunkAnalysisCrossValidatorTool {
         	ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation(params);
         	
         	crossValidator.evaluate(sampleStream, folds, contextGen, measure, sequenceValidator);
-        }else if(method.equals("wp")) {
-        	if(label.equals("BIO")) {
-        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
-        		measure = new ChunkAnalysisMeasureWithBIO();
-        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
+        }else if(method.equals("wp")) {        	
+        	if(label.equals("BIEOS")) {
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+        		measure = new ChunkAnalysisMeasureWithBIEOS();
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
         	}else if(label.equals("BIEO")) {
         		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
         		measure = new ChunkAnalysisMeasureWithBIEO();
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEO();
         	}else {
-        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
-        		measure = new ChunkAnalysisMeasureWithBIEOS();
-        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
+        		measure = new ChunkAnalysisMeasureWithBIO();
+        		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
         	}
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
@@ -141,19 +146,19 @@ public class ChunkAnalysisCrossValidatorTool {
         	ChunkAnalysisBasedWordAndPOSCrossValidation crossValidator = new ChunkAnalysisBasedWordAndPOSCrossValidation(params);
         	
         	crossValidator.evaluate(sampleStream, folds, contextGen, measure, sequenceValidator);
-        }else if(method.equals("cp")) {
-        	if(label.equals("BIO")) {
-        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
-        		measure = new ChunkAnalysisMeasureWithBIO();
-        		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIO();
+        }else if(method.equals("cp")) {        	
+        	if(label.equals("BIEOS")) {
+        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+        		measure = new ChunkAnalysisMeasureWithBIEOS();
+        		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEOS();
         	}else if(label.equals("BIEO")) {
         		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
         		measure = new ChunkAnalysisMeasureWithBIEO();
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEO();
         	}else {
-        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
-        		measure = new ChunkAnalysisMeasureWithBIEOS();
-        		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEOS();
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
+        		measure = new ChunkAnalysisMeasureWithBIO();
+        		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIO();
         	}
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);

@@ -50,7 +50,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 	private static AbstractChunkAnalysisParse parse;
 	
 	private static SequenceValidator<String> validator;
-	
+		
 	private static InputStream configStream;
 
 	public static class Corpus{
@@ -231,7 +231,8 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
-        ChunkAnalysisAndPOSBasedWordModel model = ChunkAnalysisAndPOSBasedWordME.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
+        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
+        ChunkAnalysisAndPOSBasedWordModel model = me.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
         
         ChunkAnalysisAndPOSBasedWordME tagger = new ChunkAnalysisAndPOSBasedWordME(model, validator, contextGen);
        
