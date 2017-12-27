@@ -27,7 +27,12 @@ public class ChunkAnalysisAndPOSBasedWordParseWithBIO extends AbstractChunkAnaly
 	 * 构造方法
 	 */
 	public ChunkAnalysisAndPOSBasedWordParseWithBIO() {
-		
+		super();
+	}
+	
+	@Override
+	protected void setLabel() {
+		this.label = "BIO";
 	}
 	
 	public AbstractChunkAnalysisSample parse(String sentence) {
@@ -78,7 +83,10 @@ public class ChunkAnalysisAndPOSBasedWordParseWithBIO extends AbstractChunkAnaly
 		if(wordsInChunk.size() != 0 && chunk != null) 
 			processChunk(wordsInChunk, posesInChunk, chunk);
 		
-		return new ChunkAnalysisAndPOSBasedWordSample(words, posChunkTags);
+		ChunkAnalysisAndPOSBasedWordSample sample = new ChunkAnalysisAndPOSBasedWordSample(words, posChunkTags);
+		sample.setLabel(label);
+		
+		return sample;
 	}
 	
 	/**

@@ -53,6 +53,8 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 		
 	private static InputStream configStream;
 
+	private static String label;
+	
 	public static class Corpus{
 		public String name;
 		public String encoding;
@@ -90,7 +92,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 	
 	public static void main(String[] args) throws IOException {
 		String cmd = args[0];
-		String label = args[1];
+		label = args[1];
 		
 		switch (label) {
 		case "BIEOS":
@@ -228,9 +230,9 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
         ChunkAnalysisBasedWordAndPOSModel model = me.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding); 
-        ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, validator, contextGen);
+        ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, validator, contextGen, label);
        
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;
         ChunkAnalysisErrorPrinter printer = null;
@@ -264,7 +266,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
         //训练模型
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
         me.train(new File(corpus.trainFile), new File(corpus.modelbinaryFile), new File(corpus.modeltxtFile), params, contextGen, corpus.encoding, parse);
 		
 	}
@@ -281,7 +283,7 @@ public class ChunkAnalysisBasedWordAndPOSRun {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
         //训练模型
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
         me.train(new File(corpus.trainFile), params, contextGen, corpus.encoding, parse);
 	}
 }

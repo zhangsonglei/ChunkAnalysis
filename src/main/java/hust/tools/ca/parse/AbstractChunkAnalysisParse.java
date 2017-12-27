@@ -11,6 +11,18 @@ import hust.tools.ca.stream.AbstractChunkAnalysisSample;
  *</ul>
  */
 public abstract class AbstractChunkAnalysisParse {
+	
+	public String label;
+	
+	public AbstractChunkAnalysisParse() {
+		setLabel();
+	}
+	
+	public String getLabel() {
+		return label;
+	}
+	
+	protected abstract void setLabel();
 
 	/**
 	 * 返回由字符串句子解析而成的样本

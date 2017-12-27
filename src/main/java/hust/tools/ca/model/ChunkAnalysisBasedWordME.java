@@ -17,6 +17,7 @@ import hust.tools.ca.event.ChunkAnalysisBasedWordSampleEvent;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.ml.BeamSearch;
 import opennlp.tools.ml.EventTrainer;
@@ -51,8 +52,10 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	private Sequence bestSequence;
 	private SequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
+    private String label;
     
-    public ChunkAnalysisBasedWordME() {
+    public ChunkAnalysisBasedWordME(String label) {
+    	this.label = label;
     	
     }
 	
@@ -61,8 +64,9 @@ public class ChunkAnalysisBasedWordME implements Chunker {
      * @param model			组块分析模型
      * @param contextGen	上下文生成器
      */
-	public ChunkAnalysisBasedWordME(ChunkAnalysisBasedWordModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordContextGenerator contextGen) {
+	public ChunkAnalysisBasedWordME(ChunkAnalysisBasedWordModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordContextGenerator contextGen, String label) {
 		this.sequenceValidator = sequenceValidator;
+		this.label = label;
 		init(model , contextGen);
 	}
 	
@@ -98,7 +102,7 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 	 * @throws FileNotFoundException 
 	 */
 	public ChunkAnalysisBasedWordModel train(File file, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
-			String encoding, AbstractChunkAnalysisParse parse){
+			String encoding, AbstractChunkAnalysisParse parse) {
 		ChunkAnalysisBasedWordModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
@@ -291,116 +295,30 @@ public class ChunkAnalysisBasedWordME implements Chunker {
 
     @Override
 	public Chunk[] parse(String sentence) {
-    	List<Chunk> chunks = new ArrayList<>();
 		String[] words = sentence.split("//s+");
-		
 		String[] chunkTypes = tag(words);
 		
+		AbstractChunkAnalysisSample sample = new ChunkAnalysisBasedWordSample(words, chunkTypes);
+		sample.setLabel(label);
 		
-		int start = 0;
-		int end = 0;
-		boolean isChunk = false;
-		String type = null;
-		
-		for(int i = 0; i < chunkTypes.length; i++) {			
-			if(chunkTypes[i].equals("O")) {
-				if(isChunk) {
-					end = i - 1;
-					chunks.add(new Chunk(type, join(words, start, end), start, end));
-				}
-				isChunk = false;
-				
-				chunks.add(new Chunk(chunkTypes[i], new String[]{words[i]}, i, i));
-			}else {
-				if(chunkTypes[i].split("_").equals("B")) {
-					if(isChunk) {
-						end = i - 1;
-						chunks.add(new Chunk(type, join(words, start, end), start, end));
-					}
-					isChunk = false;
-					
-					start = i;
-					isChunk = true;
-					type = chunkTypes[i].split("_")[0];
-				}
-			}
-		}
-		
-		if(isChunk) {
-			end = chunkTypes.length - 1;
-			chunks.add(new Chunk(type, join(words, start, end), start, end));
-		}
-		
-		return chunks.toArray(new Chunk[chunks.size()]);
+		return sample.toChunk();
 	}
 
 	@Override
 	public Chunk[][] parse(String sentence, int k) {
-		List<Chunk[]> chunks = new ArrayList<>();
 		String[] words = sentence.split("//s+");
-
+		
 		String[][] chunkTypes = tag(k, words);
-		
-		int start = 0;
-		int end = 0;
-		boolean isChunk = false;
-		String type = null;
-		
-		List<Chunk> temp = new ArrayList<>();
+		Chunk[][] chunks = new Chunk[chunkTypes.length][];
 		for(int i = 0; i < chunkTypes.length; i++) {
-			for(int j = 0; j < chunkTypes[i].length; j++) {			
-				if(chunkTypes[i][j].equals("O")) {
-					if(isChunk) {
-						end = i - 1;
-						temp.add(new Chunk(type, join(words, start, end), start, end));
-					}
-					isChunk = false;
-					
-					temp.add(new Chunk(chunkTypes[i][j], new String[]{words[j]}, j, j));
-				}else {
-					if(chunkTypes[i][j].split("_").equals("B")) {
-						if(isChunk) {
-							end = j - 1;
-							temp.add(new Chunk(type, join(words, start, end), start, end));
-						}
-						isChunk = false;
+			String[] chunkSequences = chunkTypes[i];
 						
-						start = j;
-						isChunk = true;
-						type = chunkTypes[i][j].split("_")[0];
-					}
-				}
-			}
-			
-			if(isChunk) {
-				end = chunkTypes[i].length - 1;
-				temp.add(new Chunk(type, join(words, start, end), start, end));
-			}
-			
-			chunks.add(temp.toArray(new Chunk[temp.size()]));
+			AbstractChunkAnalysisSample sample = new ChunkAnalysisBasedWordSample(words, chunkSequences);
+			sample.setLabel(label);
+			chunks[i] = sample.toChunk();
 		}
 		
-		Chunk[][] result = new Chunk[chunks.size()][];
-		for(int i = 0; i < result.length; i++)
-			result[i] = chunks.get(i);
-		
-		return result;
-	}
-	
-	/**
-	 * 拼接字符串word/pos  word/pos  ...
-	 * @param words	带拼接的词组
-	 * @param poses	词组对应的词性
-	 * @param start	拼接的开始位置
-	 * @param end	拼接的结束位置
-	 * @return		拼接后的字符串
-	 */
-	private List<String> join(String[] words, int start, int end) {
-		List<String> string = new ArrayList<>();
-		for(int i = start; i <= end; i++) 
-			string.add(words[i]);
-		
-		return string;
+		return chunks;
 	}
 }
 

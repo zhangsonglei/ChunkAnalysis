@@ -65,6 +65,8 @@ public class ChunkAnalysisEvalTool {
 	private static AbstractChunkAnalysisParse parse;
 	
 	private static SequenceValidator<String> sequenceValidator;
+	
+	private static String label;
 
 	/**
 	 * 依据黄金标准评价基于词和词性的标注效果, 各种评价指标结果会输出到控制台，错误的结果会输出到指定文件
@@ -82,12 +84,12 @@ public class ChunkAnalysisEvalTool {
         
         ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
         long start = System.currentTimeMillis();
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
+        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
         ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
         System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, sequenceValidator, contextGen);
+        ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;       
         
         if (errorFile != null) {
@@ -125,12 +127,12 @@ public class ChunkAnalysisEvalTool {
         
         ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         long start = System.currentTimeMillis();
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
         ChunkAnalysisBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
         System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGen);
+        ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisBasedWordEvaluator evaluator = null;       
         
         if (errorFile != null) {
@@ -168,12 +170,12 @@ public class ChunkAnalysisEvalTool {
         
         ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         long start = System.currentTimeMillis();
-        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
+        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
         ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
         System.out.println("训练时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisAndPOSBasedWordME tagger = new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGen);
+        ChunkAnalysisAndPOSBasedWordME tagger = new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisAndPOSBasedWordEvaluator evaluator = null;       
         
         if (errorFile != null) {
@@ -207,7 +209,7 @@ public class ChunkAnalysisEvalTool {
         
         //Maxent,Perceptron,MaxentQn,NaiveBayes
         String type = "Maxent";
-        String label = "BIEO";	
+        label = "BIEO";	
         String method = "wp";
         String modelFile = null;
         String goldFile = null;

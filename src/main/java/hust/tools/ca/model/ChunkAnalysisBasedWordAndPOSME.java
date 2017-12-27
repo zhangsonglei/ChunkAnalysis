@@ -17,6 +17,7 @@ import hust.tools.ca.event.ChunkAnalysisBasedWordAndPOSSampleEvent;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
@@ -49,13 +50,15 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	private Sequence bestSequence;
 	private ChunkAnalysisSequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
-    
-    public ChunkAnalysisBasedWordAndPOSME() {
+    private String label;
 
+    public ChunkAnalysisBasedWordAndPOSME(String label) {
+    	this.label = label;
 	}
 
-	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
+	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String label) {
 		this.sequenceValidator = sequenceValidator;
+		this.label = label;
 		init(model , contextGen);
 	}
 	
@@ -290,59 +293,25 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
     @Override
 	public Chunk[] parse(String sentence) {
-		List<Chunk> chunks = new ArrayList<>();
-		String[] wordTags = sentence.split("//s+");
-		List<String> words = new ArrayList<>();
-		List<String> poses = new ArrayList<>();
-		
-		for(String wordTag : wordTags) {
-			words.add(wordTag.split("/")[0]);
-			poses.add(wordTag.split("/")[1]);
-		}
-		
+    	String[] wordTags = sentence.split("//s+");
+    	List<String> words = new ArrayList<>();
+    	List<String> poses = new ArrayList<>();
+    	
+    	for(String wordTag : wordTags) {
+    		words.add(wordTag.split("/")[0]);
+    		poses.add(wordTag.split("/")[1]);
+    	}
+    	
 		String[] chunkTypes = tag(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
 		
+		AbstractChunkAnalysisSample sample = new ChunkAnalysisBasedWordAndPOSSample(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]), chunkTypes);
+		sample.setLabel(label);
 		
-		int start = 0;
-		int end = 0;
-		boolean isChunk = false;
-		String type = null;
-		
-		for(int i = 0; i < chunkTypes.length; i++) {			
-			if(chunkTypes[i].equals("O")) {
-				if(isChunk) {
-					end = i - 1;
-					chunks.add(new Chunk(type, join(words, poses, start, end), start, end));
-				}
-				isChunk = false;
-				
-				chunks.add(new Chunk(chunkTypes[i], new String[]{words.get(i) + "/" + poses.get(i)}, i, i));
-			}else {
-				if(chunkTypes[i].split("_").equals("B")) {
-					if(isChunk) {
-						end = i - 1;
-						chunks.add(new Chunk(type, join(words, poses, start, end), start, end));
-					}
-					isChunk = false;
-					
-					start = i;
-					isChunk = true;
-					type = chunkTypes[i].split("_")[0];
-				}
-			}
-		}
-		
-		if(isChunk) {
-			end = chunkTypes.length - 1;
-			chunks.add(new Chunk(type, join(words, poses, start, end), start, end));
-		}
-		
-		return chunks.toArray(new Chunk[chunks.size()]);
+		return sample.toChunk();
 	}
 
 	@Override
 	public Chunk[][] parse(String sentence, int k) {
-		List<Chunk[]> chunks = new ArrayList<>();
 		String[] wordTags = sentence.split("//s+");
 		List<String> words = new ArrayList<>();
 		List<String> poses = new ArrayList<>();
@@ -353,67 +322,16 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		}
 		
 		String[][] chunkTypes = tag(k, words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]));
-		
-		int start = 0;
-		int end = 0;
-		boolean isChunk = false;
-		String type = null;
-		
-		List<Chunk> temp = new ArrayList<>();
+		Chunk[][] chunks = new Chunk[chunkTypes.length][];
 		for(int i = 0; i < chunkTypes.length; i++) {
-			for(int j = 0; j < chunkTypes[i].length; j++) {			
-				if(chunkTypes[i][j].equals("O")) {
-					if(isChunk) {
-						end = i - 1;
-						temp.add(new Chunk(type, join(words, poses, start, end), start, end));
-					}
-					isChunk = false;
-					
-					temp.add(new Chunk(chunkTypes[i][j], new String[]{words.get(j) + "/" + poses.get(j)}, j, j));
-				}else {
-					if(chunkTypes[i][j].split("_").equals("B")) {
-						if(isChunk) {
-							end = j - 1;
-							temp.add(new Chunk(type, join(words, poses, start, end), start, end));
-						}
-						isChunk = false;
+			String[] chunkSequences = chunkTypes[i];
 						
-						start = j;
-						isChunk = true;
-						type = chunkTypes[i][j].split("_")[0];
-					}
-				}
-			}
-			
-			if(isChunk) {
-				end = chunkTypes[i].length - 1;
-				temp.add(new Chunk(type, join(words, poses, start, end), start, end));
-			}
-			
-			chunks.add(temp.toArray(new Chunk[temp.size()]));
+			AbstractChunkAnalysisSample sample = new ChunkAnalysisBasedWordAndPOSSample(words.toArray(new String[words.size()]), poses.toArray(new String[poses.size()]), chunkSequences);
+			sample.setLabel(label);
+			chunks[i] = sample.toChunk();
 		}
 		
-		Chunk[][] result = new Chunk[chunks.size()][];
-		for(int i = 0; i < result.length; i++)
-			result[i] = chunks.get(i);
-		
-		return result;
-	}
-	
-	/**
-	 * 拼接字符串word/pos  word/pos  ...
-	 * @param words	带拼接的词组
-	 * @param poses	词组对应的词性
-	 * @param start	拼接的开始位置
-	 * @param end	拼接的结束位置
-	 * @return		拼接后的字符串
-	 */
-	private List<String> join(List<String> words, List<String> poses, int start, int end) {
-		List<String> string = new ArrayList<>();
-		for(int i = start; i <= end; i++) 
-			string.add(words.get(i) + "/" + poses.get(i));
-		
-		return string;
+		return chunks;
 	}
 }
 

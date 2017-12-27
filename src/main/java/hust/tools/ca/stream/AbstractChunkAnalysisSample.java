@@ -15,7 +15,12 @@ import hust.tools.ca.model.Chunk;
  *</ul>
  */
 public abstract class AbstractChunkAnalysisSample {
-
+	
+	/**
+	 * 组块标记的位置标签类型，BIEOS/BIEO/BIO
+	 */
+	protected String label;
+	
 	/**
 	 * 词或字序列
 	 */
@@ -84,6 +89,14 @@ public abstract class AbstractChunkAnalysisSample {
         this.additionalContext = ac;
 	}
 	
+    public void setLabel(String label) {
+		this.label = label;
+	}
+    
+    public String getLabel() {
+		return label;
+	}
+    
 	/**
      * 返回样本词语数组
      * @return 样本词语数组
@@ -107,11 +120,47 @@ public abstract class AbstractChunkAnalysisSample {
     public String[][] getAditionalContext(){
     	return additionalContext;
     }
-	
-	public abstract Chunk[] toChunk();
     
+    /**
+     * 返回语句中的所有组块
+     * @return	组块
+     */
+	public abstract Chunk[] toChunk();
+	
     @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.deepHashCode(additionalContext);
+		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
+		result = prime * result + ((tokens == null) ? 0 : tokens.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractChunkAnalysisSample other = (AbstractChunkAnalysisSample) obj;
+		if (!Arrays.deepEquals(additionalContext, other.additionalContext))
+			return false;
+		if (tags == null) {
+			if (other.tags != null)
+				return false;
+		} else if (!tags.equals(other.tags))
+			return false;
+		if (tokens == null) {
+			if (other.tokens != null)
+				return false;
+		} else if (!tokens.equals(other.tokens))
+			return false;
+		return true;
+	}
+
+	@Override
 	public abstract String toString();
-	
-	
 }

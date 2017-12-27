@@ -53,6 +53,8 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 		
 	private static InputStream configStream;
 
+	private static String label;
+	
 	public static class Corpus{
 		public String name;
 		public String encoding;
@@ -91,7 +93,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 	
 	public static void main(String[] args) throws IOException {
 		String cmd = args[0];
-		String label = args[1];
+		label = args[1];
 		
 		switch (label) {
 		case "BIEOS":
@@ -231,10 +233,10 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
-        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
+        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
         ChunkAnalysisAndPOSBasedWordModel model = me.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
         
-        ChunkAnalysisAndPOSBasedWordME tagger = new ChunkAnalysisAndPOSBasedWordME(model, validator, contextGen);
+        ChunkAnalysisAndPOSBasedWordME tagger = new ChunkAnalysisAndPOSBasedWordME(model, validator, contextGen, label);
        
         ChunkAnalysisAndPOSBasedWordEvaluator evaluator = null;
         ChunkAnalysisErrorPrinter printer = null;
@@ -267,7 +269,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 			TrainingParameters params) {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
+        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
         //训练模型
         me.train(new File(corpus.trainFile), new File(corpus.modelbinaryFile), new File(corpus.modeltxtFile), params, contextGen, corpus.encoding, parse);
 		
@@ -284,7 +286,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 	private static void trainOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
+        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
         //训练模型
         me.train(new File(corpus.trainFile), params, contextGen, corpus.encoding, parse);
 	}

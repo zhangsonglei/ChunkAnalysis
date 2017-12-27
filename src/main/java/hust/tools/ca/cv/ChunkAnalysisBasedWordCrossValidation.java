@@ -8,6 +8,7 @@ import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
+import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.SequenceValidator;
 import opennlp.tools.util.TrainingParameters;
@@ -47,6 +48,8 @@ public class ChunkAnalysisBasedWordCrossValidation {
 	 */
 	public void evaluate(ObjectStream<AbstractChunkAnalysisSample> sampleStream, int nFolds, ChunkAnalysisBasedWordContextGenerator contextGenerator, 
 			AbstractChunkAnalysisMeasure measure, SequenceValidator<String> sequenceValidator) throws IOException{
+		
+		String label = ((ChunkAnalysisBasedWordSampleStream) sampleStream).getLabel();
 		CrossValidationPartitioner<AbstractChunkAnalysisSample> partitioner = new CrossValidationPartitioner<AbstractChunkAnalysisSample>(sampleStream, nFolds);
 		
 		int run = 1;
@@ -55,9 +58,9 @@ public class ChunkAnalysisBasedWordCrossValidation {
 			System.out.println("Run"+run+"...");
 			
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner.next();
-			ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
+			ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
 			ChunkAnalysisBasedWordModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
-			ChunkAnalysisBasedWordEvaluator evaluator = new ChunkAnalysisBasedWordEvaluator(new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGenerator), measure);
+			ChunkAnalysisBasedWordEvaluator evaluator = new ChunkAnalysisBasedWordEvaluator(new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGenerator, label), measure);
 			evaluator.setMeasure(measure);
 	        //设置测试集（在测试集上进行评价）
 	        evaluator.evaluate(trainingSampleStream.getTestSampleStream());

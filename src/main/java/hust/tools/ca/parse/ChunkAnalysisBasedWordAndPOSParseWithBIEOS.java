@@ -30,7 +30,12 @@ public class ChunkAnalysisBasedWordAndPOSParseWithBIEOS extends AbstractChunkAna
 	 * 构造方法
 	 */
 	public ChunkAnalysisBasedWordAndPOSParseWithBIEOS() {
-		
+		super();
+	}
+	
+	@Override
+	protected void setLabel() {
+		this.label = "BIEOS";
 	}
 	
 	public AbstractChunkAnalysisSample parse(String sentence){
@@ -85,7 +90,10 @@ public class ChunkAnalysisBasedWordAndPOSParseWithBIEOS extends AbstractChunkAna
 		if(wordTagsInChunk.size() != 0 && chunk != null) 
 			processChunk(wordTagsInChunk, chunk);
 		
-		return new ChunkAnalysisBasedWordAndPOSSample(words, poses, chunkTags);
+		ChunkAnalysisBasedWordAndPOSSample sample = new ChunkAnalysisBasedWordAndPOSSample(words, poses, chunkTags);
+		sample.setLabel(label);
+		
+		return sample;
 	}
 	
 	/**

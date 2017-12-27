@@ -80,7 +80,7 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 		
 		//将结果进行解析，用于评估
 		ChunkAnalysisAndPOSBasedWordSample prediction = new ChunkAnalysisAndPOSBasedWordSample(wordsRef, posChunksPre);
-
+		prediction.setLabel(sample.getLabel());
 		String[] chunksPre = new String[posChunksPre.length];
 		String[] chunksRef = new String[posChunksPre.length];
 		String[] posRef = new String[posChunksRef.length];

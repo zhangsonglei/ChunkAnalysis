@@ -23,6 +23,7 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	private static Logger logger = Logger.getLogger(ChunkAnalysisBasedWordAndPOSSampleStream.class.getName());
 	
 	private AbstractChunkAnalysisParse parse;
+	private String label;
 		
 	/**
 	 * 构造方法
@@ -36,6 +37,10 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 		this.parse = parse;
 	}
 
+	public String getLabel() {
+		return label;
+	}
+	
 	/**
 	 * 读取训练语料进行解析
 	 * @return 样本

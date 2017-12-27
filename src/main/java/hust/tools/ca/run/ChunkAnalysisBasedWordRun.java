@@ -53,6 +53,8 @@ public class ChunkAnalysisBasedWordRun {
 		
 	private static InputStream configStream;
 
+	private static String label;
+	
 	public static class Corpus{
 		public String name;
 		public String encoding;
@@ -91,7 +93,7 @@ public class ChunkAnalysisBasedWordRun {
 	
 	public static void main(String[] args) throws IOException {
 		String cmd = args[0];
-		String label = args[1];
+		label = args[1];
 		
 		switch (label) {
 		case "BIEOS":
@@ -231,10 +233,10 @@ public class ChunkAnalysisBasedWordRun {
 		System.out.println("ContextGenerator: " + contextGen);
 
         System.out.println("Reading on " + corpus.name + "...");
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
         ChunkAnalysisBasedWordModel model = me.readModel(new File(corpus.modeltxtFile), params, contextGen, corpus.encoding);     
         
-        ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, validator, contextGen);
+        ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, validator, contextGen, label);
        
         ChunkAnalysisBasedWordEvaluator evaluator = null;
         ChunkAnalysisErrorPrinter printer = null;
@@ -267,7 +269,7 @@ public class ChunkAnalysisBasedWordRun {
 			TrainingParameters params) {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
         //训练模型
         me.train(new File(corpus.trainFile), new File(corpus.modelbinaryFile), new File(corpus.modeltxtFile), params, contextGen, corpus.encoding, parse);
 		
@@ -284,7 +286,7 @@ public class ChunkAnalysisBasedWordRun {
 	private static void trainOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
+        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
         //训练模型
         me.train(new File(corpus.trainFile), params, contextGen, corpus.encoding, parse);
 	}
