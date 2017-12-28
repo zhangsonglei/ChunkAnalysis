@@ -31,10 +31,11 @@ public class ChunkAnalysisBasedWordAndPOSSampleStream extends FilterObjectStream
 	 * @throws FileNotFoundException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public ChunkAnalysisBasedWordAndPOSSampleStream(ObjectStream<String> samples, AbstractChunkAnalysisParse parse) throws FileNotFoundException, UnsupportedEncodingException {
+	public ChunkAnalysisBasedWordAndPOSSampleStream(ObjectStream<String> samples, AbstractChunkAnalysisParse parse, String label) throws FileNotFoundException, UnsupportedEncodingException {
 		super(samples);
 		
 		this.parse = parse;
+		this.label = label;
 	}
 
 	public String getLabel() {

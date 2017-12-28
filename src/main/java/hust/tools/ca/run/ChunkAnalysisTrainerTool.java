@@ -113,8 +113,8 @@ public class ChunkAnalysisTrainerTool {
         	else
         		parse = new ChunkAnalysisBasedWordParseWithBIO();
         	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
-        	ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse, label);
+        	ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
         	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         	ChunkAnalysisBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
         	model.serialize(modelOut);
@@ -126,8 +126,8 @@ public class ChunkAnalysisTrainerTool {
         	else 
         		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIO();
         	
-    		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
-    		ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
+    		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse, label);
+    		ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
         	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
 
     		ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
@@ -140,8 +140,8 @@ public class ChunkAnalysisTrainerTool {
         	else 
         		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIO();
         	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
-        	ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
+        	ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
         	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         	ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);

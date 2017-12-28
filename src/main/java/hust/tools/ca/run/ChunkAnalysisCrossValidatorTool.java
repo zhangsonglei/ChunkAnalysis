@@ -121,7 +121,7 @@ public class ChunkAnalysisCrossValidatorTool {
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();	
         	}
         	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse, label);
         	ChunkAnalysisBasedWordContextGenerator contextGen = new  ChunkAnalysisBasedWordContextGeneratorConf();
         	ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation(params);
         	
@@ -141,7 +141,7 @@ public class ChunkAnalysisCrossValidatorTool {
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
         	}
         	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse, label);
         	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new  ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
         	ChunkAnalysisBasedWordAndPOSCrossValidation crossValidator = new ChunkAnalysisBasedWordAndPOSCrossValidation(params);
         	
@@ -161,7 +161,7 @@ public class ChunkAnalysisCrossValidatorTool {
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIO();
         	}
         	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
         	ChunkAnalysisBasedWordContextGenerator contextGen = new  ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         	ChunkAnalysisAndPOSBasedWordCrossValidation crossValidator = new ChunkAnalysisAndPOSBasedWordCrossValidation(params);
 

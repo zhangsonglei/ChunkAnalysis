@@ -22,9 +22,6 @@ import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.ml.TrainerFactory.TrainerType;
-import opennlp.tools.ml.maxent.io.PlainTextGISModelReader;
-import opennlp.tools.ml.maxent.io.PlainTextGISModelWriter;
-import opennlp.tools.ml.model.AbstractModel;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
@@ -52,9 +49,9 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
     private SequenceValidator<String> sequenceValidator;
     private String label;
 
-    public ChunkAnalysisBasedWordAndPOSME(String label) {
-    	this.label = label;
-	}
+    public ChunkAnalysisBasedWordAndPOSME() {
+
+    }
 
 	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String label) {
 		this.sequenceValidator = sequenceValidator;
@@ -85,11 +82,11 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	
 	/**
 	 * 训练模型
-	 * @param file 训练文件
-	 * @param params 训练
-	 * @param contextGen 特征
-	 * @param encoding 编码
-	 * @return 模型和模型信息的包裹结果
+	 * @param file 			训练文件
+	 * @param params 		训练
+	 * @param contextGen	特征
+	 * @param encoding	 	编码
+	 * @return 				模型和模型信息的包裹结果
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
@@ -98,7 +95,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse, label);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -111,11 +108,11 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
 	/**
 	 * 训练模型
-	 * @param languageCode 编码
-	 * @param sampleStream 文件流
-	 * @param contextGen 特征
-	 * @param encoding 编码
-	 * @return 模型和模型信息的包裹结果
+	 * @param languageCode 	编码
+	 * @param sampleStream 	文件流
+	 * @param contextGen 	特征
+	 * @param encoding 		编码
+	 * @return 				模型和模型信息的包裹结果
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
@@ -148,29 +145,25 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
 	/**
 	 * 训练模型，并将模型写出
-	 * @param file 训练的文本
-	 * @param modelbinaryFile 二进制的模型文件
-	 * @param modeltxtFile 文本类型的模型文件
-	 * @param params 训练的参数配置
-	 * @param contextGen 上下文 产生器
-	 * @param encoding 编码方式
+	 * @param file 			训练的文本
+	 * @param modelFile 	模型文件
+	 * @param params 		训练的参数配置
+	 * @param contextGen 	上下文 产生器
+	 * @param encoding 		编码方式
 	 * @return
 	 */
-	public ChunkAnalysisBasedWordAndPOSModel train(File file, File modelbinaryFile, File modeltxtFile, TrainingParameters params,
+	public ChunkAnalysisBasedWordAndPOSModel train(File file, File modelbinaryFile, TrainingParameters params,
 			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
 		OutputStream modelOut = null;
-		PlainTextGISModelWriter modelWriter = null;
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse, label);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
             modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           
             model.serialize(modelOut);
-            //模型的写出，文本文件
-            modelWriter = new PlainTextGISModelWriter((AbstractModel) model.getChunkAnalysisModel(), modeltxtFile);
-            modelWriter.persist();
+            
             return model;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -190,41 +183,23 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
 	/**
 	 * 根据训练得到的模型文件得到
-	 * @param modelFile 模型文件
-	 * @param params 参数
-	 * @param contextGen 上下文生成器
-	 * @param encoding 编码方式
+	 * @param modelFile 	模型文件
 	 * @return
 	 */
-	public ChunkAnalysisBasedWordAndPOSModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen,
-			String encoding) {
-		PlainTextGISModelReader modelReader = null;
-		AbstractModel abModel = null;
+	public ChunkAnalysisBasedWordAndPOSModel readModel(File modelFile) {
 		ChunkAnalysisBasedWordAndPOSModel model = null;
-		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
-	      
-        int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
-        if (beamSizeString != null) {
-            beamSize = Integer.parseInt(beamSizeString);
-        }
-
+		
 		try {
-			Map<String, String> manifestInfoEntries = new HashMap<String, String>();
-			modelReader = new PlainTextGISModelReader(modelFile);			
-			abModel = modelReader.getModel();
-			model =  new ChunkAnalysisBasedWordAndPOSModel(encoding, abModel, beamSize,manifestInfoEntries);
-	
+			model =  new ChunkAnalysisBasedWordAndPOSModel(modelFile);
 			System.out.println("读取模型成功");
             return model;
-        } catch (UnsupportedOperationException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+        } catch (IOException e) {
 			e.printStackTrace();
 		} 
-		return null;
+		
+		return model;
 	}
+	
 	
 	/**
 	 * 返回给定词组和词性的组块类型

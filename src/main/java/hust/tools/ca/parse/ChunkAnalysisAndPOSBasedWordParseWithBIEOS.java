@@ -29,7 +29,7 @@ public class ChunkAnalysisAndPOSBasedWordParseWithBIEOS extends AbstractChunkAna
 	 * 构造方法
 	 */
 	public ChunkAnalysisAndPOSBasedWordParseWithBIEOS() {
-		super();
+
 	}
 	
 	@Override

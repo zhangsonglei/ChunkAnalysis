@@ -28,7 +28,7 @@ public class ChunkAnalysisBasedWordAndPOSParseWithBIO extends AbstractChunkAnaly
 	 * 构造方法
 	 */
 	public ChunkAnalysisBasedWordAndPOSParseWithBIO() {
-		super();
+
 	}
 	
 	@Override

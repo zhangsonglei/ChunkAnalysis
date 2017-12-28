@@ -70,25 +70,20 @@ public class ChunkAnalysisEvalTool {
 
 	/**
 	 * 依据黄金标准评价基于词和词性的标注效果, 各种评价指标结果会输出到控制台，错误的结果会输出到指定文件
-	 * @param trainFile		系模型文件
-	 * @param params		模型参数集
+	 * @param modelFile		模型文件
 	 * @param goldFile		黄标准文件
 	 * @param encoding		黄金标准文件编码
 	 * @param errorFile		错误输出文件
 	 * @throws IOException
 	 */
-    public static void evalChunkBasedWordAndPOS(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
-        System.out.println("训练模型...");  
-        ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse);
-        
-        ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
+    public static void evalChunkBasedWordAndPOS(File modelFile, File goldFile, String encoding, File errorFile) throws IOException {
+        System.out.println("读取模型...");  
         long start = System.currentTimeMillis();
-        ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME(label);
-        ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
-        System.out.println("训练时间： " + (System.currentTimeMillis() - start));
+        ChunkAnalysisBasedWordAndPOSModel model = new ChunkAnalysisBasedWordAndPOSModel(modelFile);
+        System.out.println("读取模型时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
+        ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
         ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;       
         
@@ -102,7 +97,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, parse);
+        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordAndPOSSampleStream(goldStream, parse, label);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -113,25 +108,20 @@ public class ChunkAnalysisEvalTool {
     
     /**
 	 * 依据黄金标准评价基于词的标注效果, 各种评价指标结果会输出到控制台，错误的结果会输出到指定文件
-	 * @param trainFile		系模型文件
-	 * @param params		模型参数集
+	 * @param modelFile		模型文件
 	 * @param goldFile		黄标准文件
 	 * @param encoding		黄金标准文件编码
 	 * @param errorFile		错误输出文件
 	 * @throws IOException
 	 */
-    public static void evalChunkBasedWord(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
-        System.out.println("训练模型...");  
-        ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse);
-        
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
+    public static void evalChunkBasedWord(File modelFile, File goldFile, String encoding, File errorFile) throws IOException {
+        System.out.println("读取模型...");          
         long start = System.currentTimeMillis();
-        ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
-        ChunkAnalysisBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
-        System.out.println("训练时间： " + (System.currentTimeMillis() - start));
+        ChunkAnalysisBasedWordModel model = new ChunkAnalysisBasedWordModel(modelFile);
+        System.out.println("读取模型时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
+        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisBasedWordEvaluator evaluator = null;       
         
@@ -145,7 +135,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordSampleStream(goldStream, parse);
+        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisBasedWordSampleStream(goldStream, parse, label);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -156,25 +146,20 @@ public class ChunkAnalysisEvalTool {
     
     /**
 	 * 依据黄金标准评价基于词的词性标注和组块分析效果, 各种评价指标结果会输出到控制台，错误的结果会输出到指定文件
-	 * @param trainFile		系模型文件
-	 * @param params		模型参数集
+	 * @param modelFile		模型文件
 	 * @param goldFile		黄标准文件
 	 * @param encoding		黄金标准文件编码
 	 * @param errorFile		错误输出文件
 	 * @throws IOException
 	 */
-    public static void evalChunkAndPOSBasedWord(File trainFile, TrainingParameters params, File goldFile, String encoding, File errorFile) throws IOException {
-        System.out.println("训练模型...");  
-        ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(trainFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
-        
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
+    public static void evalChunkAndPOSBasedWord(File modelFile, File goldFile, String encoding, File errorFile) throws IOException {
+        System.out.println("读取模型...");  
         long start = System.currentTimeMillis();
-        ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME(label);
-        ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
-        System.out.println("训练时间： " + (System.currentTimeMillis() - start));
+        ChunkAnalysisAndPOSBasedWordModel model = new ChunkAnalysisAndPOSBasedWordModel(modelFile);
+        System.out.println("读取模型练间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
+        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         ChunkAnalysisAndPOSBasedWordME tagger = new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisAndPOSBasedWordEvaluator evaluator = null;       
         
@@ -188,7 +173,7 @@ public class ChunkAnalysisEvalTool {
         evaluator.setMeasure(measure);
 
         ObjectStream<String> goldStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(goldFile), encoding);
-        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisAndPOSBasedWordSampleStream(goldStream, parse);
+        ObjectStream<AbstractChunkAnalysisSample> testStream = new ChunkAnalysisAndPOSBasedWordSampleStream(goldStream, parse, label);
 
         start = System.currentTimeMillis();
         evaluator.evaluate(testStream);
@@ -271,9 +256,9 @@ public class ChunkAnalysisEvalTool {
         	}
         	
         	if (errorFile != null)
-        		evalChunkBasedWord(new File(modelFile), params, new File(goldFile), encoding, new File(errorFile));
+        		evalChunkBasedWord(new File(modelFile), new File(goldFile), encoding, new File(errorFile));
         	else
-        		evalChunkBasedWord(new File(modelFile), params, new File(goldFile), encoding, null);
+        		evalChunkBasedWord(new File(modelFile), new File(goldFile), encoding, null);
         }else if(method.equals("wp")){        	
         	if(label.equals("BIEOS")) {
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIEOS();
@@ -290,9 +275,9 @@ public class ChunkAnalysisEvalTool {
         	}
         	
         	if (errorFile != null)
-        		evalChunkBasedWordAndPOS(new File(modelFile), params, new File(goldFile), encoding, new File(errorFile));
+        		evalChunkBasedWordAndPOS(new File(modelFile), new File(goldFile), encoding, new File(errorFile));
         	else
-        		evalChunkBasedWordAndPOS(new File(modelFile), params, new File(goldFile), encoding, null);
+        		evalChunkBasedWordAndPOS(new File(modelFile), new File(goldFile), encoding, null);
         }else if(method.equals("cp")) {
         	if(label.equals("BIEOS")) {
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEOS();
@@ -309,9 +294,9 @@ public class ChunkAnalysisEvalTool {
         	}
         	
         	if (errorFile != null)
-        		evalChunkAndPOSBasedWord(new File(modelFile), params, new File(goldFile), encoding, new File(errorFile));
+        		evalChunkAndPOSBasedWord(new File(modelFile), new File(goldFile), encoding, new File(errorFile));
         	else
-        		evalChunkAndPOSBasedWord(new File(modelFile), params, new File(goldFile), encoding, null);
+        		evalChunkAndPOSBasedWord(new File(modelFile), new File(goldFile), encoding, null);
         }else{
         	System.err.println("错误的模型方法：" + method);
         }

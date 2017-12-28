@@ -23,9 +23,6 @@ import opennlp.tools.ml.BeamSearch;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.ml.TrainerFactory.TrainerType;
-import opennlp.tools.ml.maxent.io.PlainTextGISModelReader;
-import opennlp.tools.ml.maxent.io.PlainTextGISModelWriter;
-import opennlp.tools.ml.model.AbstractModel;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.ml.model.SequenceClassificationModel;
@@ -54,8 +51,8 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
     private SequenceValidator<String> sequenceValidator;
     private String label;
 
-    public ChunkAnalysisAndPOSBasedWordME(String label) {
-    	this.label = label;
+    public ChunkAnalysisAndPOSBasedWordME() {
+
     }
 	
     /**
@@ -93,11 +90,11 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	
 	/**
 	 * 训练模型
-	 * @param file 训练文件
-	 * @param params 训练
-	 * @param contextGen 特征
-	 * @param encoding 编码
-	 * @return 模型和模型信息的包裹结果
+	 * @param file 			训练文件
+	 * @param params 		训练
+	 * @param contextGen	 特征
+	 * @param encoding 		编码
+	 * @return 				模型和模型信息的包裹结果
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
@@ -106,7 +103,7 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 		ChunkAnalysisAndPOSBasedWordModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
 			model = train("zh", sampleStream, params, contextGen);
 			return model;
 		} catch (FileNotFoundException e) {
@@ -119,11 +116,11 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 
 	/**
 	 * 训练模型
-	 * @param languageCode 编码
-	 * @param sampleStream 文件流
-	 * @param contextGen 特征
-	 * @param encoding 编码
-	 * @return 模型和模型信息的包裹结果
+	 * @param languageCode 	编码
+	 * @param sampleStream 	文件流
+	 * @param contextGen 	特征
+	 * @param encoding 		编码
+	 * @return 				模型和模型信息的包裹结果
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
@@ -156,29 +153,25 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 
 	/**
 	 * 训练模型，并将模型写出
-	 * @param file 训练的文本
-	 * @param modelbinaryFile 二进制的模型文件
-	 * @param modeltxtFile 文本类型的模型文件
-	 * @param params 训练的参数配置
-	 * @param contextGen 上下文 产生器
-	 * @param encoding 编码方式
+	 * @param file			训练语料
+	 * @param modelFile 	模型文件
+	 * @param params 		训练的参数配置
+	 * @param contextGen 	上下文 产生器
+	 * @param encoding 		编码方式
 	 * @return
 	 */
-	public ChunkAnalysisAndPOSBasedWordModel train(File file, File modelbinaryFile, File modeltxtFile, TrainingParameters params,
+	public ChunkAnalysisAndPOSBasedWordModel train(File file, File modelFile, TrainingParameters params,
 			ChunkAnalysisBasedWordContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
 		OutputStream modelOut = null;
-		PlainTextGISModelWriter modelWriter = null;
 		ChunkAnalysisAndPOSBasedWordModel model = null;
 		try {
 			ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(file), encoding);
-			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse);
+			ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
 			model = train("zh", sampleStream, params, contextGen);
 			 //模型的持久化，写出的为二进制文件
-            modelOut = new BufferedOutputStream(new FileOutputStream(modelbinaryFile));           
+            modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));           
             model.serialize(modelOut);
-            //模型的写出，文本文件
-            modelWriter = new PlainTextGISModelWriter((AbstractModel) model.getChunkAnalysisModel(), modeltxtFile);
-            modelWriter.persist();
+           
             return model;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -192,52 +185,35 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
                     e.printStackTrace();
                 }
             }
-        }	
+        }
+		
 		return null;
 	}
 
 	/**
-	 * 根据训练得到的模型文件得到
-	 * @param modelFile 模型文件
-	 * @param params 参数
-	 * @param contextGen 上下文生成器
-	 * @param encoding 编码方式
-	 * @return
+	 * 根据训练得到的模型文件得到模型
+	 * @param modelFile 	模型文件
+	 * @return				模型
 	 */
-	public ChunkAnalysisAndPOSBasedWordModel readModel(File modelFile, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
-			String encoding) {
-		PlainTextGISModelReader modelReader = null;
-		AbstractModel abModel = null;
+	public ChunkAnalysisAndPOSBasedWordModel readModel(File modelFile) {
 		ChunkAnalysisAndPOSBasedWordModel model = null;
-		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
-	      
-        int beamSize = ChunkAnalysisAndPOSBasedWordME.DEFAULT_BEAM_SIZE;
-        if (beamSizeString != null) 
-            beamSize = Integer.parseInt(beamSizeString);
-
+		
 		try {
-			Map<String, String> manifestInfoEntries = new HashMap<String, String>();
-			modelReader = new PlainTextGISModelReader(modelFile);			
-			abModel = modelReader.getModel();
-			model =  new ChunkAnalysisAndPOSBasedWordModel(encoding, abModel, beamSize,manifestInfoEntries);
-	
+			model = new ChunkAnalysisAndPOSBasedWordModel(modelFile);
 			System.out.println("读取模型成功");
-            return model;
-        } catch (UnsupportedOperationException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			return model;
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
-		return null;
+		}	
+		
+		return model;
 	}
 	
 	/**
 	 * 得到最好的numTaggings个标记序列
-	 * @param numTaggings 个数
-	 * @param words 一个个词语
-	 * @return 分词加词性标注的序列
+	 * @param numTaggings 	个数
+	 * @param words 		一个个词语
+	 * @return 				分词加词性标注的序列
 	 */
 	public String[][] tag(int numTaggings, String[] words) {
         Sequence[] bestSequences = model.bestSequences(numTaggings, words, null, contextGenerator, sequenceValidator);

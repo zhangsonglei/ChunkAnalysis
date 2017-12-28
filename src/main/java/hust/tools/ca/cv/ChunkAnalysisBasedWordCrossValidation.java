@@ -58,7 +58,7 @@ public class ChunkAnalysisBasedWordCrossValidation {
 			System.out.println("Run"+run+"...");
 			
 			CrossValidationPartitioner.TrainingSampleStream<AbstractChunkAnalysisSample> trainingSampleStream = partitioner.next();
-			ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME(label);
+			ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
 			ChunkAnalysisBasedWordModel model = me.train("zh", trainingSampleStream, params, contextGenerator);
 			ChunkAnalysisBasedWordEvaluator evaluator = new ChunkAnalysisBasedWordEvaluator(new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGenerator, label), measure);
 			evaluator.setMeasure(measure);

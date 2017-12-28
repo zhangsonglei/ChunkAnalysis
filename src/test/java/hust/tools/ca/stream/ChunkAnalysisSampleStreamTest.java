@@ -38,7 +38,7 @@ public class ChunkAnalysisSampleStreamTest {
 		File file = new File(this.getClass().getClassLoader().getResource("test/train.txt").getFile());
 		MarkableFileInputStreamFactory inputStreamFactory = new MarkableFileInputStreamFactory(file);
 		PlainTextByLineStream fileStream = new PlainTextByLineStream(inputStreamFactory, "utf8");
-		sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(fileStream, new ChunkAnalysisBasedWordAndPOSParseWithBIEO());
+		sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(fileStream, new ChunkAnalysisBasedWordAndPOSParseWithBIEO(), "BIEO");
 		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
 		
 		sampleList.add(parse.parse(sentence1));
