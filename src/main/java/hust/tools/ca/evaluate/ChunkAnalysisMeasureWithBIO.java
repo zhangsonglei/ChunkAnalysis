@@ -1,8 +1,8 @@
 package hust.tools.ca.evaluate;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import hust.tools.ca.utils.Dictionary;
 
 /**
  *<ul>
@@ -15,11 +15,17 @@ import hust.tools.ca.utils.Dictionary;
 public class ChunkAnalysisMeasureWithBIO extends AbstractChunkAnalysisMeasure {
 
 	public ChunkAnalysisMeasureWithBIO() {
-		this(new Dictionary());
+		this(new HashSet<>());
 	}
 	
-	public ChunkAnalysisMeasureWithBIO(Dictionary dict) {
+	public ChunkAnalysisMeasureWithBIO(HashSet<String> dict) {
 		super(dict);
+	}
+	
+
+	@Override
+	public void setDictionary(HashSet<String> dict) {
+		this.dict = dict;
 	}
 	
 	/**

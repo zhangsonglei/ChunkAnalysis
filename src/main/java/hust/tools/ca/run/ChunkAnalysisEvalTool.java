@@ -4,12 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEOS;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisAndPOSBasedWordEvaluator;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordAndPOSEvaluator;
@@ -20,9 +14,8 @@ import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEOS;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordModel;
@@ -44,6 +37,12 @@ import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIEOS;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIO;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -83,7 +82,7 @@ public class ChunkAnalysisEvalTool {
         System.out.println("读取模型时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
+        ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
         ChunkAnalysisBasedWordAndPOSME tagger = new ChunkAnalysisBasedWordAndPOSME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisBasedWordAndPOSEvaluator evaluator = null;       
         
@@ -121,7 +120,7 @@ public class ChunkAnalysisEvalTool {
         System.out.println("读取模型时间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
+        ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         ChunkAnalysisBasedWordME tagger = new ChunkAnalysisBasedWordME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisBasedWordEvaluator evaluator = null;       
         
@@ -159,7 +158,7 @@ public class ChunkAnalysisEvalTool {
         System.out.println("读取模型练间： " + (System.currentTimeMillis() - start));
 
         System.out.println("评价模型...");
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
+        ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         ChunkAnalysisAndPOSBasedWordME tagger = new ChunkAnalysisAndPOSBasedWordME(model, sequenceValidator, contextGen, label);
         ChunkAnalysisAndPOSBasedWordEvaluator evaluator = null;       
         

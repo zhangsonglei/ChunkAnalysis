@@ -1,11 +1,11 @@
 package hust.tools.ca.evaluate;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
-import hust.tools.ca.utils.Dictionary;
 
 /**
  *<ul>
@@ -20,7 +20,7 @@ public abstract class AbstractChunkAnalysisMeasure {
 	/**
 	 * 词典
 	 */
-	protected Dictionary dict;
+	protected HashSet<String> dict;
 	
 	/**
 	 * 预测结果中，每个组块标记的数量
@@ -58,15 +58,17 @@ public abstract class AbstractChunkAnalysisMeasure {
 	protected long correctTaggedOOVs;
 	
 	public AbstractChunkAnalysisMeasure() {
-		this(new Dictionary());
+		this(new HashSet<>());
 	}
 	
-	public AbstractChunkAnalysisMeasure(Dictionary dict) {
+	public AbstractChunkAnalysisMeasure(HashSet<String> dict) {
 		this.dict = dict;
 		referenceChunkTagMap = new HashMap<>();
 		predictChunkTagMap = new HashMap<>();
 		correctTaggedChunkTagMap = new HashMap<>();
 	}
+	
+	public abstract void setDictionary(HashSet<String> dict);
 	
 	/**
 	 * 动态统计预测样本与标准样本
@@ -232,6 +234,10 @@ public abstract class AbstractChunkAnalysisMeasure {
 			result += chunk + "\tP = " + getPrecision(chunk) + "\tR = " + getRecall(chunk) + "\tF = " + getF(chunk) + 
 					"\tRef = " + referenceChunkTagMap.get(chunk) + "\tPre = " + predictChunkTagMap.get(chunk) + "\tcorrect = " + correctTaggedChunkTagMap.get(chunk) + "\n";
 		}
+		
+		if(dict.size() != 0)
+			result += "OOV_A = " + getOOVAccuracy() + "\tOOVs = " + getOOVs() + "\tcorrect = " + getCorrectTaggedOOVs(); 
+		
 		return result;
 	}
 }

@@ -11,10 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
 import hust.tools.ca.event.ChunkAnalysisBasedWordSampleEvent;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSample;
@@ -44,7 +42,7 @@ import opennlp.tools.util.TrainingParameters;
 public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	
 	public static final int DEFAULT_BEAM_SIZE = 33;
-	private ChunkAnalysisBasedWordContextGenerator contextGenerator;
+	private ChunkAnalysisContextGenerator contextGenerator;
 	private int size;
 	private Sequence bestSequence;
 	private SequenceClassificationModel<String> model;
@@ -61,7 +59,7 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
      * @param contextGen	上下文生成器
      */
 	public ChunkAnalysisAndPOSBasedWordME(ChunkAnalysisAndPOSBasedWordModel model, SequenceValidator<String> sequenceValidator,
-			ChunkAnalysisBasedWordContextGenerator contextGen, String label) {
+			ChunkAnalysisContextGenerator contextGen, String label) {
 		this.sequenceValidator = sequenceValidator;
 		this.label = label;
 		init(model , contextGen);
@@ -72,9 +70,9 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
      * @param model 		组块分析模型
      * @param contextGen	上下文生成器
      */
-	private void init(ChunkAnalysisAndPOSBasedWordModel model, ChunkAnalysisBasedWordContextGenerator contextGen) {
+	private void init(ChunkAnalysisAndPOSBasedWordModel model, ChunkAnalysisContextGenerator contextGen) {
 		int beamSize = ChunkAnalysisAndPOSBasedWordME.DEFAULT_BEAM_SIZE;
-        String beamSizeString = model.getManifestProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
+        String beamSizeString = model.getManifestProperty(BeamSearch.BEAM_SIZE_PARAMETER);
 
         if (beamSizeString != null)
             beamSize = Integer.parseInt(beamSizeString);
@@ -98,7 +96,7 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public ChunkAnalysisAndPOSBasedWordModel train(File file, TrainingParameters params, ChunkAnalysisBasedWordContextGenerator contextGen,
+	public ChunkAnalysisAndPOSBasedWordModel train(File file, TrainingParameters params, ChunkAnalysisContextGenerator contextGen,
 			String encoding, AbstractChunkAnalysisParse parse){
 		ChunkAnalysisAndPOSBasedWordModel model = null;
 		try {
@@ -125,8 +123,8 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	 * @throws FileNotFoundException 
 	 */
 	public ChunkAnalysisAndPOSBasedWordModel train(String languageCode, ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
-			ChunkAnalysisBasedWordContextGenerator contextGen) throws IOException {
-		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
+			ChunkAnalysisContextGenerator contextGen) throws IOException {
+		String beamSizeString = params.getSettings().get(BeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisAndPOSBasedWordME.DEFAULT_BEAM_SIZE;
         if (beamSizeString != null) {
             beamSize = Integer.parseInt(beamSizeString);
@@ -135,7 +133,7 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
         Map<String, String> manifestInfoEntries = new HashMap<String, String>();
         //event_model_trainer
         TrainerType trainerType = TrainerFactory.getTrainerType(params.getSettings());
-        ChunkAnalysisSequenceClassificationModel<String> chunkClassificationModel = null;
+        SequenceClassificationModel<String> chunkClassificationModel = null;
         if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
         	//sampleStream为PhraseAnalysisSampleStream对象
             ObjectStream<Event> es = new ChunkAnalysisBasedWordSampleEvent(sampleStream, contextGen);
@@ -144,11 +142,10 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
             maxentModel = trainer.train(es);                       
         }
 
-        if (maxentModel != null) {
+        if (maxentModel != null) 
             return new ChunkAnalysisAndPOSBasedWordModel(languageCode, maxentModel, beamSize, manifestInfoEntries);
-        } else {
+        else
             return new ChunkAnalysisAndPOSBasedWordModel(languageCode, chunkClassificationModel, manifestInfoEntries);
-        }
 	}
 
 	/**
@@ -161,7 +158,7 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 	 * @return
 	 */
 	public ChunkAnalysisAndPOSBasedWordModel train(File file, File modelFile, TrainingParameters params,
-			ChunkAnalysisBasedWordContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
+			ChunkAnalysisContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
 		OutputStream modelOut = null;
 		ChunkAnalysisAndPOSBasedWordModel model = null;
 		try {

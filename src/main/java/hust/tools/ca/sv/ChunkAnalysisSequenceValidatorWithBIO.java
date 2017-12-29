@@ -1,4 +1,4 @@
-package hust.tools.ca.beamsearch;
+package hust.tools.ca.sv;
 
 import opennlp.tools.util.SequenceValidator;
 

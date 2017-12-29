@@ -14,7 +14,7 @@ import java.util.Properties;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordAndPOSContextGeneratorConf implements ChunkAnalysisBasedWordAndPOSContextGenerator {
+public class ChunkAnalysisBasedWordAndPOSContextGeneratorConf implements ChunkAnalysisContextGenerator {
 	
 	//原子特征模版
 	private boolean w_1Set;		//前一个词
@@ -241,19 +241,7 @@ public class ChunkAnalysisBasedWordAndPOSContextGeneratorConf implements ChunkAn
 	}
 
 	@Override
-	public String[] getContext(int index, String[] words, String[] poses, String[] chunkTags, Object[] additionalContext) {
-		return getContext(index, words, poses, chunkTags);
-	}
-
-	/**
-	 * 特征生成方法
-	 * @param index 	当前位置
-	 * @param words 	词语序列
- 	 * @param poses 	词性标记
-	 * @param chunkTags	组块标记序列
-	 * @return
-	 */
-	private String[] getContext(int index, String[] words, String[] poses, String[] chunkTags) {
+	public String[] getContext(int index, String[] words, String[] chunkTags, Object[] poses) {		
 		String w_2, w_1, w0, w1, w2, p_2, p_1, p0, p1, p2, c_2, c_1, pf0, af0;
 		w_2 = w_1 = w0 = w1 = w2 = p_2 = p_1 = p0 = p1 = p2 = c_2 = c_1 = pf0 = af0 = null;
 		
@@ -265,26 +253,26 @@ public class ChunkAnalysisBasedWordAndPOSContextGeneratorConf implements ChunkAn
         	af0 = w0.substring(w0.length() - 2, w0.length());       	
         }else
         	pf0 = af0 = w0;
-        	p0 = poses[index];
+        	p0 = (String) poses[index];
         
         if (words.length > index + 1) {
             w1 = words[index + 1];
-            p1 = poses[index + 1];
+            p1 = (String) poses[index + 1];
             
             if (words.length > index + 2) {
                 w2 = words[index + 2];
-                p2 = poses[index + 2];
+                p2 = (String) poses[index + 2];
             }
         }
 
         if (index - 1 >= 0) {
             w_1 = words[index - 1];
-            p_1 = poses[index - 1];
+            p_1 = (String) poses[index - 1];
             c_1 = chunkTags[index - 1];
             
             if (index - 2 >= 0) {
                 w_2 = words[index - 2];
-                p_2 = poses[index - 2];
+                p_2 = (String) poses[index - 2];
                 c_2 = chunkTags[index - 2];
             }
         }

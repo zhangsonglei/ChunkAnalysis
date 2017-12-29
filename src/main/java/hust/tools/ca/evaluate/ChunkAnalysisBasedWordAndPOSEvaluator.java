@@ -66,11 +66,14 @@ public class ChunkAnalysisBasedWordAndPOSEvaluator extends Evaluator<AbstractChu
 		ChunkAnalysisBasedWordAndPOSSample wordAndPOSSample = (ChunkAnalysisBasedWordAndPOSSample) sample;
 		
 		String[] wordsRef = wordAndPOSSample.getTokens();
-		String[] posesRef = wordAndPOSSample.getPoses();
 		String[] chunkTagsRef = wordAndPOSSample.getTags();
-		String[][] acRef = wordAndPOSSample.getAditionalContext();
 		
-		String[] chunkTagsPre = chunkTagger.tag(wordsRef, posesRef, acRef);
+		Object[] objectPosesRef = wordAndPOSSample.getAditionalContext();
+		String[] posesRef = new String[objectPosesRef.length];
+		for(int i = 0; i < posesRef.length; i++)
+			posesRef[i] = (String) objectPosesRef[i];
+
+		String[] chunkTagsPre = chunkTagger.tag(wordsRef, posesRef);
 		
 		//将结果进行解析，用于评估
 		ChunkAnalysisBasedWordAndPOSSample prediction = new ChunkAnalysisBasedWordAndPOSSample(wordsRef, posesRef, chunkTagsPre);

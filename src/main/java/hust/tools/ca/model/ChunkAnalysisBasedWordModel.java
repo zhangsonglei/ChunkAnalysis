@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
 import opennlp.tools.ml.BeamSearch;
 import opennlp.tools.ml.model.MaxentModel;
 import opennlp.tools.ml.model.SequenceClassificationModel;
@@ -61,7 +59,7 @@ public class ChunkAnalysisBasedWordModel extends BaseModel {
             throw new IllegalArgumentException("最大熵模型不能为空!");
 
         Properties manifest = (Properties) artifactMap.get(MANIFEST_ENTRY);
-        manifest.setProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER, Integer.toString(beamSize));
+        manifest.setProperty(BeamSearch.BEAM_SIZE_PARAMETER, Integer.toString(beamSize));
 
         //放入新训练出来的模型
         artifactMap.put(CHUNK_MODEL_ENTRY_NAME, maxentModel);
@@ -74,7 +72,7 @@ public class ChunkAnalysisBasedWordModel extends BaseModel {
 	 * @param chunkClasssificationModel	组块分析分类模型
 	 * @param manifestInfoEntries		配置信息
 	 */
-	public ChunkAnalysisBasedWordModel(String encoding, ChunkAnalysisSequenceClassificationModel<String> chunkClasssificationModel,
+	public ChunkAnalysisBasedWordModel(String encoding, SequenceClassificationModel<String> chunkClasssificationModel,
 			Map<String, String> manifestInfoEntries) {
 		super(COMPONENT_NAME, encoding, manifestInfoEntries, null);
 		if (chunkClasssificationModel == null) {
@@ -106,7 +104,7 @@ public class ChunkAnalysisBasedWordModel extends BaseModel {
         Properties manifest = (Properties) artifactMap.get(MANIFEST_ENTRY);
 
         if (artifactMap.get(CHUNK_MODEL_ENTRY_NAME) instanceof MaxentModel) {
-            String beamSizeString = manifest.getProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
+            String beamSizeString = manifest.getProperty(BeamSearch.BEAM_SIZE_PARAMETER);
 
             int beamSize = ChunkAnalysisBasedWordME.DEFAULT_BEAM_SIZE;
             if (beamSizeString != null) {
@@ -114,7 +112,7 @@ public class ChunkAnalysisBasedWordModel extends BaseModel {
             }
 
             return new BeamSearch<String>(beamSize, (MaxentModel) artifactMap.get(CHUNK_MODEL_ENTRY_NAME));
-        } else if (artifactMap.get(CHUNK_MODEL_ENTRY_NAME) instanceof ChunkAnalysisSequenceClassificationModel) {
+        } else if (artifactMap.get(CHUNK_MODEL_ENTRY_NAME) instanceof SequenceClassificationModel) {
             return (SequenceClassificationModel<String>) artifactMap.get(CHUNK_MODEL_ENTRY_NAME);
         } else {
             return null;

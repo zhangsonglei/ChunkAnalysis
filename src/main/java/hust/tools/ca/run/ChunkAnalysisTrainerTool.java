@@ -7,9 +7,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordModel;
@@ -115,7 +114,7 @@ public class ChunkAnalysisTrainerTool {
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse, label);
         	ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();
-        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
+        	ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf();
         	ChunkAnalysisBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
         	model.serialize(modelOut);
         }else if(method.equals("wp")) {
@@ -128,7 +127,7 @@ public class ChunkAnalysisTrainerTool {
         	
     		ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse, label);
     		ChunkAnalysisBasedWordAndPOSME me = new ChunkAnalysisBasedWordAndPOSME();
-        	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
+        	ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
 
     		ChunkAnalysisBasedWordAndPOSModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
@@ -142,7 +141,7 @@ public class ChunkAnalysisTrainerTool {
         	
         	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
         	ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();
-        	ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
+        	ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         	ChunkAnalysisAndPOSBasedWordModel model = me.train("zh", sampleStream, params, contextGen);
             model.serialize(modelOut);
         }else{

@@ -10,7 +10,7 @@ import opennlp.tools.util.BeamSearchContextGenerator;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public interface ChunkAnalysisBasedWordContextGenerator extends BeamSearchContextGenerator<String>{
+public interface ChunkAnalysisContextGenerator extends BeamSearchContextGenerator<String>{
 
 	@Override
 	String[] getContext(int index, String[] words, String[] chunkTags, Object[] additionalContext);

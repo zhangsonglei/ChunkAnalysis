@@ -74,9 +74,8 @@ public class ChunkAnalysisAndPOSBasedWordEvaluator extends Evaluator<AbstractChu
 	protected AbstractChunkAnalysisSample processSample(AbstractChunkAnalysisSample sample) {
 		String[] wordsRef = sample.getTokens();
 		String[] posChunksRef = sample.getTags();
-		String[][] acRef = sample.getAditionalContext();
 		
-		String[] posChunksPre = chunkTagger.tag(wordsRef, acRef);
+		String[] posChunksPre = chunkTagger.tag(wordsRef);
 		
 		//将结果进行解析，用于评估
 		ChunkAnalysisAndPOSBasedWordSample prediction = new ChunkAnalysisAndPOSBasedWordSample(wordsRef, posChunksPre);

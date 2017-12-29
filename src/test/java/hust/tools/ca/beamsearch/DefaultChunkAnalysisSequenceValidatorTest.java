@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIEO;
 import opennlp.tools.util.SequenceValidator;
 
 /**

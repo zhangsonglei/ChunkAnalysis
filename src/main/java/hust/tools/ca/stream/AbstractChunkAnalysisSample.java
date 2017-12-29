@@ -34,7 +34,7 @@ public abstract class AbstractChunkAnalysisSample {
 	/**
 	 * 其他上下文信息
 	 */
-	protected String[][] additionalContext;
+	protected Object[] additionalContext;
 
 	/**
 	 * 构造方法
@@ -60,7 +60,7 @@ public abstract class AbstractChunkAnalysisSample {
 	 * @param tags				组块标记数组
 	 * @param additionalContext	其他上下文信息
 	 */
-	public AbstractChunkAnalysisSample(String[] tokens, String[] tags, String[][] additionalContext){
+	public AbstractChunkAnalysisSample(String[] tokens, String[] tags, Object[] additionalContext){
 		this(Arrays.asList(tokens), Arrays.asList(tags), additionalContext);
 	}
 
@@ -70,18 +70,16 @@ public abstract class AbstractChunkAnalysisSample {
 	 * @param chunkTags			组块标记序列
 	 * @param additionalContext	其他上下文信息
 	 */
-    public AbstractChunkAnalysisSample(List<String> tokens, List<String> tags, String[][] additionalContext){
+    public AbstractChunkAnalysisSample(List<String> tokens, List<String> tags, Object[] additionalContext){
     	this.tags = Collections.unmodifiableList(tags);
         this.tokens = Collections.unmodifiableList(tokens);
 
-        String[][] ac;
+        Object[] ac;
         if (additionalContext != null) {
-            ac = new String[additionalContext.length][];
+            ac = new Object[additionalContext.length];
 
             for (int i = 0; i < additionalContext.length; i++) {
-                ac[i] = new String[additionalContext[i].length];
-                System.arraycopy(additionalContext[i], 0, ac[i], 0,
-                        additionalContext[i].length);
+            	ac[i] = additionalContext[i];
             }
         } else {
             ac = null;
@@ -117,7 +115,7 @@ public abstract class AbstractChunkAnalysisSample {
      * 返回样本其他上下文信息
      * @return 样本其他上下文信息
      */
-    public String[][] getAditionalContext(){
+    public Object[] getAditionalContext(){
     	return additionalContext;
     }
     
@@ -127,11 +125,13 @@ public abstract class AbstractChunkAnalysisSample {
      */
 	public abstract Chunk[] toChunk();
 	
-    @Override
+	
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.deepHashCode(additionalContext);
+		result = prime * result + Arrays.hashCode(additionalContext);
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
 		result = prime * result + ((tokens == null) ? 0 : tokens.hashCode());
 		return result;
@@ -146,7 +146,7 @@ public abstract class AbstractChunkAnalysisSample {
 		if (getClass() != obj.getClass())
 			return false;
 		AbstractChunkAnalysisSample other = (AbstractChunkAnalysisSample) obj;
-		if (!Arrays.deepEquals(additionalContext, other.additionalContext))
+		if (!Arrays.equals(additionalContext, other.additionalContext))
 			return false;
 		if (tags == null) {
 			if (other.tags != null)

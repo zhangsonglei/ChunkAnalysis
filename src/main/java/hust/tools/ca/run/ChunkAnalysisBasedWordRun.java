@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEOS;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordCrossValidation;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisBasedWordEvaluator;
@@ -17,7 +14,7 @@ import hust.tools.ca.evaluate.ChunkAnalysisErrorPrinter;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEOS;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.model.ChunkAnalysisBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisBasedWordModel;
@@ -27,6 +24,9 @@ import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordParseWithBIO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIEOS;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIO;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -159,7 +159,7 @@ public class ChunkAnalysisBasedWordRun {
 
         ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation(params);
         ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse, label);
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf(config);
+        ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf(config);
         System.out.println(contextGen);
         crossValidator.evaluate(sampleStream, 10, contextGen, measure, validator);
 	}
@@ -193,7 +193,7 @@ public class ChunkAnalysisBasedWordRun {
         config.load(configStream);
         Corpus[] corpora = getCorporaFromConf(config);//获取语料
 
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf(config);
+        ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisBasedWordContextGeneratorConf(config);
         runFeatureOnCorporaByFlag(contextGen, corpora, params);
 	}
 
@@ -204,7 +204,7 @@ public class ChunkAnalysisBasedWordRun {
 	 * @param params 训练参数
 	 * @throws IOException 
 	 */
-	private static void runFeatureOnCorporaByFlag(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus[] corpora,
+	private static void runFeatureOnCorporaByFlag(ChunkAnalysisContextGenerator contextGen, Corpus[] corpora,
 			TrainingParameters params) throws IOException {
 		if(flag == "train" || flag.equals("train")){
 			for (int i = 0; i < corpora.length; i++) {
@@ -229,7 +229,7 @@ public class ChunkAnalysisBasedWordRun {
 	 * @throws UnsupportedOperationException 
 	 * @throws IOException 
 	 */	
-	private static void evaluateOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus,
+	private static void evaluateOnCorpus(ChunkAnalysisContextGenerator contextGen, Corpus corpus,
 			TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
 
@@ -266,7 +266,7 @@ public class ChunkAnalysisBasedWordRun {
 	 * @throws FileNotFoundException 
 	 * @throws IOException 
 	 */	
-	private static void modelOutOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus,
+	private static void modelOutOnCorpus(ChunkAnalysisContextGenerator contextGen, Corpus corpus,
 			TrainingParameters params) {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
@@ -284,7 +284,7 @@ public class ChunkAnalysisBasedWordRun {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */	
-	private static void trainOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
+	private static void trainOnCorpus(ChunkAnalysisContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
         ChunkAnalysisBasedWordME me = new ChunkAnalysisBasedWordME();

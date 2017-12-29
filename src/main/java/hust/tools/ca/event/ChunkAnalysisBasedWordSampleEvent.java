@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.util.AbstractEventStream;
@@ -23,14 +23,14 @@ public class ChunkAnalysisBasedWordSampleEvent extends AbstractEventStream<Abstr
 	/**
 	 * 上下文生成器
 	 */
-	private ChunkAnalysisBasedWordContextGenerator contextgenerator;
+	private ChunkAnalysisContextGenerator contextgenerator;
 	
 	/**
 	 * 构造方法
 	 * @param sampleStream		样本流
 	 * @param contextgenerator	上下文生成器
 	 */
-	public ChunkAnalysisBasedWordSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,ChunkAnalysisBasedWordContextGenerator contextgenerator) {
+	public ChunkAnalysisBasedWordSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,ChunkAnalysisContextGenerator contextgenerator) {
 		super(sampleStream);
 		this.contextgenerator = contextgenerator;
 	}
@@ -38,9 +38,8 @@ public class ChunkAnalysisBasedWordSampleEvent extends AbstractEventStream<Abstr
 	@Override
 	protected Iterator<Event> createEvents(AbstractChunkAnalysisSample sample) {
 		String[] words = sample.getTokens();
-		String[] chunkTags = sample.getTags();
-		String[][] aditionalContext = sample.getAditionalContext();
-		List<Event> events = generateEvents(words, chunkTags, aditionalContext);
+		String[] tags = sample.getTags();
+		List<Event> events = generateEvents(words, tags);
         return events.iterator();
 	}
 
@@ -51,12 +50,12 @@ public class ChunkAnalysisBasedWordSampleEvent extends AbstractEventStream<Abstr
 	 * @param aditionalContext	其他上下文信息
 	 * @return	事件列表
 	 */
-	private List<Event> generateEvents(String[] words, String[] chunkTags, String[][] aditionalContext) {
+	private List<Event> generateEvents(String[] words, String[] tags) {
 		List<Event> events = new ArrayList<Event>(words.length);
-		for (int i = 0; i < words.length; i++) {			
+		for (int i = 0; i < words.length; i++) {
 			//产生事件的部分
-			String[] context = contextgenerator.getContext(i, words, chunkTags, aditionalContext);
-            events.add(new Event(chunkTags[i], context));
+			String[] context = contextgenerator.getContext(i, words, tags, null);
+            events.add(new Event(tags[i], context));
 		}
 		
 		return events;

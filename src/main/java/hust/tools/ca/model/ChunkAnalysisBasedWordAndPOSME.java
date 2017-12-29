@@ -11,19 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisBeamSearch;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceClassificationModel;
 import hust.tools.ca.event.ChunkAnalysisBasedWordAndPOSSampleEvent;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
+import opennlp.tools.ml.BeamSearch;
 import opennlp.tools.ml.EventTrainer;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.ml.TrainerFactory.TrainerType;
 import opennlp.tools.ml.model.Event;
 import opennlp.tools.ml.model.MaxentModel;
+import opennlp.tools.ml.model.SequenceClassificationModel;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -42,10 +42,10 @@ import opennlp.tools.util.TrainingParameters;
 public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	
 	public static final int DEFAULT_BEAM_SIZE = 33;
-	private ChunkAnalysisBasedWordAndPOSContextGenerator contextGenerator;
+	private ChunkAnalysisContextGenerator contextGenerator;
 	private int size;
 	private Sequence bestSequence;
-	private ChunkAnalysisSequenceClassificationModel<String> model;
+	private SequenceClassificationModel<String> model;
     private SequenceValidator<String> sequenceValidator;
     private String label;
 
@@ -53,7 +53,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
     }
 
-	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String label) {
+	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisContextGenerator contextGen, String label) {
 		this.sequenceValidator = sequenceValidator;
 		this.label = label;
 		init(model , contextGen);
@@ -64,9 +64,9 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
      * @param model 		组块分析模型
      * @param contextGen	上下文生成器
      */
-	private void init(ChunkAnalysisBasedWordAndPOSModel model, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) {
+	private void init(ChunkAnalysisBasedWordAndPOSModel model, ChunkAnalysisContextGenerator contextGen) {
 		int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
-        String beamSizeString = model.getManifestProperty(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
+        String beamSizeString = model.getManifestProperty(BeamSearch.BEAM_SIZE_PARAMETER);
 
         if (beamSizeString != null)
             beamSize = Integer.parseInt(beamSizeString);
@@ -77,7 +77,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
         if (model.getChunkAnalysisSequenceModel() != null)
             this.model = model.getChunkAnalysisSequenceModel();
         else
-            this.model = new ChunkAnalysisBeamSearch<String>(beamSize, model.getChunkAnalysisModel(), 0);
+            this.model = new BeamSearch<String>(beamSize, model.getChunkAnalysisModel(), 0);
 	}
 	
 	/**
@@ -90,7 +90,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public ChunkAnalysisBasedWordAndPOSModel train(File file, TrainingParameters params, ChunkAnalysisBasedWordAndPOSContextGenerator contextGen,
+	public ChunkAnalysisBasedWordAndPOSModel train(File file, TrainingParameters params, ChunkAnalysisContextGenerator contextGen,
 			String encoding, AbstractChunkAnalysisParse parse){
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
@@ -117,8 +117,8 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @throws FileNotFoundException 
 	 */
 	public ChunkAnalysisBasedWordAndPOSModel train(String languageCode, ObjectStream<AbstractChunkAnalysisSample> sampleStream, TrainingParameters params,
-			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen) throws IOException {
-		String beamSizeString = params.getSettings().get(ChunkAnalysisBeamSearch.BEAM_SIZE_PARAMETER);
+			ChunkAnalysisContextGenerator contextGen) throws IOException {
+		String beamSizeString = params.getSettings().get(BeamSearch.BEAM_SIZE_PARAMETER);
 		int beamSize = ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE;
         if (beamSizeString != null) {
             beamSize = Integer.parseInt(beamSizeString);
@@ -127,7 +127,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
         Map<String, String> manifestInfoEntries = new HashMap<String, String>();
         //event_model_trainer
         TrainerType trainerType = TrainerFactory.getTrainerType(params.getSettings());
-        ChunkAnalysisSequenceClassificationModel<String> chunkClassificationModel = null;
+        SequenceClassificationModel<String> chunkClassificationModel = null;
         if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
         	//sampleStream为PhraseAnalysisSampleStream对象
             ObjectStream<Event> es = new ChunkAnalysisBasedWordAndPOSSampleEvent(sampleStream, contextGen);
@@ -153,7 +153,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @return
 	 */
 	public ChunkAnalysisBasedWordAndPOSModel train(File file, File modelbinaryFile, TrainingParameters params,
-			ChunkAnalysisBasedWordAndPOSContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
+			ChunkAnalysisContextGenerator contextGen, String encoding, AbstractChunkAnalysisParse parse) {
 		OutputStream modelOut = null;
 		ChunkAnalysisBasedWordAndPOSModel model = null;
 		try {
@@ -200,17 +200,6 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 		return model;
 	}
 	
-	
-	/**
-	 * 返回给定词组和词性的组块类型
-	 * @param words	待确定组块类型的词组
-	 * @param poses	词组对应的词性数组
-	 * @return		组块类型
-	 */
-	public String[] tag(String[] words,String[] poses){
-		return tag(words, poses, null);
-	}
-	
 	/**
 	 * 返回给定词组和词性的组块类型
 	 * @param words				待确定组块类型的词组
@@ -218,8 +207,8 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @param additionaContext	其他上下文信息
 	 * @return					组块类型
 	 */
-	public String[] tag(String[] words,String[] poses, Object[] additionaContext){
-		bestSequence = model.bestSequence(words, poses, additionaContext, contextGenerator,sequenceValidator);
+	public String[] tag(String[] words, String[] poses){
+		bestSequence = model.bestSequence(words, poses, contextGenerator,sequenceValidator);
 		List<String> chunks = bestSequence.getOutcomes();
 		
 		return chunks.toArray(new String[chunks.size()]);
@@ -233,7 +222,7 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 	 * @return 		最优的k个组块标注结果
 	 */
 	public String[][] tag(int k, String[] words, String[] pos) {
-        Sequence[] bestSequences = model.bestSequences(k, words, pos, null,
+        Sequence[] bestSequences = model.bestSequences(k, words, pos,
         		contextGenerator, sequenceValidator);
         String[][] tagsandposes = new String[bestSequences.length][];
         for (int si = 0; si < tagsandposes.length; si++) {
@@ -243,26 +232,15 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
         }
         return tagsandposes;
     }
-	
-	/**
-	 * 根据给定词组及其词性，返回最优的K个标注序列
-	 * @param words	待标注的词组
-	 * @param poses	与词组对应的词性数组
-	 * @return		最优的K个标注序列
-	 */
-    public Sequence[] getTopKSequences(String[] characters,String[] pos) {
-        return getTopKSequences(characters, pos, null);
-    }
 
     /**
 	 * 根据给定词组及其词性，返回最优的K个标注序列
 	 * @param words	待标注的词组
 	 * @param poses	与词组对应的词性数组
-	 * @param additionaContext
 	 * @return		最优的K个标注序列
 	 */
-    public Sequence[] getTopKSequences(String[] characters, String[] pos, Object[] additionaContext) {
-        return model.bestSequences(size, characters, pos, additionaContext,
+    public Sequence[] getTopKSequences(String[] characters, String[] pos) {
+        return model.bestSequences(size, characters, pos,
         		contextGenerator, sequenceValidator);
     }
 

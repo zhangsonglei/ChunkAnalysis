@@ -58,9 +58,9 @@ public class ChunkAnalysisBasedWordAndPOSParseWithBIEOTest {
 	
 	@Test
 	public void testGetPoses() {
-		assertArrayEquals(poses1, sample1.getPoses());
-		assertArrayEquals(poses2, sample2.getPoses());
-		assertArrayEquals(poses3, sample3.getPoses());
+		assertArrayEquals(poses1, sample1.getAditionalContext());
+		assertArrayEquals(poses2, sample2.getAditionalContext());
+		assertArrayEquals(poses3, sample3.getAditionalContext());
 	}
 	
 	@Test

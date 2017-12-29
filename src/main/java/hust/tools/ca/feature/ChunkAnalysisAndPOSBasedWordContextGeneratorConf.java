@@ -14,7 +14,7 @@ import java.util.Properties;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAnalysisBasedWordContextGenerator {
+public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAnalysisContextGenerator {
 	
 	//原子特征模版
 	private boolean w_1Set;		//前一个词
@@ -151,8 +151,8 @@ public class ChunkAnalysisAndPOSBasedWordContextGeneratorConf implements ChunkAn
 	}
 
 	@Override
-	public String[] getContext(int index, String[] words, String[] chunkTags, Object[] additionalContext) {
-		return getContext(index, words, chunkTags);
+	public String[] getContext(int index, String[] words, String[] posChunkTags, Object[] additionalContext) {
+		return getContext(index, words, posChunkTags);
 	}
 
 	/**

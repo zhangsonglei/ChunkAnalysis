@@ -29,7 +29,7 @@ public class ChunkAnalysisSampleStreamTest {
 	private AbstractChunkAnalysisParse parse;
 	private String sentence1 = "忠诚/a  的/u  [共产主义/n  战士/n]BNP  ，/w  久经考验/l  的/u  [无产阶级/n  革命家/n]BNP  [刘/nr  澜涛/nr  同志/n]BNP  逝世/v";		
 	private String sentence2 = "[党中央/nt  国务院/nt]BNP  关心/v  [西藏/ns  雪灾/n]BNP  [救灾/vn  工作/vn]BNP";
-	private String sentence3 = "[目前/t  为止/v]BTP  ，/w  灾区/n  没有/v  [一/m  人/n]BNP  因/p  冻/v  因/p  饿/a  死亡/v  ，/w  [大部分/m  牲畜/n]BNP  [也/d  没有/d]BDP  [出/v  问题/n]BVP  。/w  ";
+	private String sentence3 = "[目前/t  为止/v]BTP  ，/w  灾区/n  没有/v  [一/m  人/n]BNP  因/p  冻/v  因/p  饿/a  死亡/v  ，/w  [大部分/m  牲畜/n]BNP  [也/d  没有/d]BDP  [出/v  问题/n]BVP  。/w";
 
 	private List<AbstractChunkAnalysisSample> sampleList = new ArrayList<>();
 
@@ -55,6 +55,6 @@ public class ChunkAnalysisSampleStreamTest {
 			list.add(sample);
 		}
 		
-		assertEquals(list, sampleList);
+		assertEquals(sampleList, list);
 	}
 }

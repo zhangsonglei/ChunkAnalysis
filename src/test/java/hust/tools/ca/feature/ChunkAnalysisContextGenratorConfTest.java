@@ -21,7 +21,7 @@ public class ChunkAnalysisContextGenratorConfTest {
 	
 	private String sentence = "[党中央/nt  国务院/nt]BNP  关心/v  [西藏/ns  雪灾/n]BNP  [救灾/vn  工作/vn]BNP";
 	private String[] words;
-	private String[] poses;
+	private Object[] poses;
 	private String[] chunkTags;
 	private ChunkAnalysisBasedWordAndPOSContextGeneratorConf contextGeneratorConf;
 	private AbstractChunkAnalysisParse parse;
@@ -39,19 +39,19 @@ public class ChunkAnalysisContextGenratorConfTest {
 		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
 		ChunkAnalysisBasedWordAndPOSSample sample = (ChunkAnalysisBasedWordAndPOSSample) parse.parse(sentence);
 		words = sample.getTokens();
-		poses = sample.getPoses();
+		poses = sample.getAditionalContext();
 		chunkTags = sample.getTags();
 		contextGeneratorConf = new ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
 	}
 
 	@Test
 	public void testGetContext() {
-		assertArrayEquals(features0, contextGeneratorConf.getContext(0, words, poses, chunkTags, null));
-		assertArrayEquals(features1, contextGeneratorConf.getContext(1, words, poses, chunkTags, null));
-		assertArrayEquals(features2, contextGeneratorConf.getContext(2, words, poses, chunkTags, null));
-		assertArrayEquals(features3, contextGeneratorConf.getContext(3, words, poses, chunkTags, null));
-		assertArrayEquals(features4, contextGeneratorConf.getContext(4, words, poses, chunkTags, null));
-		assertArrayEquals(features5, contextGeneratorConf.getContext(5, words, poses, chunkTags, null));
-		assertArrayEquals(features6, contextGeneratorConf.getContext(6, words, poses, chunkTags, null));
+		assertArrayEquals(features0, contextGeneratorConf.getContext(0, words, chunkTags, poses));
+		assertArrayEquals(features1, contextGeneratorConf.getContext(1, words, chunkTags, poses));
+		assertArrayEquals(features2, contextGeneratorConf.getContext(2, words, chunkTags, poses));
+		assertArrayEquals(features3, contextGeneratorConf.getContext(3, words, chunkTags, poses));
+		assertArrayEquals(features4, contextGeneratorConf.getContext(4, words, chunkTags, poses));
+		assertArrayEquals(features5, contextGeneratorConf.getContext(5, words, chunkTags, poses));
+		assertArrayEquals(features6, contextGeneratorConf.getContext(6, words, chunkTags, poses));
 	}
 }

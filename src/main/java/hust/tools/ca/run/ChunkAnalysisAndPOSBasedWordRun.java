@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
 import hust.tools.ca.cv.ChunkAnalysisAndPOSBasedWordCrossValidation;
 import hust.tools.ca.evaluate.AbstractChunkAnalysisMeasure;
 import hust.tools.ca.evaluate.ChunkAnalysisAndPOSBasedWordEvaluator;
@@ -18,7 +15,7 @@ import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEOS;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordME;
 import hust.tools.ca.model.ChunkAnalysisAndPOSBasedWordModel;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
@@ -27,6 +24,9 @@ import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -159,7 +159,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 
         ChunkAnalysisAndPOSBasedWordCrossValidation crossValidator = new ChunkAnalysisAndPOSBasedWordCrossValidation(params);
         ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf(config);
+        ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf(config);
         System.out.println(contextGen);
         crossValidator.evaluate(sampleStream, 10, contextGen, measure, validator);
 	}
@@ -193,7 +193,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
         config.load(configStream);
         Corpus[] corpora = getCorporaFromConf(config);//获取语料
 
-        ChunkAnalysisBasedWordContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf(config);
+        ChunkAnalysisContextGenerator contextGen = new ChunkAnalysisAndPOSBasedWordContextGeneratorConf(config);
         runFeatureOnCorporaByFlag(contextGen, corpora, params);
 	}
 
@@ -204,7 +204,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 	 * @param params 训练参数
 	 * @throws IOException 
 	 */
-	private static void runFeatureOnCorporaByFlag(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus[] corpora,
+	private static void runFeatureOnCorporaByFlag(ChunkAnalysisContextGenerator contextGen, Corpus[] corpora,
 			TrainingParameters params) throws IOException {
 		if(flag == "train" || flag.equals("train")){
 			for (int i = 0; i < corpora.length; i++) {
@@ -229,7 +229,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 	 * @throws UnsupportedOperationException 
 	 * @throws IOException 
 	 */	
-	private static void evaluateOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus,
+	private static void evaluateOnCorpus(ChunkAnalysisContextGenerator contextGen, Corpus corpus,
 			TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
 
@@ -266,7 +266,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 	 * @throws FileNotFoundException 
 	 * @throws IOException 
 	 */	
-	private static void modelOutOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus,
+	private static void modelOutOnCorpus(ChunkAnalysisContextGenerator contextGen, Corpus corpus,
 			TrainingParameters params) {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
@@ -284,7 +284,7 @@ public class ChunkAnalysisAndPOSBasedWordRun {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */	
-	private static void trainOnCorpus(ChunkAnalysisBasedWordContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
+	private static void trainOnCorpus(ChunkAnalysisContextGenerator contextGen, Corpus corpus, TrainingParameters params) throws IOException {
 		System.out.println("ContextGenerator: " + contextGen);
         System.out.println("Training on " + corpus.name + "...");
         ChunkAnalysisAndPOSBasedWordME me = new ChunkAnalysisAndPOSBasedWordME();

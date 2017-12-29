@@ -1,7 +1,6 @@
 package hust.tools.ca.stream;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import hust.tools.ca.model.Chunk;
@@ -32,26 +31,6 @@ public class ChunkAnalysisBasedWordSample extends AbstractChunkAnalysisSample {
 	 */
 	public ChunkAnalysisBasedWordSample(List<String> words, List<String> tags) {
 		super(words, tags, null);
-	}
-
-	/**
-	 * 构造方法
-	 * @param words				词语数组
-	 * @param tags				词语组块标记数组
-	 * @param additionalContext	其他上下文信息
-	 */
-	public ChunkAnalysisBasedWordSample(String[] words, String[] tags, String[][] additionalContext) {
-		super(Arrays.asList(words), Arrays.asList(tags), additionalContext);
-	}
-
-	/**
-	 * 构造方法
-	 * @param words				词语序列
-	 * @param tags				词语组块标记序列
-	 * @param additionalContext	其他上下文信息
-	 */
-    public ChunkAnalysisBasedWordSample(List<String> words, List<String> tags, String[][] additionalContext) {
-    	super(words, tags, additionalContext);
 	}
 	
     @Override

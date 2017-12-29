@@ -1,7 +1,6 @@
 package hust.tools.ca.stream;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import hust.tools.ca.model.Chunk;
@@ -19,41 +18,21 @@ public class ChunkAnalysisAndPOSBasedWordSample extends AbstractChunkAnalysisSam
 	/**
 	 * 构造方法
 	 * @param words		词语数组
-	 * @param tags		词语组块标记数组
+	 * @param posChunks	词语对应词性和组块标记数组
 	 */
-	public ChunkAnalysisAndPOSBasedWordSample(String[] words, String[] tags) {
-		super(words, tags, null);
+	public ChunkAnalysisAndPOSBasedWordSample(String[] words, String[] posChunks) {
+		super(words, posChunks, null);
 	}
 
 	/**
 	 * 构造方法
 	 * @param words		词语列表
-	 * @param tags		词语组块标记列表
+	 * @param posChunks	词语对应词性和组块标记数组
 	 */
-	public ChunkAnalysisAndPOSBasedWordSample(List<String> words, List<String> tags) {
-		super(words, tags, null);
+	public ChunkAnalysisAndPOSBasedWordSample(List<String> words, List<String> posChunks) {
+		super(words, posChunks, null);
 	}
 
-	/**
-	 * 构造方法
-	 * @param words				词语数组
-	 * @param tags				词语组块标记数组
-	 * @param additionalContext	其他上下文信息
-	 */
-	public ChunkAnalysisAndPOSBasedWordSample(String[] words, String[] tags, String[][] additionalContext) {
-		super(Arrays.asList(words), Arrays.asList(tags), additionalContext);
-	}
-
-	/**
-	 * 构造方法
-	 * @param words				词语列表
-	 * @param tags				词语组块标记列表
-	 * @param additionalContext	其他上下文信息
-	 */
-    public ChunkAnalysisAndPOSBasedWordSample(List<String> words, List<String> tags, String[][] additionalContext) {
-    	super(words, tags, additionalContext);
-	}
-    
     @Override
     public Chunk[] toChunk() { 
     	if(label.equals("BIEOS"))

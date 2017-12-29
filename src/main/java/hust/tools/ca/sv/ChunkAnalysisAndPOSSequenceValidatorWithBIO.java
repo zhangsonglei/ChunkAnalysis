@@ -1,19 +1,19 @@
-package hust.tools.ca.beamsearch;
+package hust.tools.ca.sv;
 
 import opennlp.tools.util.SequenceValidator;
 
 /**
  *<ul>
- *<li>Description: BIEO序列验证类, 验证当前组块标记是否合法，（组块最小长度为2）
+ *<li>Description: BIO序列验证类, 验证当前组块标记是否合法（组块最小长度为2）
  *<li>Company: HUST
  *<li>@author Sonly
  *<li>Date: 2017年12月6日
  *</ul>
  */
-public class ChunkAnalysisAndPOSSequenceValidatorWithBIEO implements SequenceValidator<String> {
-	
-	public ChunkAnalysisAndPOSSequenceValidatorWithBIEO() {
-		
+public class ChunkAnalysisAndPOSSequenceValidatorWithBIO implements SequenceValidator<String> {
+
+	public ChunkAnalysisAndPOSSequenceValidatorWithBIO() {
+
 	}
 
 	@Override
@@ -21,8 +21,8 @@ public class ChunkAnalysisAndPOSSequenceValidatorWithBIEO implements SequenceVal
 		String[] chunkTags = new String[posChunkTags.length];
 		String chunk = out.split("-")[1];
 		for(int i = 0; i < chunkTags.length; i++)
-			chunkTags[i] = posChunkTags[i].split("-")[1];		
-		
+			chunkTags[i] = posChunkTags[i].split("-")[1];
+			
 		if(index == 0) {//当前词为句子开始位置,只能为O||*_B				
 			if(chunk.equals("O") || chunk.split("_")[1].equals("B")) 
 				return true;
@@ -30,9 +30,9 @@ public class ChunkAnalysisAndPOSSequenceValidatorWithBIEO implements SequenceVal
 			if(index == chunkTags.length - 1) {//当前词是句子结束
 				String chunkTag = chunkTags[index - 1];
 				if(chunk.equals("O")) {
-					if(chunkTag.equals("O") || chunkTag.split("_")[1].equals("E"))
+					if(chunkTag.equals("O") || chunkTag.split("_")[1].equals("I"))
 						return true;
-				}else if(chunk.split("_")[1].equals("E")) {
+				}else if(chunk.split("_")[1].equals("I")) {
 					if(chunkTag.equals("O"))
 						return false;
 					else if((chunkTag.split("_")[1].equals("B") || chunkTag.split("_")[1].equals("I")) &&
@@ -42,7 +42,7 @@ public class ChunkAnalysisAndPOSSequenceValidatorWithBIEO implements SequenceVal
 			}else {
 				String chunkTag = chunkTags[index - 1];
 				if(chunk.equals("O") || chunk.split("_")[1].equals("B")) {
-					if(chunkTag.equals("O") ||  chunkTag.split("_")[1].equals("E"))
+					if(chunkTag.equals("O") ||  chunkTag.split("_")[1].equals("I"))
 						return true;
 				}else{
 					if(chunkTag.equals("O"))
@@ -53,7 +53,7 @@ public class ChunkAnalysisAndPOSSequenceValidatorWithBIEO implements SequenceVal
 				}
 			}
 		}
-
+		
 		return false;
 	}
 }

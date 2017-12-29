@@ -11,7 +11,6 @@ import org.junit.Test;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
-import hust.tools.ca.utils.Dictionary;
 
 /**
  *<ul>
@@ -44,10 +43,9 @@ public class ChunkAnalysisMeasureTest {
 	private String[] chunkType = new String[]{"O", "BNP", "BTP", "BVP", "BDP"};
 	
 	@Before
-	public void setUp() throws Exception {
-		Dictionary wordDict = new Dictionary(words);
+	public void setUp() throws Exception {		
 		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
-		measure = new ChunkAnalysisMeasureWithBIEO(wordDict);
+		measure = new ChunkAnalysisMeasureWithBIEO();
 		
 		refList = new ArrayList<>(); refList.add(ref1);	refList.add(ref2); refList.add(ref3);
 		preList = new ArrayList<>(); preList.add(pre1); preList.add(pre2); preList.add(pre3);

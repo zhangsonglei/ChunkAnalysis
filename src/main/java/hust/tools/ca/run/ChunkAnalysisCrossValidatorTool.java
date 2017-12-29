@@ -3,12 +3,6 @@ package hust.tools.ca.run;
 import java.io.File;
 import java.io.IOException;
 
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
-import hust.tools.ca.beamsearch.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEO;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIEOS;
-import hust.tools.ca.beamsearch.ChunkAnalysisSequenceValidatorWithBIO;
 import hust.tools.ca.cv.ChunkAnalysisAndPOSBasedWordCrossValidation;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordAndPOSCrossValidation;
 import hust.tools.ca.cv.ChunkAnalysisBasedWordCrossValidation;
@@ -17,11 +11,12 @@ import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEO;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIEOS;
 import hust.tools.ca.evaluate.ChunkAnalysisMeasureWithBIO;
 import hust.tools.ca.feature.ChunkAnalysisAndPOSBasedWordContextGeneratorConf;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
-import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGenerator;
+import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEO;
+import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIEOS;
 import hust.tools.ca.parse.ChunkAnalysisAndPOSBasedWordParseWithBIO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEO;
 import hust.tools.ca.parse.ChunkAnalysisBasedWordAndPOSParseWithBIEOS;
@@ -33,6 +28,12 @@ import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisAndPOSBasedWordSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIEO;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIEOS;
+import hust.tools.ca.sv.ChunkAnalysisAndPOSSequenceValidatorWithBIO;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIEO;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIEOS;
+import hust.tools.ca.sv.ChunkAnalysisSequenceValidatorWithBIO;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -101,7 +102,7 @@ public class ChunkAnalysisCrossValidatorTool {
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
         params.put(TrainingParameters.ALGORITHM_PARAM, type.toUpperCase());
         
-        ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile), encoding);
+        ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile), encoding);        
         AbstractChunkAnalysisParse parse = null;
         AbstractChunkAnalysisMeasure measure = null;
         SequenceValidator<String> sequenceValidator = null;
@@ -120,10 +121,9 @@ public class ChunkAnalysisCrossValidatorTool {
         		measure = new ChunkAnalysisMeasureWithBIO();
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();	
         	}
-        	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse, label);
-        	ChunkAnalysisBasedWordContextGenerator contextGen = new  ChunkAnalysisBasedWordContextGeneratorConf();
+        	ChunkAnalysisContextGenerator contextGen = new  ChunkAnalysisBasedWordContextGeneratorConf();
         	ChunkAnalysisBasedWordCrossValidation crossValidator = new ChunkAnalysisBasedWordCrossValidation(params);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordSampleStream(lineStream, parse, label);
         	
         	crossValidator.evaluate(sampleStream, folds, contextGen, measure, sequenceValidator);
         }else if(method.equals("wp")) {        	
@@ -141,18 +141,18 @@ public class ChunkAnalysisCrossValidatorTool {
         		sequenceValidator = new ChunkAnalysisSequenceValidatorWithBIO();
         	}
         	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse, label);
-        	ChunkAnalysisBasedWordAndPOSContextGenerator contextGen = new  ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
+        	ChunkAnalysisContextGenerator contextGen = new  ChunkAnalysisBasedWordAndPOSContextGeneratorConf();
         	ChunkAnalysisBasedWordAndPOSCrossValidation crossValidator = new ChunkAnalysisBasedWordAndPOSCrossValidation(params);
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisBasedWordAndPOSSampleStream(lineStream, parse, label);
         	
         	crossValidator.evaluate(sampleStream, folds, contextGen, measure, sequenceValidator);
         }else if(method.equals("cp")) {        	
         	if(label.equals("BIEOS")) {
-        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEOS();
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEOS();
         		measure = new ChunkAnalysisMeasureWithBIEOS();
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEOS();
         	}else if(label.equals("BIEO")) {
-        		parse = new ChunkAnalysisBasedWordAndPOSParseWithBIEO();
+        		parse = new ChunkAnalysisAndPOSBasedWordParseWithBIEO();
         		measure = new ChunkAnalysisMeasureWithBIEO();
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIEO();
         	}else {
@@ -161,10 +161,10 @@ public class ChunkAnalysisCrossValidatorTool {
         		sequenceValidator = new ChunkAnalysisAndPOSSequenceValidatorWithBIO();
         	}
         	
-        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
-        	ChunkAnalysisBasedWordContextGenerator contextGen = new  ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
+        	ChunkAnalysisContextGenerator contextGen = new  ChunkAnalysisAndPOSBasedWordContextGeneratorConf();
         	ChunkAnalysisAndPOSBasedWordCrossValidation crossValidator = new ChunkAnalysisAndPOSBasedWordCrossValidation(params);
-
+        	ObjectStream<AbstractChunkAnalysisSample> sampleStream = new ChunkAnalysisAndPOSBasedWordSampleStream(lineStream, parse, label);
+        	
         	crossValidator.evaluate(sampleStream, folds, contextGen, measure, sequenceValidator);
         }else{
         	System.err.println("错误的模型方法：" + method);
