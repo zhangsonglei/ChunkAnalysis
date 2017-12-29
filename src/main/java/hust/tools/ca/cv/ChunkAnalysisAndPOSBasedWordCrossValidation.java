@@ -95,7 +95,6 @@ public class ChunkAnalysisAndPOSBasedWordCrossValidation {
         		dictionary.add(word);
 		}
         
-        System.out.println(dictionary.size());
         return dictionary;
     }
 }

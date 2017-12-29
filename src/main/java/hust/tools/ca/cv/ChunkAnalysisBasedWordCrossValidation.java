@@ -93,7 +93,6 @@ public class ChunkAnalysisBasedWordCrossValidation {
         		dictionary.add(word);
 		}
         
-        System.out.println(dictionary.size());
         return dictionary;
     }
 }
