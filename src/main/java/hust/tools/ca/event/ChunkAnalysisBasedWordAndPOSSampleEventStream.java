@@ -19,7 +19,7 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordAndPOSSampleEvent extends AbstractEventStream<AbstractChunkAnalysisSample>{
+public class ChunkAnalysisBasedWordAndPOSSampleEventStream extends AbstractEventStream<AbstractChunkAnalysisSample>{
 
 	/**
 	 * 上下文生成器
@@ -31,7 +31,7 @@ public class ChunkAnalysisBasedWordAndPOSSampleEvent extends AbstractEventStream
 	 * @param sampleStream		样本流
 	 * @param contextgenerator	上下文生成器
 	 */
-	public ChunkAnalysisBasedWordAndPOSSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream, ChunkAnalysisContextGenerator contextgenerator) {
+	public ChunkAnalysisBasedWordAndPOSSampleEventStream(ObjectStream<AbstractChunkAnalysisSample> sampleStream, ChunkAnalysisContextGenerator contextgenerator) {
 		super(sampleStream);
 		this.contextgenerator = contextgenerator;
 	}
@@ -42,7 +42,7 @@ public class ChunkAnalysisBasedWordAndPOSSampleEvent extends AbstractEventStream
 		String[] words = wordAndPOSSample.getTokens();
 		Object[] poses = wordAndPOSSample.getAditionalContext();
 		String[] chunkTags = wordAndPOSSample.getTags();
-		List<Event> events = generateEvents(words, poses, chunkTags);
+		List<Event> events = generateEvents(words, chunkTags, poses, contextgenerator);
         return events.iterator();
 	}
 
@@ -54,7 +54,7 @@ public class ChunkAnalysisBasedWordAndPOSSampleEvent extends AbstractEventStream
 	 * @param aditionalContext	其他上下文信息
 	 * @return	事件列表
 	 */
-	private List<Event> generateEvents(String[] words, Object[] poses, String[] chunkTags) {
+	public static List<Event> generateEvents(String[] words, String[] chunkTags, Object[] poses, ChunkAnalysisContextGenerator contextgenerator) {
 		List<Event> events = new ArrayList<Event>(words.length);
 		for (int i = 0; i < words.length; i++) {			
 			//产生事件的部分

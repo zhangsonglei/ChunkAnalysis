@@ -18,7 +18,7 @@ import opennlp.tools.util.ObjectStream;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisBasedWordSampleEvent extends AbstractEventStream<AbstractChunkAnalysisSample>{
+public class ChunkAnalysisBasedWordSampleEventStream extends AbstractEventStream<AbstractChunkAnalysisSample>{
 
 	/**
 	 * 上下文生成器
@@ -30,7 +30,7 @@ public class ChunkAnalysisBasedWordSampleEvent extends AbstractEventStream<Abstr
 	 * @param sampleStream		样本流
 	 * @param contextgenerator	上下文生成器
 	 */
-	public ChunkAnalysisBasedWordSampleEvent(ObjectStream<AbstractChunkAnalysisSample> sampleStream,ChunkAnalysisContextGenerator contextgenerator) {
+	public ChunkAnalysisBasedWordSampleEventStream(ObjectStream<AbstractChunkAnalysisSample> sampleStream,ChunkAnalysisContextGenerator contextgenerator) {
 		super(sampleStream);
 		this.contextgenerator = contextgenerator;
 	}
@@ -39,7 +39,7 @@ public class ChunkAnalysisBasedWordSampleEvent extends AbstractEventStream<Abstr
 	protected Iterator<Event> createEvents(AbstractChunkAnalysisSample sample) {
 		String[] words = sample.getTokens();
 		String[] tags = sample.getTags();
-		List<Event> events = generateEvents(words, tags);
+		List<Event> events = generateEvents(words, tags, contextgenerator);
         return events.iterator();
 	}
 
@@ -50,15 +50,19 @@ public class ChunkAnalysisBasedWordSampleEvent extends AbstractEventStream<Abstr
 	 * @param aditionalContext	其他上下文信息
 	 * @return	事件列表
 	 */
-	private List<Event> generateEvents(String[] words, String[] tags) {
+	public static List<Event> generateEvents(String[] words, String[] tags, Object[] additionalContext, ChunkAnalysisContextGenerator contextgenerator) {
 		List<Event> events = new ArrayList<Event>(words.length);
 		for (int i = 0; i < words.length; i++) {
 			//产生事件的部分
-			String[] context = contextgenerator.getContext(i, words, tags, null);
+			String[] context = contextgenerator.getContext(i, words, tags, additionalContext);
             events.add(new Event(tags[i], context));
 		}
 		
 		return events;
+	}
+	
+	public static List<Event> generateEvents(String[] words, String[] tags, ChunkAnalysisContextGenerator contextgenerator) {		
+		return generateEvents(words, tags, null, contextgenerator);
 	}
 }
 

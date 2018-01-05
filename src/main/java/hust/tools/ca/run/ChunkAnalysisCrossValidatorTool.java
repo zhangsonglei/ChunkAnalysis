@@ -63,7 +63,7 @@ public class ChunkAnalysisCrossValidatorTool {
         int cutoff = 3;
         int iters = 100;
         int folds = 10;
-        //Maxent, Perceptron, MaxentQn, NaiveBayes
+        //Maxent, Perceptron, NaiveBayes
         String type = "Maxent";
         String method = "wp";
         String label = "BIEO";

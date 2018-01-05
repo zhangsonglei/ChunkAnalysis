@@ -59,7 +59,7 @@ public class ChunkAnalysisTrainerTool {
         int cutoff = 3;
         int iters = 100;
        
-        //Maxent,Perceptron,MaxentQn,NaiveBayes
+        //Maxent, Perceptron, NaiveBayes
         String type = "Maxent";
         String method = "wp";
         String label = "BIEO";
@@ -98,7 +98,7 @@ public class ChunkAnalysisTrainerTool {
         TrainingParameters params = TrainingParameters.defaultParams();
         params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
-        params.put(TrainingParameters.ALGORITHM_PARAM, type);
+        params.put(TrainingParameters.ALGORITHM_PARAM, type.toUpperCase());
         
         ObjectStream<String> lineStream = new PlainTextByLineStream(new MarkableFileInputStreamFactory(corpusFile), encoding);
         OutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));

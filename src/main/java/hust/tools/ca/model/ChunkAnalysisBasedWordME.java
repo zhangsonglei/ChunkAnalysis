@@ -11,14 +11,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import hust.tools.ca.event.ChunkAnalysisBasedWordSampleEvent;
+import hust.tools.ca.event.ChunkAnalysisBasedWordSampleEventStream;
+import hust.tools.ca.event.ChunkAnalysisBasedWordSampleSequenceStream;
+import hust.tools.ca.feature.ChunkAnalysisBasedWordContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordSampleStream;
 import opennlp.tools.ml.BeamSearch;
+import opennlp.tools.ml.EventModelSequenceTrainer;
 import opennlp.tools.ml.EventTrainer;
+import opennlp.tools.ml.SequenceTrainer;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.ml.TrainerFactory.TrainerType;
 import opennlp.tools.ml.model.Event;
@@ -51,6 +55,14 @@ public class ChunkAnalysisBasedWordME implements Chunker {
     
     public ChunkAnalysisBasedWordME() {
     	
+    }
+    
+    public ChunkAnalysisBasedWordME(ChunkAnalysisBasedWordModel model) throws IOException {
+    	this(model, new ChunkAnalysisBasedWordContextGeneratorConf());
+    }
+    
+    public ChunkAnalysisBasedWordME(ChunkAnalysisBasedWordModel model, ChunkAnalysisContextGenerator contextGen) {
+    	init(model , contextGen);
     }
 	
     /**
@@ -128,24 +140,35 @@ public class ChunkAnalysisBasedWordME implements Chunker {
         if (beamSizeString != null) {
             beamSize = Integer.parseInt(beamSizeString);
         }
-        MaxentModel maxentModel = null;
+        MaxentModel chunkModel = null;
         Map<String, String> manifestInfoEntries = new HashMap<String, String>();
         //event_model_trainer
         TrainerType trainerType = TrainerFactory.getTrainerType(params.getSettings());
-        SequenceClassificationModel<String> chunkClassificationModel = null;
+        SequenceClassificationModel<String> seqChunkModel = null;
         if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
         	//sampleStream为PhraseAnalysisSampleStream对象
-            ObjectStream<Event> es = new ChunkAnalysisBasedWordSampleEvent(sampleStream, contextGen);
+            ObjectStream<Event> es = new ChunkAnalysisBasedWordSampleEventStream(sampleStream, contextGen);
             EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(),
                     manifestInfoEntries);
-            maxentModel = trainer.train(es);                       
-        }
+            chunkModel = trainer.train(es);                       
+        }else if(TrainerType.EVENT_MODEL_SEQUENCE_TRAINER.equals(trainerType)) {
+        	ChunkAnalysisBasedWordSampleSequenceStream ss = new ChunkAnalysisBasedWordSampleSequenceStream(sampleStream, contextGenerator);
+            EventModelSequenceTrainer trainer = TrainerFactory.getEventModelSequenceTrainer(params.getSettings(),
+                    manifestInfoEntries);
+            chunkModel = trainer.train(ss);
+        }else if (TrainerType.SEQUENCE_TRAINER.equals(trainerType)) {
+            SequenceTrainer trainer = TrainerFactory.getSequenceModelTrainer(
+            		params.getSettings(), manifestInfoEntries);
 
-        if (maxentModel != null) {
-            return new ChunkAnalysisBasedWordModel(languageCode, maxentModel, beamSize, manifestInfoEntries);
-        } else {
-            return new ChunkAnalysisBasedWordModel(languageCode, chunkClassificationModel, manifestInfoEntries);
-        }
+            ChunkAnalysisBasedWordSampleSequenceStream ss = new ChunkAnalysisBasedWordSampleSequenceStream(sampleStream, contextGenerator);
+            seqChunkModel = trainer.train(ss);
+        }else
+            throw new IllegalArgumentException("不支持的训练方法: " + trainerType);
+
+        if (chunkModel != null) 
+            return new ChunkAnalysisBasedWordModel(languageCode, chunkModel, beamSize, manifestInfoEntries);
+        else
+            return new ChunkAnalysisBasedWordModel(languageCode, seqChunkModel, manifestInfoEntries);
 	}
 
 	/**

@@ -191,7 +191,7 @@ public class ChunkAnalysisEvalTool {
             return;
         }
         
-        //Maxent,Perceptron,MaxentQn,NaiveBayes
+        //Maxent, Perceptron, NaiveBayes
         String type = "Maxent";
         label = "BIEO";	
         String method = "wp";
@@ -237,7 +237,7 @@ public class ChunkAnalysisEvalTool {
         TrainingParameters params = TrainingParameters.defaultParams();
         params.put(TrainingParameters.CUTOFF_PARAM, Integer.toString(cutoff));
         params.put(TrainingParameters.ITERATIONS_PARAM, Integer.toString(iters));
-        params.put(TrainingParameters.ALGORITHM_PARAM, type);
+        params.put(TrainingParameters.ALGORITHM_PARAM, type.toUpperCase());
 
         if(method.equals("w")) {        	
         	if(label.equals("BIEOS")) {

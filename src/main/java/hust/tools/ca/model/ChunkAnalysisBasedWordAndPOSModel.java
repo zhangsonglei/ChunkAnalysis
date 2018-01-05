@@ -66,6 +66,10 @@ public class ChunkAnalysisBasedWordAndPOSModel extends BaseModel{
         checkArtifactMap();
 	}
 	
+	public ChunkAnalysisBasedWordAndPOSModel(String encoding, MaxentModel maxentModel, Map<String, String> manifestInfoEntries) {
+		this(encoding, maxentModel, ChunkAnalysisBasedWordAndPOSME.DEFAULT_BEAM_SIZE, manifestInfoEntries);
+	}
+	
 	/**
 	 * 构造方法
 	 * @param encoding					编码

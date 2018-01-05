@@ -66,6 +66,10 @@ public class ChunkAnalysisBasedWordModel extends BaseModel {
         checkArtifactMap();
 	}
 	
+	public ChunkAnalysisBasedWordModel(String encoding, MaxentModel maxentModel, Map<String, String> manifestInfoEntries) {
+		this(encoding, maxentModel, ChunkAnalysisBasedWordME.DEFAULT_BEAM_SIZE, manifestInfoEntries);
+	}
+	
 	/**
 	 * 构造方法
 	 * @param encoding					编码
@@ -76,7 +80,7 @@ public class ChunkAnalysisBasedWordModel extends BaseModel {
 			Map<String, String> manifestInfoEntries) {
 		super(COMPONENT_NAME, encoding, manifestInfoEntries, null);
 		if (chunkClasssificationModel == null) {
-            throw new IllegalArgumentException("The maxent wordsegModel param must not be null!");
+            throw new IllegalArgumentException("组块分析模型不能为空!");
         }
 
         artifactMap.put(CHUNK_MODEL_ENTRY_NAME, chunkClasssificationModel);		

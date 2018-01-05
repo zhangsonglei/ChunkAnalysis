@@ -11,14 +11,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import hust.tools.ca.event.ChunkAnalysisBasedWordAndPOSSampleEvent;
+import hust.tools.ca.event.ChunkAnalysisBasedWordAndPOSSampleEventStream;
+import hust.tools.ca.event.ChunkAnalysisBasedWordAndPOSSampleSequenceStream;
+import hust.tools.ca.feature.ChunkAnalysisBasedWordAndPOSContextGeneratorConf;
 import hust.tools.ca.feature.ChunkAnalysisContextGenerator;
 import hust.tools.ca.parse.AbstractChunkAnalysisParse;
 import hust.tools.ca.stream.AbstractChunkAnalysisSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSample;
 import hust.tools.ca.stream.ChunkAnalysisBasedWordAndPOSSampleStream;
 import opennlp.tools.ml.BeamSearch;
+import opennlp.tools.ml.EventModelSequenceTrainer;
 import opennlp.tools.ml.EventTrainer;
+import opennlp.tools.ml.SequenceTrainer;
 import opennlp.tools.ml.TrainerFactory;
 import opennlp.tools.ml.TrainerFactory.TrainerType;
 import opennlp.tools.ml.model.Event;
@@ -51,6 +55,14 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
 
     public ChunkAnalysisBasedWordAndPOSME() {
 
+    }
+    
+    public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model) throws IOException {
+    	this(model, new ChunkAnalysisBasedWordAndPOSContextGeneratorConf());
+    }
+    
+    public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, ChunkAnalysisContextGenerator contextGen) {
+    	init(model , contextGen);
     }
 
 	public ChunkAnalysisBasedWordAndPOSME(ChunkAnalysisBasedWordAndPOSModel model, SequenceValidator<String> sequenceValidator, ChunkAnalysisContextGenerator contextGen, String label) {
@@ -123,23 +135,35 @@ public class ChunkAnalysisBasedWordAndPOSME implements Chunker {
         if (beamSizeString != null) {
             beamSize = Integer.parseInt(beamSizeString);
         }
-        MaxentModel maxentModel = null;
+        MaxentModel chunkModel = null;
         Map<String, String> manifestInfoEntries = new HashMap<String, String>();
         //event_model_trainer
         TrainerType trainerType = TrainerFactory.getTrainerType(params.getSettings());
-        SequenceClassificationModel<String> chunkClassificationModel = null;
+        SequenceClassificationModel<String> seqChunkModel = null;
         if (TrainerType.EVENT_MODEL_TRAINER.equals(trainerType)) {
         	//sampleStream为PhraseAnalysisSampleStream对象
-            ObjectStream<Event> es = new ChunkAnalysisBasedWordAndPOSSampleEvent(sampleStream, contextGen);
+            ObjectStream<Event> es = new ChunkAnalysisBasedWordAndPOSSampleEventStream(sampleStream, contextGen);
             EventTrainer trainer = TrainerFactory.getEventTrainer(params.getSettings(),
                     manifestInfoEntries);
-            maxentModel = trainer.train(es);                       
-        }
+            chunkModel = trainer.train(es);
+        }else if(TrainerType.EVENT_MODEL_SEQUENCE_TRAINER.equals(trainerType)) {
+        	ChunkAnalysisBasedWordAndPOSSampleSequenceStream ss = new ChunkAnalysisBasedWordAndPOSSampleSequenceStream(sampleStream, contextGenerator);
+            EventModelSequenceTrainer trainer = TrainerFactory.getEventModelSequenceTrainer(params.getSettings(),
+                    manifestInfoEntries);
+            chunkModel = trainer.train(ss);
+        }else if (TrainerType.SEQUENCE_TRAINER.equals(trainerType)) {
+            SequenceTrainer trainer = TrainerFactory.getSequenceModelTrainer(
+            		params.getSettings(), manifestInfoEntries);
 
-        if (maxentModel != null) {
-            return new ChunkAnalysisBasedWordAndPOSModel(languageCode, maxentModel, beamSize, manifestInfoEntries);
+            ChunkAnalysisBasedWordAndPOSSampleSequenceStream ss = new ChunkAnalysisBasedWordAndPOSSampleSequenceStream(sampleStream, contextGenerator);
+            seqChunkModel = trainer.train(ss);
+        }else
+            throw new IllegalArgumentException("不支持的训练方法: " + trainerType);
+
+        if (chunkModel != null) {
+            return new ChunkAnalysisBasedWordAndPOSModel(languageCode, chunkModel, beamSize, manifestInfoEntries);
         } else {
-            return new ChunkAnalysisBasedWordAndPOSModel(languageCode, chunkClassificationModel, manifestInfoEntries);
+            return new ChunkAnalysisBasedWordAndPOSModel(languageCode, seqChunkModel, manifestInfoEntries);
         }
 	}
 
