@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ import opennlp.tools.util.TrainingParameters;
  *<li>Date: 2017年12月3日
  *</ul>
  */
-public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
+public class ChunkAnalysisAndPOSBasedWordME implements Chunker, POSTaggerProb {
 	
 	public static final int DEFAULT_BEAM_SIZE = 33;
 	private ChunkAnalysisContextGenerator contextGenerator;
@@ -220,47 +219,6 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
 		
 		return model;
 	}
-	
-	/**
-	 * 得到最好的numTaggings个标记序列
-	 * @param numTaggings 	个数
-	 * @param words 		一个个词语
-	 * @return 				分词加词性标注的序列
-	 */
-	public String[][] tag(int numTaggings, String[] words) {
-        Sequence[] bestSequences = model.bestSequences(numTaggings, words, null, contextGenerator, sequenceValidator);
-        String[][] tags = new String[bestSequences.length][];
-        List<String> temp = new ArrayList<>();
-        
-        for (int si = 0; si < tags.length; si++) {
-        	temp = bestSequences[si].getOutcomes();
-        	tags[si] = temp.toArray(new String[temp.size()]);
-        }
-        
-        return tags;
-    }
-
-	/**
-	 * 返回词组的组块标注结果
-	 * @param words	词组
-	 * @return		词组的组块标注结果
-	 */
-	public String[] tag(String[] words){
-		return tag(words, null);
-	}
-	
-	/**
-	 * 返回词组的组块标注结果
-	 * @param words				词组
-	 * @param additionaContext	其他上下文信息
-	 * @return					词组的组块标注结果
-	 */
-	public String[] tag(String[] words, Object[] additionaContext){
-		bestSequence = model.bestSequence(words, additionaContext, contextGenerator, sequenceValidator);
-		List<String> temp = bestSequence.getOutcomes();
-		
-		return temp.toArray(new String[temp.size()]);
-	}
 
 	/**
 	 * 根据给定词组，返回最优的K个标注序列
@@ -284,9 +242,10 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
     @Override
    	public Chunk[] parse(String sentence) {
     	String[] words = sentence.split("//s+");
-		String[] posChunkTypes = tag(words);
+    	bestSequence = model.bestSequence(words, null, contextGenerator, sequenceValidator);
+    	List<String> posChunkTypes = bestSequence.getOutcomes();
 		
-		AbstractChunkAnalysisSample sample = new ChunkAnalysisAndPOSBasedWordSample(words, posChunkTypes);
+		AbstractChunkAnalysisSample sample = new ChunkAnalysisAndPOSBasedWordSample(words, posChunkTypes.toArray(new String[posChunkTypes.size()]));
 		sample.setLabel(label);
 		
 		return sample.toChunk();
@@ -295,18 +254,48 @@ public class ChunkAnalysisAndPOSBasedWordME implements Chunker {
    	@Override
    	public Chunk[][] parse(String sentence, int k) {
    		String[] words = sentence.split("//s+");
-		
-		String[][] chunkTypes = tag(k, words);
-		Chunk[][] chunks = new Chunk[chunkTypes.length][];
-		for(int i = 0; i < chunkTypes.length; i++) {
-			String[] chunkSequences = chunkTypes[i];
+   		Sequence[] bestSequences = model.bestSequences(k, words, null, contextGenerator, sequenceValidator);
+   		
+		Chunk[][] chunks = new Chunk[bestSequences.length][];
+		for(int i = 0; i < bestSequences.length; i++) {
+			List<String> chunkSequences = bestSequences[i].getOutcomes();
 						
-			AbstractChunkAnalysisSample sample = new ChunkAnalysisAndPOSBasedWordSample(words, chunkSequences);
+			AbstractChunkAnalysisSample sample = new ChunkAnalysisAndPOSBasedWordSample(words, chunkSequences.toArray(new String[chunkSequences.size()]));
 			sample.setLabel(label);
 			chunks[i] = sample.toChunk();
 		}
 		
 		return chunks;
    	}
+   	
+   	@Override
+ 	public String[] tag(String[] words) {
+   		bestSequence = model.bestSequence(words, null, contextGenerator, sequenceValidator);
+   		List<String> posChunks = bestSequence.getOutcomes();
+   		
+   		String[] poses = new String[posChunks.size()];
+   		for(int i = 0; i < poses.length; i++) 
+   			poses[i] = posChunks.get(i).split("-")[1];
+   		
+		return poses;
+	}
+
+	@Override
+	public String[][] tag(String[] words, int k) {
+		Sequence[] bestSequences = model.bestSequences(k, words, null, contextGenerator, sequenceValidator);
+		String[][] kPoses = new String[bestSequences.length][];
+		
+		for(int i = 0; i < bestSequences.length; i++) {
+			List<String> posChunks = bestSequence.getOutcomes();
+	   		
+	   		String[] poses = new String[posChunks.size()];
+	   		for(int j = 0; j < poses.length; j++)
+	   			poses[j] = posChunks.get(j).split("-")[1];
+	   		
+	   		kPoses[i] = poses;
+		}
+		
+		return kPoses;
+	}
 }
 
